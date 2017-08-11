@@ -3,7 +3,22 @@
     <nav class="sidebar-nav">
       <ul class="nav">
         <li class="nav-item">
-          <router-link :to="'/dashboard'" class="nav-link"><i class="icon-speedometer"></i> Dashboard <span class="badge badge-info">NEW</span></router-link>
+          <router-link :to="'/dashboard'" class="nav-link"><i class="icon-speedometer"></i> Dashboard</router-link>
+        </li>
+        <li class="nav-title">
+          Analytics
+        </li>
+        <li class="nav-item">
+          <router-link :to="'/dashboard/sentiment'" class="nav-link"><i class="icon-equalizer"></i> Sentiment Analysis</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="'/dashboard/concept'" class="nav-link"><i class="icon-chart"></i> Concept Extraction</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="'/dashboard/category'" class="nav-link"><i class="icon-menu"></i> Category Summary</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="'/dashboard/similar'" class="nav-link"><i class="icon-notebook"></i> Show Similar Ideas</router-link>
         </li>
       </ul>
     </nav>
