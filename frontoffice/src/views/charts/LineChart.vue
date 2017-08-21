@@ -12,7 +12,8 @@ export default Line.extend({
             backgroundColor: '#3a9d5d',
             borderColor: '#3a9d5d',
             data: [80, 60, 56, 55, 43, 38, 33, 28, 20, 18, 17, 10],
-            fill: false
+            fill: false,
+            lineTension: 0
           }
         ]
       },

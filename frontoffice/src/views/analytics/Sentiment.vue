@@ -5,7 +5,7 @@
         <div class="card card-accent-danger">
           <div class="card-block">
             <div>
-              <horizontal-bar-chart/>
+              <scatter-chart/>
             </div>
           </div>
         </div>
@@ -18,12 +18,24 @@
             Ideas
           </div>
           <div class="card-block">
-            <table class="table table-striped">
+            <form action="" method="post" class="form-horizontal">
+              <div class="form-group row">
+                <div class="col">
+                  <div class="input-group">
+                    <span class="input-group-btn">
+                      <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
+                    </span>
+                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search idea">
+                  </div>
+                </div>
+              </div>
+            </form>
+            <table class="table table-striped table-responsive">
               <thead>
                 <tr>
                   <th>Content</th>
-                  <th>Aggregated Sentiment</th>
-                  <th>Value</th>
+                  <th>Aggregate Sentiment</th>
+                  <th>Aggregate Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,12 +99,12 @@
 
 <script>
 
-import HorizontalBarChart from '../dashboard/HorizontalBarChart'
+import ScatterChart from '../charts/ScatterChart'
 
 export default {
   name: 'sentiment',
   components: {
-    HorizontalBarChart
+    ScatterChart
   }
 }
 </script>

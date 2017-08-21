@@ -108,7 +108,7 @@
           </div>
           <div class="card-block">
             <div>
-              <horizontal-bar-chart/>
+              <scatter-chart/>
             </div>
           </div>
         </div>
@@ -167,16 +167,18 @@
 
 <script>
 
-import BarChart from './dashboard/BarChart'
-import HorizontalBarChart from './dashboard/HorizontalBarChart'
-import LineChart from './dashboard/LineChart'
+import BarChart from './charts/BarChart'
+import HorizontalBarChart from './charts/HorizontalBarChart'
+import LineChart from './charts/LineChart'
+import ScatterChart from './charts/ScatterChart'
 
 export default {
   name: 'dashboard',
   components: {
     BarChart,
     HorizontalBarChart,
-    LineChart
+    LineChart,
+    ScatterChart
   }
 }
 </script>
