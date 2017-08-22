@@ -5,7 +5,7 @@ export default Line.extend({
   mounted () {
     this.renderChart(
       {
-        labels: ['Parking', 'Cars', 'Drive', 'People', 'Reduce', 'Road', 'Bike', 'People', 'Buses', 'Walk', 'Avenue', 'Allow'],
+        labels: ['Parking', 'Cars', 'Drive', 'People', 'Reduce', 'Road', 'Bike', 'Park', 'Buses', 'Walk', 'Avenue', 'Allow'],
         datasets: [
           {
             label: 'Data One',
