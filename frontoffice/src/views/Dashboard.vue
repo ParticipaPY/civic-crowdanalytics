@@ -1,10 +1,10 @@
 <template>
   <div class="animated fadeIn">
     <div class="row">
-      <div class="col">
+      <!-- <div class="col">
         <div class="card card-accent-primary">
           <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> -->
+            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> 
             <div class="h1 text-muted text-right">
               <i class="icon-people"></i>
             </div>
@@ -12,11 +12,11 @@
             <p class="card-text">Participants</p>
           </div>
         </div>
-      </div><!--/.col-->
+      </div>
       <div class="col">
         <div class="card card-accent-success">
           <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> -->
+            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
             <div class="h1 text-muted text-right">
               <i class="icon-speech"></i>
             </div>
@@ -24,11 +24,11 @@
             <p class="card-text">Ideas</p>
           </div>
         </div>
-      </div><!--/.col-->
+      </div>
       <div class="col">
         <div class="card card-accent-warning">
           <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> -->
+            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
             <div class="h1 text-muted text-right">
               <i class="icon-bubbles"></i>
             </div>
@@ -57,6 +57,9 @@
             <p class="card-text">Overall sentiment</p>
           </div>
           <!-- <card-bar-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
+          <div class="card-footer px-3 py-2">
+            <router-link :to="'/dashboard/sentiment'" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+          </div>
         </div>
       </div><!--/.col-->
       <div class="col">
@@ -69,6 +72,9 @@
             <p class="card-text">Unique concepts</p>
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
+          <div class="card-footer px-3 py-2">
+            <router-link :to="'/dashboard/concept'" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+          </div>
         </div>
       </div><!--/.col-->
       <div class="col">
@@ -79,6 +85,9 @@
             </div>
             <h2 class="card-title"><b>12</b></h2>
             <p class="card-text">Avg. ideas per category</p>
+          </div>
+          <div class="card-footer px-3 py-2">
+            <router-link :to="'/dashboard/category'" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
         </div>
@@ -91,6 +100,9 @@
             </div>
             <h2 class="card-title"><b>25</b></h2>
             <p class="card-text">Similar Ideas</p>
+          </div>
+          <div class="card-footer px-3 py-2">
+            <router-link :to="'/dashboard/similar'" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
         </div>
@@ -149,13 +161,14 @@
       <div class="col">
         <div class="card card-accent-warning">
           <div class="card-header">
-            Similar Ideas
+            Clusters of Ideas
             <div class="card-actions">
               <router-link :to="'/dashboard/similar'" class="text-muted icon-size-fullscreen"></router-link>
             </div>
           </div>
           <div class="card-block">
             <div>
+              <bubble-chart/>
             </div>
           </div>
         </div>
@@ -171,6 +184,7 @@ import BarChart from './charts/BarChart'
 import HorizontalBarChart from './charts/HorizontalBarChart'
 import LineChart from './charts/LineChart'
 import ScatterChart from './charts/ScatterChart'
+import BubbleChart from './charts/BubbleChart'
 
 export default {
   name: 'dashboard',
@@ -178,7 +192,8 @@ export default {
     BarChart,
     HorizontalBarChart,
     LineChart,
-    ScatterChart
+    ScatterChart,
+    BubbleChart
   }
 }
 </script>
