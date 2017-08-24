@@ -8,7 +8,13 @@
     </ul>
     <ul class="nav navbar-nav ml-auto">
       <li class="nav-item d-md-down-none">
-        <a class="nav-link" href="#" onclick="alert('You have five new messages');"><i class="icon-bell"></i><span class="badge badge-pill badge-danger">5</span></a>
+        <button @click="alertIsOpen = !alertIsOpen" class="nav-link">
+          <i class="icon-bell"></i>
+          <span class="badge badge-pill badge-danger">5</span>
+        </button>
+        <alert v-model="alertIsOpen" placement="top" :duration="3000" type="info" width="400px" dismissable>
+          <p>You have <b>five</b> new messages!</p>
+        </alert>
       </li>
       <dropdown size="nav" class="nav-item">
         <span slot="button">
@@ -40,13 +46,19 @@
 <script>
 
 import navbar from './Navbar'
-import { dropdown } from 'vue-strap'
+import { alert, dropdown } from 'vue-strap'
 
 export default {
   name: 'header',
   components: {
     navbar,
-    dropdown
+    dropdown,
+    alert
+  },
+  data () {
+    return {
+      alertIsOpen: false
+    }
   },
   methods: {
     click () {
