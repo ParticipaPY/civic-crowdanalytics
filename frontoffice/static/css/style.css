@@ -6103,11 +6103,11 @@ button {
   font-size: 9px; }
 
 .btn-transparent {
-  color: #fff;
+  color: #000000;
   background-color: transparent;
   border-color: transparent; }
   .btn-transparent:hover {
-    color: #fff;
+    color: #000000;
     background-color: transparent;
     border-color: transparent; }
   .btn-transparent:focus, .btn-transparent.focus {
@@ -6117,7 +6117,7 @@ button {
     border-color: transparent; }
   .btn-transparent:active, .btn-transparent.active,
   .show > .btn-transparent.dropdown-toggle {
-    color: #fff;
+    color: #000000;
     background-color: transparent;
     background-image: none;
     border-color: transparent; }
