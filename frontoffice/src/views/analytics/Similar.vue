@@ -2,7 +2,19 @@
   <div class="animated fadeIn">
     <div class="row">
       <div class="col">
-        <div class="card card-accent-danger">
+        <div class="card card-accent-warning">
+          <div class="card-header">
+            <dropdown class="float-right" type="transparent p-1">
+              <i slot="button" class="icon-options-vertical"></i>
+              <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="#">Print Chart</a>
+                <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+              </div>
+            </dropdown>
+          </div>
           <div class="card-block">
             <div>
               <bubble-chart/>
@@ -83,10 +95,13 @@
 
 import BubbleChart from '../charts/BubbleChart'
 
+import { dropdown } from 'vue-strap'
+
 export default {
   name: 'similar',
   components: {
-    BubbleChart
+    BubbleChart,
+    dropdown
   }
 }
 </script>
