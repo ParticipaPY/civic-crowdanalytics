@@ -37,7 +37,7 @@
           </div>
         </div>
       </div><!--/.col-->
-      <div class="col">
+      <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-danger">
           <div class="card-block p-3 clearfix">
             <div class="h1 text-muted text-right">
@@ -62,7 +62,7 @@
           </div>
         </div>
       </div><!--/.col-->
-      <div class="col">
+      <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-success">
           <div class="card-block p-3 clearfix">
             <div class="h1 text-muted text-right">
@@ -77,7 +77,7 @@
           </div>
         </div>
       </div><!--/.col-->
-      <div class="col">
+      <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-primary">
           <div class="card-block p-3 clearfix">
             <div class="h1 text-muted text-right">
@@ -92,7 +92,7 @@
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
         </div>
       </div><!--/.col-->
-      <div class="col">
+      <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-warning">
           <div class="card-block p-3 clearfix">
             <div class="h1 text-muted text-right">
@@ -110,7 +110,7 @@
     </div><!--/.row-->
     
     <div class="row">
-      <div class="col">
+      <div class="col-sm-12 col-lg-6">
         <div class="card card-accent-danger">
           <div class="card-header">
             Sentiment Analysis
@@ -131,7 +131,7 @@
           </div>
         </div>
       </div>
-      <div class="col">
+      <div class="col-sm-12 col-lg-6">
         <div class="card card-accent-success">
           <div class="card-header">
             Concept Occurrences
@@ -157,14 +157,14 @@
     </div>
 
     <div class="row">
-      <div class="col">
+      <div class="col-sm-12 col-lg-6">
         <div class="card card-accent-primary">
           <div class="card-header">
             Category Summary
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/category'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -180,14 +180,14 @@
           </div>
         </div>
       </div>
-      <div class="col">
+      <div class="col-sm-12 col-lg-6">
         <div class="card card-accent-warning">
           <div class="card-header">
             Clusters of Ideas
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/similar'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
