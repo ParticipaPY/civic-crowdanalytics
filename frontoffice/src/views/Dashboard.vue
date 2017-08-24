@@ -98,8 +98,8 @@
             <div class="h1 text-muted text-right">
               <i class="icon-share"></i>
             </div>
-            <h2 class="card-title"><b>25</b></h2>
-            <p class="card-text">Similar Ideas</p>
+            <h2 class="card-title"><b>3</b></h2>
+            <p class="card-text">Clusters of Ideas</p>
           </div>
           <div class="card-footer px-3 py-2">
             <router-link :to="'/dashboard/similar'" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
@@ -114,14 +114,20 @@
         <div class="card card-accent-danger">
           <div class="card-header">
             Sentiment Analysis
-            <div class="card-actions">
-              <router-link :to="'/dashboard/sentiment'" class="text-muted icon-size-fullscreen"></router-link>
-            </div>
+            <dropdown class="float-right" type="transparent p-1">
+              <i slot="button" class="icon-options-vertical"></i>
+              <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <a class="dropdown-item" href="#">Print Chart</a>
+                <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+              </div>
+            </dropdown>
           </div>
           <div class="card-block">
-            <div>
               <scatter-chart/>
-            </div>
           </div>
         </div>
       </div>
@@ -129,9 +135,17 @@
         <div class="card card-accent-success">
           <div class="card-header">
             Concept Occurrences
-            <div class="card-actions">
-              <router-link :to="'/dashboard/concept'" class="text-muted icon-size-fullscreen"></router-link>
-            </div>
+            <dropdown class="float-right" type="transparent p-1">
+              <i slot="button" class="icon-options-vertical"></i>
+              <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+                <router-link class="dropdown-item" :to="'/dashboard/concept'">View Fullscreen</router-link>
+                <a class="dropdown-item" href="#">Print Chart</a>
+                <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+              </div>
+            </dropdown>
           </div>
           <div class="card-block">
             <div>
@@ -147,9 +161,17 @@
         <div class="card card-accent-primary">
           <div class="card-header">
             Category Summary
-            <div class="card-actions">
-              <router-link :to="'/dashboard/category'" class="text-muted icon-size-fullscreen"></router-link>
-            </div>
+            <dropdown class="float-right" type="transparent p-1">
+              <i slot="button" class="icon-options-vertical"></i>
+              <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <a class="dropdown-item" href="#">Print Chart</a>
+                <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+              </div>
+            </dropdown>
           </div>
           <div class="card-block">
             <div>
@@ -162,9 +184,17 @@
         <div class="card card-accent-warning">
           <div class="card-header">
             Clusters of Ideas
-            <div class="card-actions">
-              <router-link :to="'/dashboard/similar'" class="text-muted icon-size-fullscreen"></router-link>
-            </div>
+            <dropdown class="float-right" type="transparent p-1">
+              <i slot="button" class="icon-options-vertical"></i>
+              <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <a class="dropdown-item" href="#">Print Chart</a>
+                <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+              </div>
+            </dropdown>
           </div>
           <div class="card-block">
             <div>
@@ -186,6 +216,8 @@ import LineChart from './charts/LineChart'
 import ScatterChart from './charts/ScatterChart'
 import BubbleChart from './charts/BubbleChart'
 
+import { dropdown } from 'vue-strap'
+
 export default {
   name: 'dashboard',
   components: {
@@ -193,7 +225,8 @@ export default {
     HorizontalBarChart,
     LineChart,
     ScatterChart,
-    BubbleChart
+    BubbleChart,
+    dropdown
   }
 }
 </script>
