@@ -18,7 +18,7 @@ Civic technologies are currently bottlenecked by a common need for more effectiv
 
 ## Features
 
-In a first version, the tool will support the following analytics features:
+In its first version the tool supports the following analytics features:
 
 1. **Categorization:**  This feature organizes the data into main- and subcategories by using a well-known concept extraction algorithm that we adapt to our purposes. To train the algorithm, the user first codes a part of the dataset by labeling main categories and subcategories, and then lets the algorithm categorize the rest of the data;
 2. **Concept Occurrence:**  Expressions and words are extracted from the data and displayed by frequency. Concept extraction provides lists of key terms and phrases, distributed by occurrence, which are then further analyzed using a variety of statistical and qualitative methods;
