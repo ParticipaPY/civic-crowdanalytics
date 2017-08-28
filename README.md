@@ -1,6 +1,6 @@
 # Civic CrowdAnalytics
 
-Novel data analytics tool that applies Natural Language Processing (NLP) and Machine Learning (ML), such as concept extraction, idea classification, and sentiment analysis to make sense of crowdsourced civic input. This tool automatically organizes contributions into executive summaries and compelling visualizations, which are easy to comprehend, searchable, and interrelated.
+Novel data analytics tool that applies Natural Language Processing (NLP) and Machine Learning (ML), such as concept extraction, idea classification, and sentiment analysis to make sense of crowdsourced civic input. This tool automatically organizes contributions into executive summaries and compelling visualizations, which are easy to comprehend, searchable, and interrelated. Civic CrowdAnalytics is based on the scientific publication [**Civic CrowdAnalytics: Making sense of crowdsourced civic input with big data tools**](http://dl.acm.org/citation.cfm?id=2994366).
 
 Civic CrowdAnalytics features a simple user-interface for submitting an unstructured dataset for analysis. The user can choose, for example, to organize ideas by pre-defined categories, visualize the frequency of recurring concepts, and sort the sentiments of related comments. The tool displays the results in both tabular summaries and interactive visualizations, which users can search and manipulate. Users can also choose to export the results in various formats, such as CSV, PNG, JPEG, SVG, or PDF.
 
@@ -44,4 +44,3 @@ In a first version, the tool will support the following analytics features:
 3. [Vue.js](https://vuejs.org)
 4. [CoreUI](http://coreui.io)
 5. [Chart.js](http://www.chartjs.org)
-
