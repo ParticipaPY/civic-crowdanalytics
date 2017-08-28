@@ -4,6 +4,8 @@ Novel data analytics tool that applies Natural Language Processing (NLP) and Mac
 
 Civic CrowdAnalytics features a simple user-interface for submitting an unstructured dataset for analysis. The user can choose, for example, to organize ideas by pre-defined categories, visualize the frequency of recurring concepts, and sort the sentiments of related comments. The tool displays the results in both tabular summaries and interactive visualizations, which users can search and manipulate. Users can also choose to export the results in various formats, such as CSV, PNG, JPEG, SVG, or PDF.
 
+## Screenshots
+
 ![dashboard](/frontoffice/screenshoots/dashboard.png?raw=true "Dashboard")
 
 ![categorization](/frontoffice/screenshoots/categorization.png?raw=true "Category Summary")
