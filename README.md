@@ -8,7 +8,7 @@ Civic CrowdAnalytics features a simple user-interface for submitting an unstruct
 
 ![categorization](/frontoffice/screenshoots/categorization.png?raw=true "Category Summary")
 
-![concept_extraction](/frontoffice/screenshoots/categorization.png?raw=true "Concept Extraction")
+![concept_extraction](/frontoffice/screenshoots/concept_extraction.png?raw=true "Concept Extraction")
 
 ## Motivation
 
