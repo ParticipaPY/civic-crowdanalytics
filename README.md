@@ -42,7 +42,6 @@ In its first version the tool supports the following analytics features:
 ## Technologies
 
 1. [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com)
-2. [Webpack.js](https://webpack.js.org)
-3. [Vue.js](https://vuejs.org)
+2. [Vue.js](https://vuejs.org)
 4. [CoreUI](http://coreui.io)
 5. [Chart.js](http://www.chartjs.org)
