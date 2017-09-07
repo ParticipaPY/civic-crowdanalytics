@@ -1,0 +1,25 @@
+#new-project {
+  input, textarea {
+    padding: 0.5rem;
+  }
+  .card {
+    .card-header {
+      background-color: #0091EA;
+      font-weight: bold;
+      color: white;
+    }
+  }
+  .tab-content {
+    border: 0;
+  }
+  .list-group-item {
+    background-color: white;
+    font-weight: bold;
+    border: 0;
+    border-bottom: 2px solid #EFEFEF;
+    &.active {
+      color: #0091EA;
+      border-left: 5px solid #0091EA;
+    }
+  }
+}

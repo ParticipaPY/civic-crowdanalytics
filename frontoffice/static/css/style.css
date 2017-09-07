@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /**
  * CoreUI - Open Source Bootstrap Admin Template
  * @version v1.0.0-alpha.6
@@ -6103,11 +6104,11 @@ button {
   font-size: 9px; }
 
 .btn-transparent {
-  color: #000000;
+  color: #fff;
   background-color: transparent;
   border-color: transparent; }
   .btn-transparent:hover {
-    color: #000000;
+    color: #fff;
     background-color: transparent;
     border-color: transparent; }
   .btn-transparent:focus, .btn-transparent.focus {
@@ -6117,7 +6118,7 @@ button {
     border-color: transparent; }
   .btn-transparent:active, .btn-transparent.active,
   .show > .btn-transparent.dropdown-toggle {
-    color: #000000;
+    color: #fff;
     background-color: transparent;
     background-image: none;
     border-color: transparent; }
@@ -8920,3 +8921,23 @@ hr.transparent {
     border-right-color: #f86c6b; }
   *[dir="rtl"] .callout-success {
     border-right-color: #4dbd74; }
+
+#new-project input, #new-project textarea {
+  padding: 0.5rem; }
+
+#new-project .card .card-header {
+  background-color: #0091EA;
+  font-weight: bold;
+  color: white; }
+
+#new-project .tab-content {
+  border: 0; }
+
+#new-project .list-group-item {
+  background-color: white;
+  font-weight: bold;
+  border: 0;
+  border-bottom: 2px solid #EFEFEF; }
+  #new-project .list-group-item.active {
+    color: #0091EA;
+    border-left: 5px solid #0091EA; }
