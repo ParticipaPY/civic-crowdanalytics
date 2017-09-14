@@ -1,48 +1,62 @@
 <template>
-  <div>
-    <div class="tabs">
-      <ul>
-        <li v-for="tab in tabs" v-bind:key="tab" :class="{ 'is-active': tab.isActive }">
-          <a :href="tab.href" @click="selectTab(tab)">{{ tab.name }}</a>
-        </li>
+  <div class="row no-gutters">
+    <div class="col-md-4 col-lg-3 col-xl-2 shadow">
+      <ul class="list-group">
+        <template v-for="header in headers">
+          <li data-toggle="list" role="tab" :class="['list-group-item list-group-item-action',{active:header.active, disabled:header.disabled}]" @click.prevent="select(header)">
+            <slot name="header"><a href="#" v-html="header.header"></a></slot>
+          </li>
+        </template>
       </ul>
     </div>
-    <div class="tabs-details">
-      <slot></slot>
+    <div class="col-md-8 col-lg-9 col-xl-10">
+      <div class="tab-content">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>
 
 
 <script>
-import tab from './Tab'
 export default {
-  name: 'tabs',
-  components: {
-    tab
-  },
+  name: 'tabbedPanel',
 
   props: {
-    direction: {
-      type: String,
-      default: 'vertical'
-    }
+    // effect: {type: String, default: 'fadein'},
+    justified: false,
+    navStyle: {type: String, default: null},
+    value: {type: Number, default: 0}
   },
-
   data () {
-    return { tabs: [] }
-  },
-
-  created () {
-    this.tabs = this.$children
-  },
-
-  methods: {
-    selectTab (selectedTab) {
-      this.tabs.forEach(tab => {
-        tab.isActive = (tab.href === selectedTab.href)
-      })
+    var index = this.value || 0
+    return {
+      index,
+      headers: [],
+      tabs: []
     }
+  },
+  watch: {
+    index (val) {
+      this.$emit('active', val)
+      this.$emit('input', val)
+    },
+    value (val) {
+      this.index = val
+    }
+  },
+  computed: {
+    show () { return this.tabs[this.index] || this.tabs[0] }
+  },
+  methods: {
+    select (tab) {
+      if (!tab.disabled) {
+        this.index = this.tabs.indexOf(tab)
+      }
+    }
+  },
+  created () {
+    this._isTabs = true
   }
 }
 </script>

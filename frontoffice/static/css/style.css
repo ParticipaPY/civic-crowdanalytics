@@ -8925,19 +8925,158 @@ hr.transparent {
 #new-project input, #new-project textarea {
   padding: 0.5rem; }
 
-#new-project .card .card-header {
-  background-color: #0091EA;
-  font-weight: bold;
-  color: white; }
+#new-project label {
+  font-weight: 600; }
+
+#new-project .card {
+  border: 0;
+  margin-bottom: 1rem; }
+  #new-project .card .card-header {
+    background-color: #0091EA;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: white;
+    border: 0; }
 
 #new-project .tab-content {
-  border: 0; }
+  border: 0;
+  margin-top: 0; }
+  #new-project .tab-content .tab-pane {
+    padding-right: 0; }
 
 #new-project .list-group-item {
   background-color: white;
   font-weight: bold;
   border: 0;
-  border-bottom: 2px solid #EFEFEF; }
+  border-bottom: 2px solid #EFEFEF;
+  cursor: pointer; }
   #new-project .list-group-item.active {
     color: #0091EA;
     border-left: 5px solid #0091EA; }
+    #new-project .list-group-item.active a {
+      color: #0091EA; }
+  #new-project .list-group-item a {
+    color: black; }
+
+#new-project .remove-padding {
+  margin-top: -1rem;
+  box-shadow: -10px 0px 10px -5px #EFEFEF;
+  padding-left: 0; }
+
+#new-project .shadow {
+  box-shadow: 10px 0px 10px -5px #EFEFEF;
+  z-index: 2; }
+
+#new-project #settings .panel-heading {
+  padding: 1.1rem 1rem;
+  background-color: #F9F9F9;
+  border-top: 1px solid #EFEFEF;
+  border-bottom: 1px solid #EFEFEF; }
+  #new-project #settings .panel-heading h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    /*&:after {
+          font-family: 'FontAwesome';
+          content: "\f077";
+          float: right;
+          color: #3c3c3c; 
+          font-size: 1rem;
+          margin-top: 1px;
+        }
+        &.collapsed:after {
+          content: "\f078";
+        }*/ }
+  #new-project #settings .panel-heading a {
+    color: black; }
+    #new-project #settings .panel-heading a:hover {
+      color: black;
+      text-decoration: none; }
+
+#new-project #settings .panel-body {
+  padding: 1rem; }
+
+#new-project #settings label {
+  font-weight: 600; }
+
+#new-project #settings .form-check-label {
+  font-weight: normal;
+  margin-top: 0.5rem; }
+  #new-project #settings .form-check-label input[type="checkbox"] {
+    vertical-align: text-top; }
+
+#new-project input[type="file"] {
+  display: block; }
+
+#new-project .btn-avatar img {
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  width: 24px;
+  vertical-align: top; }
+
+#new-project .btn-cal {
+  color: #3c3c3c; }
+  #new-project .btn-cal i {
+    margin-right: 0.5rem; }
+
+#new-project #folders.btn-group {
+  display: block; }
+
+#new-project #folders.btn-group .btn + .btn {
+  margin-left: 0; }
+
+#new-project #folders label, #new-project #folders .btn-new-folder {
+  display: block;
+  background-color: transparent;
+  border: none;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  color: #90A4AE;
+  font-weight: normal; }
+  #new-project #folders label i, #new-project #folders .btn-new-folder i {
+    margin-right: 0.5rem; }
+  #new-project #folders label.active, #new-project #folders .btn-new-folder.active {
+    color: #03A9F4;
+    font-weight: 600; }
+  #new-project #folders label:hover, #new-project #folders .btn-new-folder:hover {
+    cursor: pointer; }
+
+#new-project .btn-new-folder {
+  display: block;
+  background-color: transparent;
+  border: none;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  color: #0091EA;
+  font-weight: normal; }
+  #new-project .btn-new-folder i {
+    margin-right: 0.5rem; }
+  #new-project .btn-new-folder:hover {
+    cursor: pointer; }
+
+#new-project .dataset-preview .dataset-preview-header {
+  background-color: #0091EA;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px; }
+
+#new-project .dataset-preview .dataset-preview-content {
+  padding: 0.5rem;
+  border: 1px solid #EFEFEF;
+  border-top: none;
+  overflow: hidden;
+  min-height: 400px; }
+  #new-project .dataset-preview .dataset-preview-content .column-list ul.list-group {
+    margin-left: -1.4rem;
+    margin-top: -0.5rem; }
+  #new-project .dataset-preview .dataset-preview-content .data-value {
+    overflow: auto; }
+
+@media screen and (max-width: 1200px) {
+  #new-project .tab-content .tab-pane {
+    padding-right: 1rem; }
+  #new-project .remove-padding {
+    box-shadow: none;
+    margin-top: 2rem;
+    padding-right: 0; } }

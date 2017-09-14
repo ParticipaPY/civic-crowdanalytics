@@ -7,72 +7,10 @@
       </div>
       <div class="card-body">
         <form>
-          <div class="row no-gutters">
-            <div class="col-md-4 col-lg-3 col-xl-2">
-              <div class="list-group" id="myList" role="tablist">
-                <a class="list-group-item list-group-item-action active" data-toggle="list" href="#home" role="tab">Project Name</a>
-                <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">Data Set and Format Definition</a>
-              </div>
-            </div>
-            <div class="col-md-8 col-lg-9 col-xl-10">
-              <div class="tab-content">
-                <div class="tab-pane active" id="home" role="tabpanel">
-                  <div class="row">
-                    <div class="col-md-8">
-                      <div class="form-group">
-                        <label>Project Name</label>
-                        <input type="text" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label>Project Description</label>
-                        <textarea class="form-control" rows="4"></textarea>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div id="accordion" role="tablist">
-                        <div class="card">
-                          <div class="card-header" role="tab" id="headingOne">
-                            <h5 class="mb-0">
-                              <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Privacy Settings
-                              </a>
-                            </h5>
-                          </div>
-
-                          <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-                            <div class="card-body">
-                              Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                            </div>
-                          </div>
-                        </div>
-                        <div class="card">
-                          <div class="card-header" role="tab" id="headingTwo">
-                            <h5 class="mb-0">
-                              <a class="collapsed" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Folder Location
-                              </a>
-                            </h5>
-                          </div>
-                          <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-                            <div class="card-body">
-                              Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="tab-pane" id="profile" role="tabpanel">
-
-                </div>
-              </div>
-            </div>
-          </div>
-          <!--<tabs>
-            <tab name="Project Information" :selected="true">
+          <tabbed-panel v-model="activeTab">
+            <tabbed-panel-tab header="Project Name">
               <div class="row">
-                <div class="col-md-8">
+                <div class="col-xl-9">
                   <div class="form-group">
                     <label>Project Name</label>
                     <input type="text" class="form-control">
@@ -81,47 +19,109 @@
                     <label>Project Description</label>
                     <textarea class="form-control" rows="4"></textarea>
                   </div>
+                  <div class="form-group">
+                    <label>Project Owner</label><br>
+                    <button type="button" class="btn btn-primary btn-sm btn-avatar"><img src="http://via.placeholder.com/100x100" class="avatar-tiny">Jessica Williams (Me)</button><br>
+                    <small>Work with a team? <a href="#">Invite people to join your project</a>.</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Start Date</label><br>
+                    <button type="button" class="btn btn-sm btn-cal"><i class="fa fa-calendar"></i>Today</button><br>
+                    <small>Want to set a future date for the project? <a href="#">Click here to enable date-picker</a>.</small>
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <div id="accordion" role="tablist">
-                    <div class="card">
-                      <div class="card-header" role="tab" id="headingOne">
-                        <h5 class="mb-0">
-                          <a data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Privacy Settings
-                          </a>
-                        </h5>
-                      </div>
-
-                      <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-                        <div class="card-body">
-                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                <div class="col-xl-3 remove-padding">
+                  <accordion id="settings" :one-at-atime="false">
+                    <panel is-open header="Privacy Settings">
+                      <div class="form-group">
+                        <label>Project visibility</label>
+                        <select class="form-control form-control-sm">
+                          <option>Public</option>
+                          <option>Private</option>
+                          <option>Team</option>
+                        </select>
+                        <div class="form-check">
+                          <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" value="">
+                            Allow people to edit
+                          </label>
                         </div>
                       </div>
+                    </panel>
+                    <panel is-open header="Folder Location">
+                      <button-group id="folders" v-model="selectedFolder" type="primary">
+                        <radio selected-value="1"><i class="fa fa-folder fa-lg"></i>Project Lorem</radio>
+                        <radio selected-value="2"><i class="fa fa-folder fa-lg"></i>Project Ipsum</radio>
+                        <radio selected-value="3"><i class="fa fa-folder fa-lg"></i>Project Dolor</radio>
+                        <radio selected-value="4"><i class="fa fa-folder fa-lg"></i>Project Sit Amet</radio>
+                        <radio selected-value="5"><i class="fa fa-folder fa-lg"></i>Project Consectetur</radio>
+                        <radio selected-value="6"><i class="fa fa-folder fa-lg"></i>Project Insipidus</radio>
+                        <radio selected-value="7"><i class="fa fa-folder fa-lg"></i>Project Neglementur</radio>
+                        <radio selected-value="8"><i class="fa fa-folder fa-lg"></i>Project Setentiae</radio>
+                      </button-group>
+                      <button class="btn btn-new-folder"><i class="fa fa-plus-square fa-lg"></i>Add New Folder</button>
+                      </ul>
+                    </panel>
+                  </accordion>
+                </div>
+              </div>
+            </tabbed-panel-tab>
+            <tabbed-panel-tab header="Data Set and Format Definition">
+              <div class="row">
+                <div class="col-xl-9">
+                  <div class="form-group">
+                    <label>Data Set Name</label>
+                    <input type="text" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label>Select Data Set File</label>
+                    <input type="file">
+                    <small>Want to add training data set? <a href="#">Click here to add</a>.</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-10 offset-xl-1 dataset-preview">
+                  <div class="row dataset-preview-header">
+                    <div class="col-md-2">
+                      Columns
                     </div>
-                    <div class="card">
-                      <div class="card-header" role="tab" id="headingTwo">
-                        <h5 class="mb-0">
-                          <a class="collapsed" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Folder Location
-                          </a>
-                        </h5>
-                      </div>
-                      <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-                        <div class="card-body">
-                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    <div class="col-md-10">
+                      Column Settings and Details
+                    </div>
+                  </div>
+                  <div class="row dataset-preview-content">
+                    <div class="col-md-2 column-list">
+                      <tabs v-model="currentColumn" nav-style="stacked">
+                        <tab header="Column name 1">1</tab>
+                        <tab header="Column name 2">2</tab>
+                        <tab header="Column name 3">3</tab>
+                      </tabs>
+                    </div>
+                    <div class="col-md-10">
+                      <div class="row">
+                        <div class="col-md-3">
+                          <p><strong>Type</strong></p>
+                          <radio v-model="dataType" selected-value="string" type="primary">String</radio>
+                          <radio v-model="dataType" selected-value="number" type="primary">Number</radio>
+                          <radio v-model="dataType" selected-value="datetime" type="primary">Date and Time</radio>
+                        </div>
+                        <div class="col-md-9 data-value">
+                          <p><strong>Column Data Value</strong></p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </tab>
-            <tab name="Data Set and Format Definition">
-              <h1>Here is the content for the about our culture tab.</h1>
-            </tab>
-          </tabs>-->
+            </tabbed-panel-tab>
+          </tabbed-panel>
         </form>
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-default btn-primary float-left">Previous</button>
+        <button class="btn btn-default btn-primary float-right">Next</button>
+        <button class="btn btn-default btn-success float-right">Save as Draft</button>
       </div>
     </div>
 
@@ -130,13 +130,25 @@
 
 <script>
 
-import tabs from '../../components/TabbedPanel/TabbedPanel'
+import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
+import tabbedPanelTab from '../../components/TabbedPanel/Tab'
+
+import { accordion, panel, radio, buttonGroup, tabs, tab } from 'vue-strap'
 
 export default {
   name: 'new-project',
   components: {
-    tabs
-  }
+    tabbedPanel,
+    tabbedPanelTab,
+    accordion,
+    panel,
+    radio,
+    buttonGroup,
+    tabs,
+    tab
+  },
+
+  methods: {}
 }
 
 </script>
