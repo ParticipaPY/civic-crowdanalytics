@@ -9062,7 +9062,7 @@ hr.transparent {
   border-top-right-radius: 5px; }
 
 #new-project .dataset-preview .dataset-preview-content {
-  padding: 0.5rem;
+  padding: 0 0.5rem 0 0;
   border: 1px solid #EFEFEF;
   border-top: none;
   overflow: hidden;

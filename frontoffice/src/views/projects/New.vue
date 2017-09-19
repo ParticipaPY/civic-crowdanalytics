@@ -75,12 +75,12 @@
                   </div>
                   <div class="form-group">
                     <label>Select Data Set File</label>
-                    <input type="file">
+                    <input type="file" @change="onFileAdd">
                     <small>Want to add training data set? <a href="#">Click here to add</a>.</small>
                   </div>
                 </div>
               </div>
-              <div class="row">
+              <div class="row" v-if="columns.length>0">
                 <div class="col-xl-10 offset-xl-1 dataset-preview">
                   <div class="row dataset-preview-header">
                     <div class="col-md-2">
@@ -91,25 +91,28 @@
                     </div>
                   </div>
                   <div class="row dataset-preview-content">
-                    <div class="col-md-2 column-list">
-                      <tabs v-model="currentColumn" nav-style="stacked">
-                        <tab header="Column name 1">1</tab>
-                        <tab header="Column name 2">2</tab>
-                        <tab header="Column name 3">3</tab>
-                      </tabs>
-                    </div>
-                    <div class="col-md-10">
-                      <div class="row">
-                        <div class="col-md-3">
-                          <p><strong>Type</strong></p>
-                          <radio v-model="dataType" selected-value="string" type="primary">String</radio>
-                          <radio v-model="dataType" selected-value="number" type="primary">Number</radio>
-                          <radio v-model="dataType" selected-value="datetime" type="primary">Date and Time</radio>
-                        </div>
-                        <div class="col-md-9 data-value">
-                          <p><strong>Column Data Value</strong></p>
-                        </div>
-                      </div>
+                    <div class="col-xl-12" style="padding:0">
+                      <tabbed-panel v-model="activeColumn">
+                        <template v-for="column in columns">
+                          <tabbed-panel-tab :header="column">
+                            <div class="row">
+                              <div class="col-xl-12">
+                                <div class="row">
+                                  <div class="col-md-3">
+                                    <p><strong>Type</strong></p>
+                                    <input type="radio" :name="column + '_columnType'" value="string" checked> String<br>
+                                    <input type="radio" :name="column + '_columnType'" value="number"> Number<br>
+                                    <input type="radio" :name="column + '_columnType'" value="datetime"> Date & Time
+                                  </div>
+                                  <div class="col-md-9 data-value">
+                                    <p><strong>Column Data Value</strong></p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </tabbed-panel-tab>
+                        </template>
+                      </tabbed-panel>
                     </div>
                   </div>
                 </div>
@@ -133,7 +136,7 @@
 import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
 import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
-import { accordion, panel, radio, buttonGroup, tabs, tab } from 'vue-strap'
+import { accordion, panel, radio, buttonGroup } from 'vue-strap'
 
 export default {
   name: 'new-project',
@@ -143,12 +146,40 @@ export default {
     accordion,
     panel,
     radio,
-    buttonGroup,
-    tabs,
-    tab
+    buttonGroup
   },
 
-  methods: {}
+  data () {
+    return {
+      columns: [],
+      parsedDataset: []
+    }
+  },
+
+  methods: {
+    onFileAdd: function (e) {
+      var file = e.target.files || e.dataTransfer.files
+      if (!file.length) return
+      this.readFile(file[0])
+    },
+    readFile: function (f) {
+      var cols = this.columns
+      var dataset = this.parsedDataset
+      var reader = new FileReader()
+      reader.onload = function (e) {
+        var parsed = JSON.parse(e.target.result)
+        var keys = Object.keys(parsed[0])
+        var k = null
+        for (k in keys) {
+          cols.push(keys[k])
+        }
+        for (k in parsed) {
+          dataset.push(parsed[k])
+        }
+      }
+      reader.readAsText(f)
+    }
+  }
 }
 
 </script>
