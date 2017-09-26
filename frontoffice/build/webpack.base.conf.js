@@ -11,6 +11,9 @@ module.exports = {
   entry: {
     app: './src/main.js'
   },
+  externals: {
+    fs: 'commonjs fs'
+  },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',

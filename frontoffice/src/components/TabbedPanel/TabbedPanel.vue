@@ -26,7 +26,8 @@ export default {
     // effect: {type: String, default: 'fadein'},
     justified: false,
     navStyle: {type: String, default: null},
-    value: {type: Number, default: 0}
+    value: {type: Number, default: 0},
+    tabClick: {type: Boolean, default: true}
   },
   data () {
     var index = this.value || 0
@@ -50,9 +51,14 @@ export default {
   },
   methods: {
     select (tab) {
-      if (!tab.disabled) {
-        this.index = this.tabs.indexOf(tab)
+      if (this.tabClick === true) {
+        if (!tab.disabled) {
+          this.index = this.tabs.indexOf(tab)
+        }
       }
+    },
+    selectIndex (val) {
+      this.index = val
     }
   },
   created () {

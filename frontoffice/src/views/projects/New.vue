@@ -7,7 +7,7 @@
       </div>
       <div class="card-body">
         <form>
-          <tabbed-panel v-model="activeTab">
+          <tabbed-panel v-model="activeTab" tab-click="false" ref="wiz">
             <tabbed-panel-tab header="Project Name">
               <div class="row">
                 <div class="col-xl-9">
@@ -73,7 +73,7 @@
                     <label>Data Set Name</label>
                     <input type="text" class="form-control">
                   </div>
-                  <div class="form-group">
+                  <div class="form-group" v-if="columns.length==0">
                     <label>Select Data Set File</label>
                     <input type="file" @change="onFileAdd">
                     <small>Want to add training data set? <a href="#">Click here to add</a>.</small>
@@ -102,10 +102,14 @@
                                     <p><strong>Type</strong></p>
                                     <input type="radio" :name="column + '_columnType'" value="string" checked> String<br>
                                     <input type="radio" :name="column + '_columnType'" value="number"> Number<br>
-                                    <input type="radio" :name="column + '_columnType'" value="datetime"> Date & Time
+                                    <input type="radio" :name="column + '_columnType'" value="datetime"> Date & Time<br>
+                                    <input type="radio" :name="column + '_columnType'" value="ignore"> Ignore
                                   </div>
                                   <div class="col-md-9 data-value">
                                     <p><strong>Column Data Value</strong></p>
+                                    <div>
+                                      
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -122,8 +126,8 @@
         </form>
       </div>
       <div class="card-footer">
-        <button class="btn btn-default btn-primary float-left">Previous</button>
-        <button class="btn btn-default btn-primary float-right">Next</button>
+        <button class="btn btn-default btn-primary float-left" v-on:click="prevPage()">Previous</button>
+        <button class="btn btn-default btn-primary float-right" v-on:click="nextPage()">Next</button>
         <button class="btn btn-default btn-success float-right">Save as Draft</button>
       </div>
     </div>
@@ -137,6 +141,8 @@ import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
 import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
 import { accordion, panel, radio, buttonGroup } from 'vue-strap'
+import Papa from 'papaparse'
+import LineNavigator from 'line-navigator'
 
 export default {
   name: 'new-project',
@@ -157,27 +163,70 @@ export default {
   },
 
   methods: {
+    nextPage: function () {
+      this.$refs.wiz.selectIndex(1)
+    },
+    prevPage: function () {
+      this.$refs.wiz.selectIndex(0)
+    },
     onFileAdd: function (e) {
       var file = e.target.files || e.dataTransfer.files
       if (!file.length) return
+      this.columns = []
       this.readFile(file[0])
     },
     readFile: function (f) {
-      var cols = this.columns
-      var dataset = this.parsedDataset
+      // let parent = this
+      var navigator = new LineNavigator(f)
+      /*
       var reader = new FileReader()
       reader.onload = function (e) {
-        var parsed = JSON.parse(e.target.result)
-        var keys = Object.keys(parsed[0])
-        var k = null
-        for (k in keys) {
-          cols.push(keys[k])
-        }
-        for (k in parsed) {
-          dataset.push(parsed[k])
+        var type = parent.checkType(f)
+        switch (type) {
+          case 'json':
+            parent.parseJson(e.target.result)
+            break
+          case 'csv':
+            parent.parseCsv(e.target.result)
+            break
         }
       }
       reader.readAsText(f)
+      */
+      navigator.readSomeLines(0, function handler (err, index, lines, isEof, progress) {
+        if (err) throw err
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i]
+          console.log(line)
+        }
+      })
+    },
+    parseJson: function (json) {
+      var parsed = JSON.parse(json)
+      var keys = Object.keys(parsed[0])
+      for (let k of keys) {
+        this.columns.push(k)
+      }
+      this.parsedDataset = parsed.slice(0)
+    },
+    parseCsv: function (csv) {
+      this.columns = Papa.parse(csv, {preview: 1}).data[0]
+      this.parsedDataset = Papa.parse(csv, {header: true}).data
+    },
+    checkType: function (f) {
+      switch (f.type) {
+        case 'application/json':
+        case 'text/json':
+          return 'json'
+        case 'application/vnd.ms-excel':
+        case 'text/csv':
+        case 'application/csv':
+          return 'csv'
+        default:
+          var name = f.name
+          var ext = name.split('.')[1]
+          return ext
+      }
     }
   }
 }
