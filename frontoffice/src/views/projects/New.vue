@@ -142,7 +142,7 @@ import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
 import { accordion, panel, radio, buttonGroup } from 'vue-strap'
 import Papa from 'papaparse'
-import LineNavigator from 'line-navigator'
+// import LineNavigator from 'line-navigator'
 
 export default {
   name: 'new-project',
@@ -177,22 +177,21 @@ export default {
     },
     readFile: function (f) {
       // let parent = this
-      var navigator = new LineNavigator(f)
-      /*
+      // var navigator = new LineNavigator(f)
       var reader = new FileReader()
-      reader.onload = function (e) {
-        var type = parent.checkType(f)
+      reader.onload = (e) => {
+        var type = this.checkType(f)
         switch (type) {
           case 'json':
-            parent.parseJson(e.target.result)
+            this.parseJson(e.target.result)
             break
           case 'csv':
-            parent.parseCsv(e.target.result)
+            this.parseCsv(e.target.result)
             break
         }
       }
       reader.readAsText(f)
-      */
+      /*
       navigator.readSomeLines(0, function handler (err, index, lines, isEof, progress) {
         if (err) throw err
         for (var i = 0; i < lines.length; i++) {
@@ -200,6 +199,7 @@ export default {
           console.log(line)
         }
       })
+      */
     },
     parseJson: function (json) {
       var parsed = JSON.parse(json)
