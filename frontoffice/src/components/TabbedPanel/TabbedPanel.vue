@@ -59,6 +59,9 @@ export default {
     },
     selectIndex (val) {
       this.index = val
+    },
+    currentTab () {
+      return this.index
     }
   },
   created () {

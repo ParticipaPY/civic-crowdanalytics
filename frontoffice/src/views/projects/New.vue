@@ -7,7 +7,7 @@
       </div>
       <div class="card-body">
         <form>
-          <tabbed-panel v-model="activeTab" tab-click="false" ref="wiz">
+          <tabbed-panel v-model="activeTab" :tab-click="false" ref="wiz">
             <tabbed-panel-tab header="Project Name">
               <div class="row">
                 <div class="col-xl-9">
@@ -100,10 +100,10 @@
                                 <div class="row">
                                   <div class="col-md-3">
                                     <p><strong>Type</strong></p>
-                                    <input type="radio" :name="column + '_columnType'" value="string" checked> String<br>
-                                    <input type="radio" :name="column + '_columnType'" value="number"> Number<br>
-                                    <input type="radio" :name="column + '_columnType'" value="datetime"> Date & Time<br>
-                                    <input type="radio" :name="column + '_columnType'" value="ignore"> Ignore
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="string" checked> String<br>
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="number"> Number<br>
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="datetime"> Date & Time<br>
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="ignore"> Ignore
                                   </div>
                                   <div class="col-md-9 data-value">
                                     <p><strong>Column Data Value</strong></p>
@@ -158,13 +158,18 @@ export default {
   data () {
     return {
       columns: [],
+      metadata: [],
       parsedDataset: []
     }
   },
 
   methods: {
     nextPage: function () {
-      this.$refs.wiz.selectIndex(1)
+      if (this.$refs.wiz.currentTab() === 1) {
+        this.generateMetadata()
+      } else {
+        this.$refs.wiz.selectIndex(1)
+      }
     },
     prevPage: function () {
       this.$refs.wiz.selectIndex(0)
@@ -178,6 +183,7 @@ export default {
     readFile: function (f) {
       // let parent = this
       // var navigator = new LineNavigator(f)
+      console.log(Math.round(f.size / 1024))
       var reader = new FileReader()
       reader.onload = (e) => {
         var type = this.checkType(f)
@@ -227,6 +233,27 @@ export default {
           var ext = name.split('.')[1]
           return ext
       }
+    },
+    generateMetadata: function () {
+      this.metadata = [] // Vacía metadata para las pruebas
+      var cols = this.columns
+      for (let k of cols) {
+        var name = k + '_columnType'
+        var els = document.getElementsByName(name)
+        var datatype = null
+        for (let e of els) {
+          if (e.checked) {
+            datatype = e.value
+          }
+        }
+        if (datatype !== 'ignore') {
+          var meta = {}
+          meta.name = k
+          meta.type = datatype
+          this.metadata.push(meta)
+        }
+      }
+      console.log(this.metadata)
     }
   }
 }
