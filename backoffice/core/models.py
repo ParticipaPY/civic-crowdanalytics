@@ -37,10 +37,14 @@ class Ownership(models.Model):
     owner = models.BooleanField()
 
 
+class AttributeType(models.Model):
+    description = models.CharField(max_length=50)
+
+
 class Attribute(models.Model):
     attribute_name = models.CharField(max_length=50)
-    attritute_type = models.CharField(max_length=50)
     datasets = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    attribute_types = models.ForeignKey(AttributeType)
 
 
 class Algorithm(models.Model):
