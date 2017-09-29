@@ -1,0 +1,4 @@
+Django
+flake8
+mysqlclient
+pylint
