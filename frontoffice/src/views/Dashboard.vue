@@ -1,6 +1,11 @@
 <template>
   <div class="animated fadeIn">
     <div class="row">
+      <div class="col">
+        <router-link :to="'/dashboard/projects/new'" class="btn btn-primary"><i class="fa fa-plus-circle font-lg"></i> New project</router-link>
+      </div>
+    </div>
+    <div class="row">
       <!-- <div class="col">
         <div class="card card-accent-primary">
           <div class="card-block p-3 clearfix">
