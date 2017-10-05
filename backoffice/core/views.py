@@ -1,6 +1,6 @@
-from core.models import User, Project, Dataset
+from core.models import User, Project, Dataset, Visibility
 from rest_framework import viewsets
-from core.serializers import UserSerializer, ProjectSerializer, DatasetSerializer
+from core.serializers import UserSerializer, ProjectSerializer, DatasetSerializer, VisibilitySerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -9,11 +9,18 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
+
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
+
+
+class VisibilityViewSet(viewsets.ModelViewSet):
+    queryset = Visibility.objects.all()
+    serializer_class = VisibilitySerializer
 
