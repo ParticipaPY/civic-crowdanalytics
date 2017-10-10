@@ -16,8 +16,8 @@ class Project(models.Model):
     description = models.CharField(max_length=250)
     location = models.CharField(max_length=150)
     people_editing = models.BooleanField()
-    datasets = models.ManyToManyField(Dataset)
-    visibilities = models.ForeignKey(Visibility, on_delete=models.CASCADE)
+    dataset = models.ManyToManyField(Dataset)
+    visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
 
 
 class User(models.Model):
@@ -26,8 +26,8 @@ class User(models.Model):
     email = models.CharField(max_length=254)
     username = models.CharField(max_length=150)
     is_superuser = models.BooleanField()
-    password = models.CharField(max_length=32)
-    projects = models.ManyToManyField(Project, through='Ownership')
+    password = models.CharField(max_length=100)
+    project = models.ManyToManyField(Project, through='Ownership')
 
 
 class Ownership(models.Model):
@@ -43,8 +43,8 @@ class AttributeType(models.Model):
 
 class Attribute(models.Model):
     attribute_name = models.CharField(max_length=50)
-    datasets = models.ForeignKey(Dataset, on_delete=models.CASCADE)
-    attribute_types = models.ForeignKey(AttributeType)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    attribute_type = models.ForeignKey(AttributeType)
 
 
 class Algorithm(models.Model):
@@ -53,11 +53,11 @@ class Algorithm(models.Model):
 
 class Analysis(models.Model):
     dataset = models.OneToOneField(Dataset, on_delete=models.CASCADE)
-    algorithms = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
-    projects = models.ForeignKey(Project, on_delete=models.CASCADE)
+    algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
 
-class Reports(models.Model):
+class Report(models.Model):
     analysis = models.ManyToManyField(Analysis)
 
 
@@ -68,6 +68,4 @@ class VisualizationType(models.Model):
 class Visualization(models.Model):
     payload = models.TextField()
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    visualization_types = models.ForeignKey(
-        VisualizationType, on_delete=models.CASCADE
-    )
+    visualization_type = models.ForeignKey(VisualizationType, on_delete=models.CASCADE)
