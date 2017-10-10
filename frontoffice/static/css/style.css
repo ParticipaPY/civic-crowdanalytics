@@ -9103,3 +9103,15 @@ hr.transparent {
       margin-right: 0.6rem; }
   .sentiment-analysis .card-header button {
     color: #20a8d8; }
+
+.concept-extraction .card-header {
+  background-color: white; }
+  .concept-extraction .card-header span {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6c6c6c; }
+    .concept-extraction .card-header span i {
+      color: #3A9D5D;
+      margin-right: 0.6rem; }
+  .concept-extraction .card-header button {
+    color: #20a8d8; }
