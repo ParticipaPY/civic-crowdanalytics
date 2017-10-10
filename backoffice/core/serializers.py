@@ -5,8 +5,15 @@ from rest_framework import serializers
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'username', 'is_superuser', 'password', 'project')
+        fields = ('id', 'first_name', 'last_name', 'email', 'username', 'is_superuser', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
+
+class VisibilitySerializer(serializers.HyperlinkedModelSerializer):   
+    class Meta:
+        model = Visibility
+        fields = ('id', 'description')
+    
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -20,7 +27,4 @@ class DatasetSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'dataset_file', 'dataset_name')
 
 
-class VisibilitySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Visibility
-        fields = ('id', 'description')
+
