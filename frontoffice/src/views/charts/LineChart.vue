@@ -9,8 +9,8 @@ export default Line.extend({
         datasets: [
           {
             label: 'Data One',
-            backgroundColor: '#3a9d5d',
-            borderColor: '#3a9d5d',
+            backgroundColor: '#20a8d8',
+            borderColor: '#20a8d8',
             data: [80, 60, 56, 55, 43, 38, 33, 28, 20, 18, 17, 10],
             fill: false,
             lineTension: 0

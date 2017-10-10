@@ -9091,3 +9091,15 @@ hr.transparent {
     box-shadow: none;
     margin-top: 2rem;
     padding-right: 0; } }
+
+.sentiment-analysis .card-header {
+  background-color: white; }
+  .sentiment-analysis .card-header span {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6c6c6c; }
+    .sentiment-analysis .card-header span i {
+      color: #3A9D5D;
+      margin-right: 0.6rem; }
+  .sentiment-analysis .card-header button {
+    color: #20a8d8; }
