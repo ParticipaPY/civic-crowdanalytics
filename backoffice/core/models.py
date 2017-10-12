@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Dataset(models.Model):
-    dataset_file = models.CharField(max_length=150)
     dataset_name = models.CharField(max_length=50)
+    dataset_file = models.FileField()
 
 
 class Visibility(models.Model):
