@@ -88,3 +88,6 @@ backoffice/settings.py
 
 .env
 db.sqlite3
+
+##Uploaded Files##
+datasets/*
