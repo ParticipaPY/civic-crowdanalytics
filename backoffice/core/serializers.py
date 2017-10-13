@@ -24,7 +24,4 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 class DatasetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Dataset
-        fields = ('id', 'dataset_file', 'dataset_name')
-
-
-
+        fields = ('id', 'dataset_name', 'dataset_file')

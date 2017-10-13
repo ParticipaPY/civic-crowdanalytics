@@ -1,5 +1,6 @@
-from core.models import User, Project, Dataset, Visibility
 from rest_framework import viewsets
+from rest_framework.parsers import FormParser, MultiPartParser
+from core.models import User, Project, Dataset, Visibility
 from core.serializers import UserSerializer, ProjectSerializer, DatasetSerializer, VisibilitySerializer
 from django.contrib.auth.hashers import make_password
 
@@ -17,6 +18,11 @@ class UserViewSet(viewsets.ModelViewSet):
         password = make_password(self.request.data['password'])
         serializer.save(password=password)
 
+class VisibilityViewSet(viewsets.ModelViewSet):
+    queryset = Visibility.objects.all()
+    serializer_class = VisibilitySerializer
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -25,9 +31,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
-
-
-class VisibilityViewSet(viewsets.ModelViewSet):
-    queryset = Visibility.objects.all()
-    serializer_class = VisibilitySerializer
 
