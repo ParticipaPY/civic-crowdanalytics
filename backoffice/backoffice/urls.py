@@ -24,6 +24,10 @@ router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet)
 router.register(r'datasets', views.DatasetViewSet)
 router.register(r'visibilities', views.VisibilityViewSet)
+router.register(r'analysis', views.AnalysisViewSet)
+router.register(r'algoritms', views.AlgorithmViewSet)
+router.register(r'visualizations', views.VisualizationViewSet)
+router.register(r'visualizationType', views.VisualizationTypeViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
