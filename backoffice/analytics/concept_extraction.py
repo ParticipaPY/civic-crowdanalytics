@@ -130,7 +130,8 @@ class ConceptExtractor():
         
         # make list of common concepts considering n-grams
         least_freq_common_word = common_words[-1][1]
-        ngrams_to_consider = []        
+        ngrams_to_consider = []
+        # save relevant ngrams        
         for bigram in common_bigrams:
             if bigram[1] > least_freq_common_word:
                 ngrams_to_consider.append(bigram)
@@ -141,29 +142,25 @@ class ConceptExtractor():
                 ngrams_to_consider.append(trigram)
             else:
                 break
-        # delete ngrams from the list of common words to avoid duplicates
+        # delete word of the ngrams from the list of common words to avoid 
+        # duplicates
         for ngram in ngrams_to_consider:
             idx_elements_to_remove = [i for word in ngram[0] for i in 
                                       range(len(common_words)) 
                                       if word == common_words[i][0]]
         for idx in idx_elements_to_remove:
             del common_words[idx]
-        for word in common_words:
-            idx_elements_to_remove = []
-            # add ngrams whose occurrences are higher than word
-            for i in range(len(ngrams_to_consider)):
-                if word[1] < ngrams_to_consider[i][1]:
-                    ngram = ngrams_to_consider[i]
-                    self._common_concepts.append( 
-                            (' '.join(ngram[0]), ngrams_to_consider[i][1])
-                            )
-                    idx_elements_to_remove.append(i)
-            # delete the n-gramas that were already put into the list
-            for idx in idx_elements_to_remove:
-                del ngrams_to_consider[idx]
-            self._common_concepts.append(word)
-            if len(self._common_concepts) == self.num_concepts:
-                break
+        # add to list of common words the relevant ngrams
+        common_words.extend(
+                [
+                (' '.join(ngram[0]), ngram[1]) for ngram in ngrams_to_consider
+                ]
+        )
+        # order list
+        self._common_concepts = sorted(common_words, key=lambda tup: tup[1],
+                                       reverse=True)
+        # select the first n concepts
+        self._common_concepts = self._common_concepts[:self.num_concepts]       
         return self
     
     @property
