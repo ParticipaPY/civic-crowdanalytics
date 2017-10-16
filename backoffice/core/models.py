@@ -12,7 +12,7 @@ class Visibility(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=250)
-    start_date = models.DateTimeField('start date')
+    start_date = models.DateTimeField(auto_now_add=True, blank=True)
     description = models.CharField(max_length=250)
     location = models.CharField(max_length=150)
     people_editing = models.BooleanField()
@@ -52,6 +52,7 @@ class Algorithm(models.Model):
 
 
 class Analysis(models.Model):
+    name = models.CharField(max_length=100, default='Analysis1')
     dataset = models.OneToOneField(Dataset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -68,4 +69,7 @@ class VisualizationType(models.Model):
 class Visualization(models.Model):
     payload = models.TextField()
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    visualization_type = models.ForeignKey(VisualizationType, on_delete=models.CASCADE)
+    visualization_type = models.ForeignKey(
+        VisualizationType,
+        on_delete=models.CASCADE
+    )
