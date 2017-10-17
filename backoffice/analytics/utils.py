@@ -19,7 +19,7 @@ Based on http://brandonrose.org/clustering
 '''
 
 def tokenize_and_remove_stop_words(text, specific_words_to_delete=[], 
-                                   language='english'):
+                                   join_words=False, language='english'):
     # define stop words
     stop_words = nltk.corpus.stopwords.words(language) + ['.', ',', '--', 
                                         '\'s', '?', ')', '(', ':', '\'', 
@@ -38,11 +38,14 @@ def tokenize_and_remove_stop_words(text, specific_words_to_delete=[],
         if token not in specific_words_to_delete:
             if re.search('[a-zA-Z]', token):
                 filtered_tokens.append(token.strip())
-    return filtered_tokens
+    if join_words:
+        return ' '.join(filtered_tokens)
+    else:
+        return filtered_tokens
 
 
 def tokenize_and_stem(text, specific_words_to_delete=[], 
-                      language='english'):
+                      join_words=False, language='english'):
     # define stop words
     stop_words = nltk.corpus.stopwords.words(language) + [ '.', ',', '--', 
                                         '\'s', '?', ')', '(', ':', '\'', 
@@ -64,4 +67,7 @@ def tokenize_and_stem(text, specific_words_to_delete=[],
     # stemming
     stemmer = SnowballStemmer(language)
     stems = [stemmer.stem(t) for t in filtered_tokens]
-    return stems
+    if join_words:
+        return ' '.join(stems)
+    else:
+        return stems
