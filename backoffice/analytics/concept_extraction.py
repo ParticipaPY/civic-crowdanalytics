@@ -174,25 +174,3 @@ class ConceptExtractor():
     @property
     def common_concepts(self):
         return self._common_concepts
-
-
-
-if __name__ == '__main__':
-    # Importing the data
-    dataset = pd.read_csv('../test_data/ideas-vallejo.tsv', delimiter = '\t', 
-                          quoting=3)  # ignore double quotes
-    # Select interested columns
-    dataset = dataset[['title', 'text']]
-    # Drop NA rows
-    dataset = dataset.dropna()
-    # Put ideas into a list
-    ideas = dataset['text'].tolist()
-    titles = dataset['title'].tolist()
-    # Set context-specific words (e.g., proper names) that shouldn't be 
-    # taken into consideration
-    context_words = ['vallejo']
-    # Extract Concepts
-    ce = ConceptExtractor(num_concepts=20, context_words=context_words, 
-                          ngram_range=(1,2))
-    ce.extract_concepts(ideas)
-    ce.common_concepts
