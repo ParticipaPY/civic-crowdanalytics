@@ -39,7 +39,7 @@ class ConceptExtractor():
         for a complete list of tags.
     
     consider_urls: boolean, False by default
-        Whether URLs should be removed or not
+        Whether URLs should be removed or not.
     
     language: string, english by default
         Language of the documents. Only the languages supported by the
@@ -57,6 +57,7 @@ class ConceptExtractor():
         self.consider_urls = consider_urls
         self.language = language
         # properties
+        self._docs = None
         self._number_words = 0
         self._unique_words = 0
         self._common_concepts = []
@@ -78,14 +79,16 @@ class ConceptExtractor():
         self : ConceptExtractor
         
         '''        
+        self._docs = docs
         # tokenize documents
         tokenized_docs = []
-        for doc in docs:
+        for doc in self._docs:
             if not self.consider_urls:
                 doc = re.sub(self._reg_exp_urls, '', doc, 
                               flags=re.MULTILINE)
             tokenized_doc = tokenize_and_remove_stop_words(doc, 
-                                                           self.context_words)
+                                                           self.context_words,
+                                                           language=self.language)
             tokenized_docs.append(tokenized_doc)
             
         # consider only the part-of-speech (pos) required
@@ -161,6 +164,10 @@ class ConceptExtractor():
         # select the first n concepts
         self._common_concepts = self._common_concepts[:self.num_concepts]       
         return self
+    
+    @property
+    def docs(self):
+        return self._docs
     
     @property
     def total_words(self):
