@@ -53,7 +53,7 @@ class Algorithm(models.Model):
 
 class Analysis(models.Model):
     name = models.CharField(max_length=100, default='Analysis1')
-    dataset = models.OneToOneField(Dataset, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
