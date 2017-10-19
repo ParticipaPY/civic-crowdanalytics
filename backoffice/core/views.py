@@ -12,7 +12,7 @@ from core.serializers import (
     VisualizationSerializer, VisualizationTypeSerializer
 )
 import pandas as pd
-
+from analytics.sentiment_analysis import SentimentAnalyzer 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -68,12 +68,17 @@ class AnalysisViewSet(viewsets.ModelViewSet):
         # Put ideas into a list
         ideas = dataset['text'].tolist()        
 
+        # Call sentiment analizer
+        sentiment_analyzer = SentimentAnalyzer()
+        sentiment_analyzer.analyze_docs(ideas) 
+
+        # Get results
+        results = sentiment_analyzer.tagged_docs
+
         #import logging
         #logging.basicConfig(filename='example.log',level=logging.DEBUG)
-        #logging.info(dataset)
-
-        #call sentiment analysis module
-        #get results
+        #logging.info(results)
+        
         #save results
 
         serializer = AnalysisSerializer(data=request.data)
