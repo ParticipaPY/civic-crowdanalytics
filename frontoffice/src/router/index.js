@@ -11,7 +11,7 @@ import Projects from '@/views/Projects'
 // Views - Analytics
 // import Sentiment from '@/views/analytics/Sentiment'
 import Category from '@/views/analytics/Category'
-import Concept from '@/views/analytics/Concept'
+// import Concept from '@/views/analytics/Concept'
 import Similar from '@/views/analytics/Similar'
 
 // Views - Projects
@@ -21,7 +21,7 @@ import New from '@/views/projects/New'
 import Analysis from '@/views/sentiment/Analysis'
 
 // Concept Axtraction
-// import Extraction from '@/views/concept/Extraction'
+import Extraction from '@/views/concept/Extraction'
 
 Vue.use(Router)
 
@@ -57,8 +57,7 @@ export default new Router({
             {
               path: 'concept',
               name: 'Concept Extraction',
-              // component: Extraction
-              component: Concept
+              component: Extraction
             },
             {
               path: 'category',
