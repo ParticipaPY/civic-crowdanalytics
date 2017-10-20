@@ -74,12 +74,14 @@ class AnalysisViewSet(viewsets.ModelViewSet):
 
         # Get results
         results = sentiment_analyzer.tagged_docs
-
-        #import logging
-        #logging.basicConfig(filename='example.log',level=logging.DEBUG)
-        #logging.info(results)
         
         #save results
+        
+        #debug
+        #import logging
+        #logger = logging.getLogger(__name__)
+        #logger.info(results)
+
 
         serializer = AnalysisSerializer(data=request.data)
         if serializer.is_valid():
