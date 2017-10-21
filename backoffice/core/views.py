@@ -13,6 +13,10 @@ from core.serializers import (
 )
 import pandas as pd
 from analytics.sentiment_analysis import SentimentAnalyzer 
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -73,19 +77,18 @@ class AnalysisViewSet(viewsets.ModelViewSet):
         sentiment_analyzer.analyze_docs(ideas) 
 
         # Get results
-        results = sentiment_analyzer.tagged_docs
-        
+        results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
+        results = json.dumps(results)
+
         #save results
+        analysis = {'name': request.data['name'],'dataset': request.data['dataset'], 
+                    'algorithm': request.data['algorithm'], 'project': request.data['project'],
+                    'result': results}
+        #logger.info(analysis)
         
-        #debug
-        #import logging
-        #logger = logging.getLogger(__name__)
-        #logger.info(results)
-
-
-        serializer = AnalysisSerializer(data=request.data)
+        serializer = AnalysisSerializer(data=analysis)
         if serializer.is_valid():
-            #serializer.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

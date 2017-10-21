@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_mysql.models import JSONField
 
 class Dataset(models.Model):
     dataset_name = models.CharField(max_length=50)
@@ -56,6 +56,7 @@ class Analysis(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    result = JSONField()
 
 
 class Report(models.Model):
