@@ -11,6 +11,7 @@ from core.serializers import (
     VisibilitySerializer, AnalysisSerializer, AlgorithmSerializer,
     VisualizationSerializer, VisualizationTypeSerializer, AttributeSerializer
 )
+from core.constants import *
 import pandas as pd
 from analytics.sentiment_analysis import SentimentAnalyzer 
 import json
@@ -65,7 +66,12 @@ class AnalysisViewSet(viewsets.ModelViewSet):
         ds_file = str(ds.dataset_file)
         
         # Get dataset attributes that are included for analysis
-        attributes = Attribute.objects.filter(dataset_id=ds_id, included_in_analysis=1).values_list('attribute_name', flat=True)
+        attributes = Attribute.objects.filter(dataset_id=ds_id, included_in_analysis=True).values_list('attribute_name', flat=True)
+
+        # Get dataset attributes that have datatype string
+        if not attributes:
+            attributes = Attribute.objects.filter(dataset_id=ds_id, attribute_type=STRING).values_list('attribute_name', flat=True)
+        
         attributes = list(attributes)
         
         # Import the data
