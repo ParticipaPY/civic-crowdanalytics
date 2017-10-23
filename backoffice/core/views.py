@@ -90,13 +90,19 @@ class AnalysisViewSet(viewsets.ModelViewSet):
         # Put ideas into a list
         ideas = dataset['concatenation'].tolist()        
         
-        # Call sentiment analizer
-        sentiment_analyzer = SentimentAnalyzer()
-        sentiment_analyzer.analyze_docs(ideas) 
+        # Get algorithm
+        algorithm = int(request.data['algorithm'])
+                
+        if algorithm == SENTIMENT_ANALYSIS:
+            # Call sentiment analizer
+            sentiment_analyzer = SentimentAnalyzer()
+            sentiment_analyzer.analyze_docs(ideas) 
 
-        # Get results
-        results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
-        results = json.dumps(results)
+            # Get results
+            results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
+            results = json.dumps(results)
+        else:
+            results = {}
 
         #save results
         analysis = {'name': request.data['name'],'dataset': request.data['dataset'], 
