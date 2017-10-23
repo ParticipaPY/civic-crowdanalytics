@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.models import (
-    User, Project, Dataset, Visibility, Analysis, Algorithm, Visualization,
+    User, Project, Dataset, Attribute, Visibility, Analysis, Algorithm, Visualization,
     VisualizationType
 )
 
@@ -24,6 +24,12 @@ class VisibilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Visibility
         fields = ('id', 'description')
+
+
+class AttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attribute
+        fields = ('__all__')
 
 
 class DatasetSerializer(serializers.ModelSerializer):

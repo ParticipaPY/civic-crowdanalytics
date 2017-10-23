@@ -3,13 +3,13 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from core.models import (
-    User, Project, Dataset, Visibility, Analysis, Algorithm, Visualization,
+    User, Project, Dataset, Attribute, Visibility, Analysis, Algorithm, Visualization,
     VisualizationType
 )
 from core.serializers import (
     UserSerializer, ProjectSerializer, DatasetSerializer,
     VisibilitySerializer, AnalysisSerializer, AlgorithmSerializer,
-    VisualizationSerializer, VisualizationTypeSerializer
+    VisualizationSerializer, VisualizationTypeSerializer, AttributeSerializer
 )
 import pandas as pd
 from analytics.sentiment_analysis import SentimentAnalyzer 
@@ -43,6 +43,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
 
+class AttributeViewSet(viewsets.ModelViewSet):
+    queryset = Attribute.objects.all()
+    serializer_class = AttributeSerializer
+
+
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
@@ -53,25 +58,32 @@ class AnalysisViewSet(viewsets.ModelViewSet):
     serializer_class = AnalysisSerializer
 
     def create(self, request):
-    
+        
         # Get dataset
         ds_id = request.data['dataset']
         ds = Dataset.objects.get(id=ds_id)
         ds_file = str(ds.dataset_file)
+        
+        # Get dataset attributes that are included for analysis
+        attributes = Attribute.objects.filter(dataset_id=ds_id, included_in_analysis=1).values_list('attribute_name', flat=True)
+        attributes = list(attributes)
         
         # Import the data
         dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
                               quoting=3)  # ignore double quotes
 
         # Select interested columns
-        dataset = dataset[['title', 'text']]
-        
+        dataset = dataset[attributes]
+
         # Drop NA rows
         dataset = dataset.dropna()
         
-        # Put ideas into a list
-        ideas = dataset['text'].tolist()        
+        # Concat columns
+        dataset['concatenation'] = dataset.apply(' '.join, axis=1)
 
+        # Put ideas into a list
+        ideas = dataset['concatenation'].tolist()        
+        
         # Call sentiment analizer
         sentiment_analyzer = SentimentAnalyzer()
         sentiment_analyzer.analyze_docs(ideas) 
@@ -84,7 +96,6 @@ class AnalysisViewSet(viewsets.ModelViewSet):
         analysis = {'name': request.data['name'],'dataset': request.data['dataset'], 
                     'algorithm': request.data['algorithm'], 'project': request.data['project'],
                     'result': results}
-        #logger.info(analysis)
         
         serializer = AnalysisSerializer(data=analysis)
         if serializer.is_valid():
