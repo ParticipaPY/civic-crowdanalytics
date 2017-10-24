@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <!--<div class="sidebar">
     <nav class="sidebar-nav">
       <ul class="nav">
         <li class="nav-item">
@@ -19,6 +19,36 @@
         </li>
         <li class="nav-item">
           <router-link :to="'/dashboard/similar'" class="nav-link"><i class="icon-notebook"></i> Show Similar Ideas</router-link>
+        </li>
+      </ul>
+    </nav>
+  </div>-->
+  <div class="sidebar">
+    <nav class="sidebar-nav">
+      <ul class="nav">
+        <li class="nav-item">
+          <router-link :to="'/dashboard'" class="nav-link"><i class="icon-grid"></i> Dashboard</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link :to="'/dashboard/projects'" class="nav-link"><i class="icon-briefcase"></i> Projects</router-link>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-chart"></i> Dataset</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-user"></i> Team</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-doc"></i> Press</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-bubbles"></i> Contact</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-question"></i> Help</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="icon-info"></i> About</a>
         </li>
       </ul>
     </nav>

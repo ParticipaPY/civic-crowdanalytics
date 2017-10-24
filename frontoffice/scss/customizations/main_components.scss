@@ -1,0 +1,34 @@
+span.titleLogo {
+  color: #0091EA;
+  font-size: 1.5rem;
+  font-weight: lighter;
+  span:first-of-type {
+    font-weight: bold;
+  }
+  span:last-of-type {
+    font-weight: normal;
+  }
+  sup {
+    font-size: 1rem;
+  }
+}
+
+.sidebar-toggler {
+  color: rgba(0, 145, 234, 0.6) !important;
+}
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 1.1rem;
+  color: #b0bec5;
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    font-weight: bold;
+    color: #7c7c7c;
+  }
+  a { color: #7c7c7c; }
+}
+
+header.app-header {
+  .dropdown-toggle::after { display: none; }
+}
