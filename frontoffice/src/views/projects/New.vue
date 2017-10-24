@@ -103,7 +103,7 @@
                                     <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="string" checked> String<br>
                                     <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="number"> Number<br>
                                     <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="datetime"> Date & Time<br>
-                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="ignore"> Ignore
+                                    <input type="checkbox" :id="column + '_ignore'" :name="column + '_ignore'" value="1" :disabled="column + '_columnType' !== 'string'"> Ignore
                                   </div>
                                   <div class="col-md-9 data-value">
                                     <p><strong>Column Data Value</strong></p>
@@ -246,12 +246,11 @@ export default {
             datatype = e.value
           }
         }
-        if (datatype !== 'ignore') {
-          var meta = {}
-          meta.name = k
-          meta.type = datatype
-          this.metadata.push(meta)
-        }
+        var meta = {}
+        meta.name = k
+        meta.type = datatype
+        meta.ignore = document.getElementById(k + '_ignore').checked
+        this.metadata.push(meta)
       }
       console.log(this.metadata)
     }
