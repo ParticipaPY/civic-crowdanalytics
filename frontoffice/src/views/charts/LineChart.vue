@@ -5,13 +5,13 @@ export default Line.extend({
   mounted () {
     this.renderChart(
       {
-        labels: ['Parking', 'Cars', 'Drive', 'People', 'Reduce', 'Road', 'Bike', 'Park', 'Buses', 'Walk', 'Avenue', 'Allow'],
+        labels: ['city', 'homeless', 'school', 'fix', 'community', 'help', 'youth', 'street', 'housing', 'repair', 'program', 'road', 'trash', 'park', 'center'],
         datasets: [
           {
             label: 'Data One',
             backgroundColor: '#20a8d8',
             borderColor: '#20a8d8',
-            data: [80, 60, 56, 55, 43, 38, 33, 28, 20, 18, 17, 10],
+            data: [139, 136, 118, 110, 98, 80, 77, 70, 66, 57, 55, 54, 53, 53, 51],
             fill: false,
             lineTension: 0
           }

@@ -1,10 +1,9 @@
 <template>
-  <div class="animated sentiment-analysis fadeIn">
+  <div class="animated fadeIn">
     <div class="row">
       <div class="col">
-        <div class="card">
+        <div class="card card-accent-danger">
           <div class="card-header">
-            <span><i class="icon-equalizer"></i>Sentiment Analysis</span>
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
@@ -27,6 +26,9 @@
     <div class="row">
       <div class="col">
         <div class="card">
+          <div class="card-header">
+            Ideas
+          </div>
           <div class="card-block">
             <form action="" method="post" class="form-horizontal">
               <div class="form-group row">
@@ -43,68 +45,116 @@
             <table class="table table-striped table-responsive">
               <thead>
                 <tr>
-                  <th style="width:60%">Content</th>
+                  <th>Content</th>
                   <th>Aggregate Sentiment</th>
-                  <th>Details</th>
                   <th>Aggregate Score</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Parking should be unbundled - i.e. you pay if you want to use it. Lots and lots of young people and seniors would love to live in housing where they're not implicitly paying for parking they don't use and lots of them don't need or want a car, particularly if they're living right near the Caltrain.</td>
+                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>All useful approaches</td>
-                  <td>0.91</td>
+                  <td>0.9584</td>
                 </tr>
                 <tr>
-                  <td>All new multifamily housing should come with at least one zipcar.</td>
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>All useful approaches</td>
-                  <td>0.20</td>
-                </tr>
-                <tr>
-                  <td>We should work with companies like Lyft and Uber to create "on-demand" shuttles. I.e. cars or vans could pick up multiple passengers where and when they need it, instead of running a mindless shuttle that is inflexible and often not useful.</td>
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>All useful approaches</td>
-                  <td>-0.60</td>
-                </tr>
-                <tr>
-                  <td>Without convenient neighborhood-based public transit to and from schools, many parents are going to continue to drive their children to and from school, thus adding to traffic problems.</td>
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>All useful approaches</td>
-                  <td>-0.54</td>
-                </tr>
-                <tr>
-                  <td>Part of the problem with mixed use development is that the FAR for the housing portion is really small. We should be encouraging ground floor retail + 3 floors of housing or retail + commercial + 2 floors of housing. But the current restrictions don't allow you to build that much housing, which exacerbates the jobs housing imbalance.</td>                
+                  <td>I want to help special kids because I love little kids and want to help them.  Why is needed? It is needed because they need help to learn.</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>All useful approaches</td>
-                  <td>-0.73</td>
+                  <td>0.9538</td>
                 </tr>
                 <tr>
-                  <td>Most work commuters are coming from the South Bay. Why not run some county-wide shuttles that pick people up from Sunnyvale, San Jose, etc and take them to work in the Stanford Research Park? Some companies there can afford their own shuttle systems, but others can't. Can the TMA help them pool resources to establish a multi-company or public shuttles to the South Bay?</td>                
+                  <td>Restore the downtown and make it more attractive.  Why is needed? To make Vallejo a better place.</td>
+                  <td>
+                    <span class="badge badge-success">Positive</span>
+                  </td>
+                  <td>0.9022</td>
+                </tr>
+                <tr>
+                  <td>Community Park. To have a nicer park for everyone  Why is needed?To enjoy scenery and kids who want to play safe.</td>
+                  <td>
+                    <span class="badge badge-success">Positive</span>
+                  </td>
+                  <td>0.8934</td>
+                </tr>
+                <tr>
+                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
+                  <td>
+                    <span class="badge badge-success">Positive</span>
+                  </td>
+                  <td>0.886</td>
+                </tr>
+                <tr>
+                  <td>Bring in more people with stable incomes.</td>                
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
-                  <td>All useful approaches</td>
-                  <td>-0.10</td>
+                  <td>0.296</td>
                 </tr>
                 <tr>
-                  <td>All new development should be required to add some bike parking. Stanford shopping center is really lacking in this.</td>                
+                  <td>More policing. Why is needed? Prevent crimes.</td>                
+                  <td>
+                    <span class="badge badge-default">Neutral</span>
+                  </td>
+                  <td>0.0258</td>
+                </tr>
+                <tr>
+                  <td>Multi youth sports complex @ East Vallejo  Little League. Why is needed? Create revenue</td>                
+                  <td>
+                    <span class="badge badge-default">Neutral</span>
+                  </td>
+                  <td>0.2111</td>
+                </tr>
+                <tr>
+                  <td>Fix schools.</td>                
+                  <td>
+                    <span class="badge badge-default">Neutral</span>
+                  </td>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <td>Keep farmers market open until 5pm.</td>                
+                  <td>
+                    <span class="badge badge-default">Neutral</span>
+                  </td>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <td>Road repair because we have bad roads.</td>                
                   <td>
                     <span class="badge badge-danger">Negative</span>
                   </td>
-                  <td>All useful approaches</td>
-                  <td>-0.68</td>
+                  <td>-0.5423</td>
+                </tr>
+                <tr>
+                  <td>Less gentrification and police brutality.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.577</td>
+                </tr>
+                <tr>
+                  <td>Violence in Schools need to stop.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.743</td>
+                </tr>
+                <tr>
+                  <td>End crime. Why is needed? Because there are a lot of robberies.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.7906</td>
+                </tr>
+                <tr>
+                  <td>End police brutality. Why is needed? Stop beating black and brown people.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.9217</td>
                 </tr>
               </tbody>
             </table>
@@ -122,7 +172,7 @@ import ScatterChart from '../charts/ScatterChart'
 import { dropdown } from 'vue-strap'
 
 export default {
-  name: 'sentiment-analysis',
+  name: 'sentiment',
   components: {
     ScatterChart,
     dropdown

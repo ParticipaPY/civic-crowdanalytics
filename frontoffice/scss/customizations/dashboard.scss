@@ -1,0 +1,39 @@
+#top-cards {
+  h2.card-title { margin-bottom: 0; }
+}
+
+#notifications {
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0px 0px 10px #6c6c6c;
+  color: #6c6c6c;
+  font-size: 0.8rem;
+  h1 {
+    color: #6c6c6c;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #D3D3D3;
+    margin: -1rem -1rem 0 -1rem;
+    padding: 1rem;
+  }
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0 -1rem -1rem -1rem;
+    li {
+      border-bottom: 1px solid #D3D3D3;
+      padding: 1rem 1rem 0.5rem;
+      .icon {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 1.8rem;
+      }
+      p { margin-bottom: 0.3rem; }
+      .time { font-size: 0.7rem; }
+      div.clearfix {
+        clear: both;
+        height: 0;
+      }
+    }
+  }
+}
