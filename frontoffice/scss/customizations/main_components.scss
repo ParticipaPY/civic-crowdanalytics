@@ -17,6 +17,10 @@ span.titleLogo {
   color: rgba(0, 145, 234, 0.6) !important;
 }
 
+ul.nav-dropdown-items a.nav-link.active {
+    background-color: #0D1214 !important;
+}
+
 .breadcrumb {
   background-color: transparent;
   font-size: 1.1rem;

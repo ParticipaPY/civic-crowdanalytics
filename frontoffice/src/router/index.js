@@ -6,6 +6,7 @@ import Full from '@/containers/Full'
 
 // Views
 import Dashboard from '@/views/Dashboard'
+import DashboardNew from '@/views/DashboardNew'
 import Projects from '@/views/Projects'
 
 // Views - Analytics
@@ -39,7 +40,7 @@ export default new Router({
         {
           path: 'dashboard',
           name: 'Dashboard',
-          component: Dashboard
+          component: DashboardNew
         },
         {
           path: '/dashboard',
@@ -49,27 +50,6 @@ export default new Router({
             render (c) { return c('router-view') }
           },
           children: [
-            {
-              path: 'sentiment',
-              name: 'Sentiment Analysis',
-              component: Analysis
-            },
-            {
-              path: 'concept',
-              name: 'Concept Extraction',
-              component: Extraction
-            },
-            {
-              path: 'category',
-              name: 'Category Summary',
-              component: Category
-            },
-            {
-              path: 'similar',
-              name: 'Similar Ideas',
-              component: Similar
-            },
-            // Projects
             {
               path: 'projects',
               name: 'Projects',
@@ -87,6 +67,41 @@ export default new Router({
                   path: 'new',
                   name: 'New Project',
                   component: New
+                },
+                {
+                  path: 'vallejo-2017',
+                  name: 'Vallejo 2017',
+                  component: Dashboard
+                },
+                {
+                  path: 'vallejo-2017',
+                  redirect: '/vallejo-2017/sentiment',
+                  name: 'Vallejo 2017',
+                  component: {
+                    render (c) { return c('router-view') }
+                  },
+                  children: [
+                    {
+                      path: 'sentiment',
+                      name: 'Sentiment Analysis',
+                      component: Analysis
+                    },
+                    {
+                      path: 'concept',
+                      name: 'Concept Extraction',
+                      component: Extraction
+                    },
+                    {
+                      path: 'category',
+                      name: 'Category Summary',
+                      component: Category
+                    },
+                    {
+                      path: 'similar',
+                      name: 'Similar Ideas',
+                      component: Similar
+                    }
+                  ]
                 }
               ]
             }

@@ -51,52 +51,28 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>Parking</td>
-                  <td>80</td>
+                  <td>Transportation</td>                
+                  <td>348</td>
                 </tr>
                 <tr>
-                  <td>Cars</td>
-                  <td>60</td>
+                  <td>Education & Training</td>
+                  <td>297</td>
                 </tr>
                 <tr>
-                  <td>Drive</td>
-                  <td>56</td>
+                  <td>Social Services</td>
+                  <td>295</td>
                 </tr>
                 <tr>
-                  <td>People</td>
-                  <td>55</td>
+                  <td>Parks & Recreation</td>
+                  <td>253</td>
                 </tr>
                 <tr>
-                  <td>Reduce</td>
-                  <td>43</td>
+                  <td>City Infrastructure</td>
+                  <td>245</td>
                 </tr>
                 <tr>
-                  <td>Road</td>                
-                  <td>38</td>
-                </tr>
-                <tr>
-                  <td>Bike</td>                
-                  <td>33</td>
-                </tr>
-                <tr>
-                  <td>Park</td>                
-                  <td>28</td>
-                </tr>
-                <tr>
-                  <td>Buses</td>                
-                  <td>20</td>
-                </tr>
-                <tr>
-                  <td>Walk</td>                
-                  <td>18</td>
-                </tr>
-                <tr>
-                  <td>Avenue</td>                
-                  <td>17</td>
-                </tr>
-                <tr>
-                  <td>Allow</td>                
-                  <td>10</td>
+                  <td>Public Safety</td>
+                  <td>164</td>
                 </tr>
               </tbody>
             </table>
