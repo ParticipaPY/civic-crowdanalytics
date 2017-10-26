@@ -51,37 +51,70 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>Free public transportation</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Remove and place the grass on the waterfront park lawn and continued to fix roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
                 </tr>
                 <tr>
-                  <td>Enforce distracted driving laws</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Remove and place the grass on the waterfront park lawn and continued to fix roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
                 </tr>
                 <tr>
-                  <td>Protected bike lanes which only bikes and resident cars (with sticker) could access especially along midtwon to hanson way</td>
-                  <td><span class="badge badge-primary">Cluster 2</span></td>
+                  <td>No Trash, couches in roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
                 </tr>
                 <tr>
-                  <td>More protected bike-friendly streets and boulevards</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Fix roads and homeless</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
                 </tr>
                 <tr>
-                  <td>More bike friendly streets</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Violence in Schools need to stop</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
                 </tr>
                 <tr>
-                  <td>Safer crossing in busier streets like el camino and alma</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Soltrans needs to run later at night</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
                 </tr>
                 <tr>
-                  <td>Safer bicycle parking near retail spaces</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Provide more programing for adults in need of a shelter</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
                 </tr>
                 <tr>
-                  <td>Safe ride sharing apps exclusively reserved to known community people</td>                
-                  <td><span class="badge badge-primary">Cluster 2</span></td>
+                  <td>Help w/ littering project</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
                 </tr>
+                <tr>
+                  <td>Create attractive buildings</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
+                </tr>
+                <tr>
+                  <td>Public Marketing campaign to support new buildings</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
+                </tr>
+                <tr>
+                  <td>Streets clean up, dirty - looks ghetto</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                </tr>
+                <tr>
+                  <td>Street pavements, require home owners to maintain landscapes</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                </tr>
+                <tr>
+                  <td>Street repair</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                </tr>
+                <tr>
+                  <td>Fix trash problem</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                </tr>
+                <tr>
+                  <td>Fix the Cemetary</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                </tr>
+                <tr>
+                  <td>Fix schools</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                </tr>
+                
               </tbody>
             </table>
           </div>

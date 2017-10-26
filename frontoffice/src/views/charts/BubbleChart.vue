@@ -7,8 +7,8 @@ export default Bubble.extend({
     this.renderChart({
       datasets: [
         {
-          label: 'Cluster 1',
-          backgroundColor: '#3a9d5d',
+          label: 'Cluster 0',
+          backgroundColor: '#1985AC',
           data: [
             {x: 0.374, y: -0.178, r: 5},
             {x: 0.374, y: -0.178, r: 5},
@@ -590,8 +590,8 @@ export default Bubble.extend({
           ]
         },
         {
-          label: 'Cluster 2',
-          backgroundColor: '#f87979',
+          label: 'Cluster 1',
+          backgroundColor: '#D39E00',
           data: [
             {x: -0.715, y: -0.225, r: 5},
             {x: -0.742, y: 0.110, r: 5},
@@ -1094,8 +1094,8 @@ export default Bubble.extend({
           ]
         },
         {
-          label: 'Cluster 3',
-          backgroundColor: '#20a8d8',
+          label: 'Cluster 2',
+          backgroundColor: '#F63C3A',
           data: [
             {x: 0.390, y: 0.617, r: 5},
             {x: 0.390, y: 0.617, r: 5},
@@ -1220,8 +1220,8 @@ export default Bubble.extend({
           ]
         },
         {
-          label: 'Cluster 4',
-          backgroundColor: 'maroon',
+          label: 'Cluster 3',
+          backgroundColor: '#3A9D5D',
           data: [
             {x: -0.392, y: 0.283, r: 5},
             {x: -0.505, y: 0.099, r: 5},
@@ -1355,8 +1355,8 @@ export default Bubble.extend({
           ]
         },
         {
-          label: 'Cluster 5',
-          backgroundColor: 'yellow',
+          label: 'Cluster 4',
+          backgroundColor: '#39B2D5',
           data: [
             {x: -0.274, y: 0.470, r: 5},
             {x: -0.274, y: 0.470, r: 5},

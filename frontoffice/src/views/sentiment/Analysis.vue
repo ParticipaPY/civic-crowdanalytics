@@ -52,18 +52,18 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
+                  <td>
+                    <span class="badge badge-success">Positive</span>
+                  </td>
+                  <td>0.9584</td>
+                </tr>
+                <tr>
                   <td>I want to help special kids because I love little kids and want to help them.  Why is needed? It is needed because they need help to learn.</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
                   <td>0.9538</td>
-                </tr>
-                <tr>
-                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.886</td>
                 </tr>
                 <tr>
                   <td>Restore the downtown and make it more attractive.  Why is needed? To make Vallejo a better place.</td>
@@ -80,11 +80,11 @@
                   <td>0.8934</td>
                 </tr>
                 <tr>
-                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
+                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>0.9584</td>
+                  <td>0.886</td>
                 </tr>
                 <tr>
                   <td>Bring in more people with stable incomes.</td>                
@@ -94,18 +94,18 @@
                   <td>0.296</td>
                 </tr>
                 <tr>
-                  <td>Multi youth sports complex @ East Vallejo  Little League. Why is needed? Create revenue</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>0.2111</td>
-                </tr>
-                <tr>
                   <td>More policing. Why is needed? Prevent crimes.</td>                
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
                   <td>0.0258</td>
+                </tr>
+                <tr>
+                  <td>Multi youth sports complex @ East Vallejo  Little League. Why is needed? Create revenue</td>                
+                  <td>
+                    <span class="badge badge-default">Neutral</span>
+                  </td>
+                  <td>0.2111</td>
                 </tr>
                 <tr>
                   <td>Fix schools.</td>                
@@ -122,27 +122,6 @@
                   <td>0.0</td>
                 </tr>
                 <tr>
-                  <td>Violence in Schools need to stop.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.743</td>
-                </tr>
-                <tr>
-                  <td>End police brutality. Why is needed? Stop beating black and brown people.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.9217</td>
-                </tr>
-                <tr>
-                  <td>End crime. Why is needed? Because there are a lot of robberies.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.7906</td>
-                </tr>
-                <tr>
                   <td>Road repair because we have bad roads.</td>                
                   <td>
                     <span class="badge badge-danger">Negative</span>
@@ -155,6 +134,27 @@
                     <span class="badge badge-danger">Negative</span>
                   </td>
                   <td>-0.577</td>
+                </tr>
+                <tr>
+                  <td>Violence in Schools need to stop.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.743</td>
+                </tr>
+                <tr>
+                  <td>End crime. Why is needed? Because there are a lot of robberies.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.7906</td>
+                </tr>
+                <tr>
+                  <td>End police brutality. Why is needed? Stop beating black and brown people.</td>                
+                  <td>
+                    <span class="badge badge-danger">Negative</span>
+                  </td>
+                  <td>-0.9217</td>
                 </tr>
               </tbody>
             </table>
