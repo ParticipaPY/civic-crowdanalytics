@@ -117,7 +117,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/concept'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/concept'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -140,7 +140,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/category'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/category'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -165,7 +165,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/similar'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/similar'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -188,7 +188,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/sentiment'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/sentiment'">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
