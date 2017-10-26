@@ -61,16 +61,23 @@ class AnalysisViewSet(viewsets.ModelViewSet):
     def create(self, request):
         
         # Get dataset
-        ds_id = request.data['dataset']
-        ds = Dataset.objects.get(id=ds_id)
-        ds_file = str(ds.dataset_file)
-        
+        try:
+            ds_id = request.data['dataset']
+            ds = Dataset.objects.get(id=ds_id)
+            ds_file = str(ds.dataset_file)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+            
         # Get dataset attributes that are included for analysis
-        attributes = Attribute.objects.filter(dataset_id=ds_id, included_in_analysis=True).values_list('attribute_name', flat=True)
-
+        attributes = Attribute.objects.filter(dataset_id=ds_id, included_in_analysis=True)
+        attributes = attributes.values_list('attribute_name', flat=True)
+        
         # Get dataset attributes that have datatype string
         if not attributes:
-            attributes = Attribute.objects.filter(dataset_id=ds_id, attribute_type=STRING).values_list('attribute_name', flat=True)
+            attributes = Attribute.objects.filter(dataset_id=ds_id, attribute_type=STRING)
+            attributes = attributes.values_list('attribute_name', flat=True)
         
         attributes = list(attributes)
         
@@ -109,12 +116,15 @@ class AnalysisViewSet(viewsets.ModelViewSet):
                     'algorithm': request.data['algorithm'], 'project': request.data['project'],
                     'result': results}
         
-        serializer = AnalysisSerializer(data=analysis)
-        if serializer.is_valid():
+        try: 
+            serializer = AnalysisSerializer(data=analysis)
+            serializer.is_valid()
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
 
 
 class AlgorithmViewSet(viewsets.ModelViewSet):
