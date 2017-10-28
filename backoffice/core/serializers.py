@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from core.models import (
-    User, Project, Dataset, Attribute, Visibility, Analysis, Algorithm, Visualization,
-    VisualizationType
+    User, Project, Dataset, Attribute, Analysis, Visualization,
 )
 
 
@@ -20,12 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
 
-class VisibilitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Visibility
-        fields = ('id', 'description')
-
-
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attribute
@@ -35,7 +28,7 @@ class AttributeSerializer(serializers.ModelSerializer):
 class DatasetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dataset
-        fields = ('id', 'dataset_name', 'dataset_file')
+        fields = ('id', 'name', 'file')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -53,12 +46,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         )
 
 
-class AlgorithmSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Algorithm
-        fields = ('id', 'algorithm_name')
-
-
 class AnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Analysis
@@ -70,8 +57,3 @@ class VisualizationSerializer(serializers.ModelSerializer):
         model = Visualization
         fields = ('id', 'payload', 'visualization_type', 'analysis')
 
-
-class VisualizationTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VisualizationType
-        fields = ('id', 'description')

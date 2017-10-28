@@ -2,8 +2,8 @@ from django.db import models
 from django_mysql.models import JSONField
 
 class Dataset(models.Model):
-    dataset_name = models.CharField(max_length=50)
-    dataset_file = models.FileField()
+    name = models.CharField(max_length=50)
+    file = models.FileField()
 
 
 class Visibility(models.Model):
@@ -26,7 +26,7 @@ class User(models.Model):
     email = models.CharField(max_length=254)
     username = models.CharField(max_length=150)
     is_superuser = models.BooleanField()
-    password = models.CharField(max_length=100)
+    password = models.CharField(max_length=150)
     project = models.ManyToManyField(Project, through='Ownership')
 
 
@@ -42,21 +42,21 @@ class AttributeType(models.Model):
 
 
 class Attribute(models.Model):
-    attribute_name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     included_in_analysis = models.BooleanField()
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     attribute_type = models.ForeignKey(AttributeType)
 
 
-class Algorithm(models.Model):
-    algorithm_name = models.CharField(max_length=150)
+class AnalysisType(models.Model):
+    description = models.CharField(max_length=150)
 
 
 class Analysis(models.Model):
-    name = models.CharField(max_length=100, default='Analysis1')
-    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
-    algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    analysis_type = models.ForeignKey(AnalysisType, on_delete=models.CASCADE)
     result = JSONField()
 
 
@@ -71,7 +71,7 @@ class VisualizationType(models.Model):
 class Visualization(models.Model):
     payload = models.TextField()
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    visualization_type = models.ForeignKey(
+    visualization_type = models.ForeignKey( 
         VisualizationType,
         on_delete=models.CASCADE
     )
