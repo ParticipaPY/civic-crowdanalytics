@@ -13,11 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
-from rest_framework import routers
 from core import views
+from core.swagger_schema import get_swagger_view
+from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import url, include
 from django.conf.urls.static import static
+from rest_framework import routers
+from rest_framework_jwt.views import obtain_jwt_token
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -28,13 +31,21 @@ router.register(r'analysis', views.AnalysisViewSet)
 router.register(r'algoritms', views.AlgorithmViewSet)
 router.register(r'visualizations', views.VisualizationViewSet)
 router.register(r'visualizationType', views.VisualizationTypeViewSet)
+router.register(r'ownership', views.OwnershipViewSet)
+router.register(r'group', views.GroupViewSet)
+router.register(r'permission', views.PermissionViewSet)
+
+schema_view = get_swagger_view(title='Backoffice API')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
+    url(r'^api/$', schema_view),
     url(r'^api/', include(router.urls)),
-    # url(r'^api-auth/',
-    #    include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^api/auth', obtain_jwt_token),
+    url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^admin/', admin.site.urls)
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

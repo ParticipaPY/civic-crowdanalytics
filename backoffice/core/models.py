@@ -1,13 +1,20 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
 class Dataset(models.Model):
     dataset_name = models.CharField(max_length=50)
     dataset_file = models.FileField()
 
+    def __str__(self):
+        return self.dataset_name
+
 
 class Visibility(models.Model):
     description = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.description
 
 
 class Project(models.Model):
@@ -19,15 +26,15 @@ class Project(models.Model):
     dataset = models.ManyToManyField(Dataset)
     visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
 
-class User(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.CharField(max_length=254)
-    username = models.CharField(max_length=150)
-    is_superuser = models.BooleanField()
-    password = models.CharField(max_length=100)
+
+class User(AbstractUser):
     project = models.ManyToManyField(Project, through='Ownership')
+
+    def __str__(self):
+        return self.username
 
 
 class Ownership(models.Model):
@@ -50,12 +57,18 @@ class Attribute(models.Model):
 class Algorithm(models.Model):
     algorithm_name = models.CharField(max_length=150)
 
+    def __str__(self):
+        return self.algorithm_name
+
 
 class Analysis(models.Model):
     name = models.CharField(max_length=100, default='Analysis1')
     dataset = models.OneToOneField(Dataset, on_delete=models.CASCADE)
     algorithm = models.ForeignKey(Algorithm, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Report(models.Model):
@@ -64,6 +77,9 @@ class Report(models.Model):
 
 class VisualizationType(models.Model):
     description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.description
 
 
 class Visualization(models.Model):
