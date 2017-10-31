@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from core.models import  (
     User, Project, Dataset, Attribute, Analysis, Visualization
@@ -19,16 +20,15 @@ logger = logging.getLogger(__name__)
 
 
 # ---
-# General methods and classes
+# General methods 
 # ---
 
 
 # Create a list of strings from a dataset
 def read_dataset(dataset_id):
-    
     # Get dataset
     ds = Dataset.objects.get(id=dataset_id)
-    ds_file = str(ds.dataset_file)
+    ds_file = str(ds.file)
         
     # Get dataset attributes that are included for analysis
     attributes = Attribute.objects.filter(dataset_id=dataset_id, included_in_analysis=True)
@@ -58,6 +58,93 @@ def read_dataset(dataset_id):
     dataset_list = dataset['concatenation'].tolist()  
 
     return dataset_list
+
+
+# Get object from primary key
+def get_object(object, pk):
+    try:
+        return object.objects.get(pk=pk)
+    except object.DoesNotExist:
+        raise Http404
+
+
+
+# ---
+# API View Classes
+# ---
+
+
+class SentimentAnalysisList(APIView):
+    """
+    List all sentiment analysis, or create a new sentiment analysis.
+    """
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        try:    
+            ideas = read_dataset(request.data['dataset'])
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+     
+        # Call sentiment analizer
+        sentiment_analyzer = SentimentAnalyzer()
+        sentiment_analyzer.analyze_docs(ideas) 
+
+        # Get results
+        results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
+        results = json.dumps(results)
+
+        #save results
+        analysis = {'name': request.data['name'], 'project': request.data['project'],
+                    'dataset': request.data['dataset'], 'analysis_type': SENTIMENT_ANALYSIS,
+                    'result': results}
+        
+        try: 
+            serializer = AnalysisSerializer(data=analysis)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class SentimentAnalysisDetail(APIView):
+    """
+    Retrieve, update or delete a snippet instance.
+    """
+    def get(self, request, pk, format=None):
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        try:
+            analysis = get_object(Analysis,pk)
+            serializer = AnalysisSerializer(analysis, data=request.data)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def delete(self, request, pk, format=None):
+        analysis = get_object(Analysis, pk)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -94,48 +181,6 @@ class AttributeViewSet(viewsets.ModelViewSet):
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
-
-
-class AnalysisViewSet(viewsets.ModelViewSet):
-    queryset = Analysis.objects.all()
-    serializer_class = AnalysisSerializer
-
-    def create(self, request):
-        try:    
-            ideas = read_dataset(request.data['dataset'])
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-     
-        # Get visualization type
-        vis_type = int(request.data['visualization_type'])
-                
-        if vis_type == SENTIMENT_ANALYSIS:
-            # Call sentiment analizer
-            sentiment_analyzer = SentimentAnalyzer()
-            sentiment_analyzer.analyze_docs(ideas) 
-
-            # Get results
-            results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
-            results = json.dumps(results)
-        else:
-            results = {}
-
-        #save results
-        analysis = {'name': request.data['name'],'dataset': request.data['dataset'], 
-                    'visualization_type': request.data['visualization_type'], 'project': request.data['project'],
-                    'result': results}
-        
-        try: 
-            serializer = AnalysisSerializer(data=analysis)
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
 
 
 class VisualizationViewSet(viewsets.ModelViewSet):

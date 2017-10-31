@@ -7,15 +7,7 @@ from core.models import (
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'email',
-            'username',
-            'is_superuser',
-            'password'
-        )
+        fields = ('__all__')
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -28,22 +20,13 @@ class AttributeSerializer(serializers.ModelSerializer):
 class DatasetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dataset
-        fields = ('id', 'name', 'file')
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = (
-            'id',
-            'name',
-            'start_date',
-            'description',
-            'location',
-            'people_editing',
-            'dataset',
-            'visibility'
-        )
+        fields = '__all__'
 
 
 class AnalysisSerializer(serializers.ModelSerializer):
@@ -55,5 +38,5 @@ class AnalysisSerializer(serializers.ModelSerializer):
 class VisualizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visualization
-        fields = ('id', 'payload', 'visualization_type', 'analysis')
+        fields = '__all__'
 

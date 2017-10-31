@@ -24,13 +24,16 @@ router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet)
 router.register(r'attributes', views.AttributeViewSet)
 router.register(r'datasets', views.DatasetViewSet)
-router.register(r'analysis', views.AnalysisViewSet)
 router.register(r'visualizations', views.VisualizationViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^api/', include(router.urls)),
+    # ex: /api/sentiment-analysis/
+    url(r'^api/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
+    # ex: /api/sentiment-analysis/sentiment_analysis_id
+    url(r'^api/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
     # url(r'^api-auth/',
     #    include('rest_framework.urls', namespace='rest_framework'))
 ]
