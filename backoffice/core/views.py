@@ -95,7 +95,7 @@ class SentimentAnalysisList(APIView):
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
-     
+
         # Call sentiment analizer
         sentiment_analyzer = SentimentAnalyzer()
         sentiment_analyzer.analyze_docs(ideas) 
@@ -104,10 +104,13 @@ class SentimentAnalysisList(APIView):
         results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
         results = json.dumps(results)
 
+        # Set status to Executed
+        analysis_status = EXECUTED
+
         #save results
         analysis = {'name': request.data['name'], 'project': request.data['project'],
                     'dataset': request.data['dataset'], 'analysis_type': SENTIMENT_ANALYSIS,
-                    'result': results}
+                    'analysis_status':analysis_status, 'result': results}
         
         try: 
             serializer = AnalysisSerializer(data=analysis)
