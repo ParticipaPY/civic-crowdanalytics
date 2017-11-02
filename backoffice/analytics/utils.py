@@ -4,8 +4,10 @@
 
 import re
 import nltk
+import random
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
+from bs4 import BeautifulSoup
 
 
 def download_stop_words():
@@ -71,3 +73,11 @@ def tokenize_and_stem(text, specific_words_to_delete=[],
         return ' '.join(stems)
     else:
         return stems
+
+def clean_html_tags(raw_html):
+    return BeautifulSoup(raw_html, "lxml").text
+
+def shuffled(x):
+    y = x[:]
+    random.shuffle(y)
+    return y

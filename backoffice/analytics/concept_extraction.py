@@ -146,6 +146,7 @@ class ConceptExtractor():
                 break
         # delete word of the ngrams from the list of common words to avoid 
         # duplicates
+        idx_elements_to_remove = []
         for ngram in ngrams_to_consider:
             idx_elements_to_remove = [i for word in ngram[0] for i in 
                                       range(len(common_words)) 
@@ -175,7 +176,7 @@ class ConceptExtractor():
     
     @property
     def unique_words(self):
-        return self._uniquer_words
+        return self._unique_words
     
     @property
     def common_concepts(self):

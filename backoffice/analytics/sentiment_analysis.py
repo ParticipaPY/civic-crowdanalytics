@@ -4,6 +4,8 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from textblob import TextBlob
+from utils import tokenize_and_remove_stop_words, tokenize_and_stem
+
 
 class SentimentAnalyzer():
     '''
@@ -18,7 +20,7 @@ class SentimentAnalyzer():
         then the sentiment is considered negative.
         Use values greater than -1 and lower than 0.
 
-    neu_pos_lim : float, 0.3 by default
+    neu_sup_lim : float, 0.3 by default
         If a doc's polarity score is greater than this parameter,
         then the seniment is considered positive.
         Use values greater than 0 and lower than 1.
@@ -62,7 +64,8 @@ class SentimentAnalyzer():
         and polarity score is a float that ranges from -1 to 1.
         '''
 
-        score = self.get_polarity_score(doc)
+        pp_doc = tokenize_and_remove_stop_words(text=doc, join_words=True)
+        score = self.get_polarity_score(pp_doc)
         if score >= -1 and score < self.neu_inf_lim:
             predicted_sentiment = "neg"
         elif score >= self.neu_inf_lim and score < self.neu_sup_lim:
