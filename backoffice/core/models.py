@@ -1,13 +1,20 @@
 from django.db import models
 from django_mysql.models import JSONField
+from django.contrib.auth.models import AbstractUser
 
 class Dataset(models.Model):
     name = models.CharField(max_length=50)
     file = models.FileField()
 
+    def __str__(self):
+        return self.dataset_name
+
 
 class Visibility(models.Model):
     description = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.description
 
 
 class Project(models.Model):
@@ -19,15 +26,15 @@ class Project(models.Model):
     dataset = models.ManyToManyField(Dataset)
     visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
 
-class User(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.CharField(max_length=254)
-    username = models.CharField(max_length=150)
-    is_superuser = models.BooleanField()
-    password = models.CharField(max_length=150)
+
+class User(AbstractUser):
     project = models.ManyToManyField(Project, through='Ownership')
+
+    def __str__(self):
+        return self.username
 
 
 class Ownership(models.Model):
@@ -51,8 +58,10 @@ class Attribute(models.Model):
 class AnalysisType(models.Model):
     description = models.CharField(max_length=150)
 
+
 class AnalysisStatus(models.Model):
     description = models.CharField(max_length=150)
+
 
 class Analysis(models.Model):
     name = models.CharField(max_length=150)
@@ -62,6 +71,9 @@ class Analysis(models.Model):
     analysis_status = models.ForeignKey(AnalysisStatus, on_delete=models.CASCADE)
     result = JSONField()
 
+    def __str__(self):
+        return self.name
+
 
 class Report(models.Model):
     analysis = models.ManyToManyField(Analysis)
@@ -69,6 +81,9 @@ class Report(models.Model):
 
 class VisualizationType(models.Model):
     description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.description
 
 
 class Visualization(models.Model):

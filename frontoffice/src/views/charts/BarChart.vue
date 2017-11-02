@@ -5,20 +5,24 @@ export default Bar.extend({
   mounted () {
     // Overwriting base render method with actual data.
     this.renderChart({
-      labels: ['public transit', 'private transit', 'non-motor powered transit', 'infrastructure'],
+      labels: ['City Infrastructure', 'Education & Training', 'Parks & Recreation', 'Public Safety', 'Social Services', 'Transportation'],
       datasets: [
         {
           label: 'Categories',
-          data: [97, 43, 136, 37],
+          data: [245, 297, 253, 164, 295, 348],
           backgroundColor: [
             'rgba(255, 99, 132, 0.5)',
             'rgba(54, 162, 235, 0.5)',
             'rgba(255, 206, 86, 0.5)',
+            'rgba(255, 206, 86, 0.5)',
+            'rgba(255, 206, 86, 1)',
             'rgba(75, 192, 192, 0.5)'
           ],
           borderColor: [
             'rgba(255,99,132,1)',
             'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(255, 206, 86, 1)',
             'rgba(255, 206, 86, 1)',
             'rgba(75, 192, 192, 1)'
           ],

@@ -2,3 +2,6 @@ Django
 flake8
 mysqlclient
 pylint
+djangorestframework
+djangorestframework-jwt
+django-rest-swagger

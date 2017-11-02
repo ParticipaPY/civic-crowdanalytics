@@ -8922,6 +8922,37 @@ hr.transparent {
   *[dir="rtl"] .callout-success {
     border-right-color: #4dbd74; }
 
+span.titleLogo {
+  color: #0091EA;
+  font-size: 1.5rem;
+  font-weight: lighter; }
+  span.titleLogo span:first-of-type {
+    font-weight: bold; }
+  span.titleLogo span:last-of-type {
+    font-weight: normal; }
+  span.titleLogo sup {
+    font-size: 1rem; }
+
+.sidebar-toggler {
+  color: rgba(0, 145, 234, 0.6) !important; }
+
+ul.nav-dropdown-items a.nav-link.active, ul.nav-dropdown-items .navbar a.active.dropdown-toggle, .navbar ul.nav-dropdown-items a.active.dropdown-toggle {
+  background-color: #0D1214 !important; }
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 1.1rem;
+  color: #b0bec5; }
+  .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    font-weight: bold;
+    color: #7c7c7c; }
+  .breadcrumb a {
+    color: #7c7c7c; }
+
+header.app-header .dropdown-toggle::after {
+  display: none; }
+
 #new-project input, #new-project textarea {
   padding: 0.5rem; }
 
@@ -9115,3 +9146,38 @@ hr.transparent {
       margin-right: 0.6rem; }
   .concept-extraction .card-header button {
     color: #20a8d8; }
+
+#top-cards h2.card-title {
+  margin-bottom: 0; }
+
+#notifications {
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0px 0px 10px #6c6c6c;
+  color: #6c6c6c;
+  font-size: 0.8rem; }
+  #notifications h1 {
+    color: #6c6c6c;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #D3D3D3;
+    margin: -1rem -1rem 0 -1rem;
+    padding: 1rem; }
+  #notifications ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0 -1rem -1rem -1rem; }
+    #notifications ul li {
+      border-bottom: 1px solid #D3D3D3;
+      padding: 1rem 1rem 0.5rem; }
+      #notifications ul li .icon {
+        float: left;
+        margin-right: 1rem;
+        margin-bottom: 1.8rem; }
+      #notifications ul li p {
+        margin-bottom: 0.3rem; }
+      #notifications ul li .time {
+        font-size: 0.7rem; }
+      #notifications ul li div.clearfix {
+        clear: both;
+        height: 0; }

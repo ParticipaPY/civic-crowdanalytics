@@ -52,39 +52,39 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>Parking should be unbundled - i.e. you pay if you want to use it. Lots and lots of young people and seniors would love to live in housing where they're not implicitly paying for parking they don't use and lots of them don't need or want a car, particularly if they're living right near the Caltrain.</td>
+                  <td>I want to help special kids because I love little kids and want to help them.  Why is needed? It is needed because they need help to learn.</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>0.91</td>
+                  <td>0.9538</td>
                 </tr>
                 <tr>
-                  <td>All new multifamily housing should come with at least one zipcar.</td>
+                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
                   <td>
-                    <span class="badge badge-default">Neutral</span>
+                    <span class="badge badge-default">Positive</span>
                   </td>
-                  <td>0.20</td>
+                  <td>0.886</td>
                 </tr>
                 <tr>
-                  <td>We should work with companies like Lyft and Uber to create "on-demand" shuttles. I.e. cars or vans could pick up multiple passengers where and when they need it, instead of running a mindless shuttle that is inflexible and often not useful.</td>
+                  <td>Restore the downtown and make it more attractive.  Why is needed? To make Vallejo a better place.</td>
                   <td>
-                    <span class="badge badge-danger">Negative</span>
+                    <span class="badge badge-danger">Positive</span>
                   </td>
-                  <td>-0.60</td>
+                  <td>0.9022</td>
                 </tr>
                 <tr>
-                  <td>Without convenient neighborhood-based public transit to and from schools, many parents are going to continue to drive their children to and from school, thus adding to traffic problems.</td>
+                  <td>Community Park. To have a nicer park for everyone  Why is needed?To enjoy scenery and kids who want to play safe.</td>
                   <td>
-                    <span class="badge badge-danger">Negative</span>
+                    <span class="badge badge-danger">Positive</span>
                   </td>
-                  <td>-0.54</td>
+                  <td>0.8934</td>
                 </tr>
                 <tr>
-                  <td>Part of the problem with mixed use development is that the FAR for the housing portion is really small. We should be encouraging ground floor retail + 3 floors of housing or retail + commercial + 2 floors of housing. But the current restrictions don't allow you to build that much housing, which exacerbates the jobs housing imbalance.</td>                
+                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>-0.73</td>
+                  <td>0.9584</td>
                 </tr>
                 <tr>
                   <td>Most work commuters are coming from the South Bay. Why not run some county-wide shuttles that pick people up from Sunnyvale, San Jose, etc and take them to work in the Stanford Research Park? Some companies there can afford their own shuttle systems, but others can't. Can the TMA help them pool resources to establish a multi-company or public shuttles to the South Bay?</td>                

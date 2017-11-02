@@ -1,10 +1,9 @@
 <template>
-  <div class="animated concept-extraction fadeIn">
+  <div class="animated fadeIn">
     <div class="row">
       <div class="col">
-        <div class="card">
+        <div class="card card-accent-success">
           <div class="card-header">
-            <span><i class="icon-chart"></i>Concept Extraction</span>
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
@@ -27,6 +26,9 @@
     <div class="row">
       <div class="col">
         <div class="card">
+          <div class="card-header">
+            Concepts
+          </div>
           <div class="card-block">
             <form action="" method="post" class="form-horizontal">
               <div class="form-group row">
@@ -49,52 +51,64 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>Parking</td>
+                  <td>city</td>                
+                  <td>139</td>
+                </tr>
+                <tr>
+                  <td>homeless</td>
+                  <td>136</td>
+                </tr>
+                <tr>
+                  <td>school</td>
+                  <td>118</td>
+                </tr>
+                <tr>
+                  <td>fix</td>
+                  <td>110</td>
+                </tr>
+                <tr>
+                  <td>community</td>
+                  <td>98</td>
+                </tr>
+                <tr>
+                  <td>help</td>
                   <td>80</td>
                 </tr>
                 <tr>
-                  <td>Cars</td>
-                  <td>60</td>
+                  <td>youth</td>
+                  <td>77</td>
                 </tr>
                 <tr>
-                  <td>Drive</td>
-                  <td>56</td>
+                  <td>street</td>
+                  <td>70</td>
                 </tr>
                 <tr>
-                  <td>People</td>
+                  <td>housing</td>
+                  <td>66</td>
+                </tr>
+                <tr>
+                  <td>repair</td>
+                  <td>57</td>
+                </tr>
+                <tr>
+                  <td>program</td>
                   <td>55</td>
                 </tr>
                 <tr>
-                  <td>Reduce</td>
-                  <td>43</td>
+                  <td>road</td>
+                  <td>54</td>
                 </tr>
                 <tr>
-                  <td>Road</td>                
-                  <td>38</td>
+                  <td>trash</td>
+                  <td>53</td>
                 </tr>
                 <tr>
-                  <td>Bike</td>                
-                  <td>33</td>
+                  <td>park</td>
+                  <td>53</td>
                 </tr>
                 <tr>
-                  <td>Park</td>                
-                  <td>28</td>
-                </tr>
-                <tr>
-                  <td>Buses</td>                
-                  <td>20</td>
-                </tr>
-                <tr>
-                  <td>Walk</td>                
-                  <td>18</td>
-                </tr>
-                <tr>
-                  <td>Avenue</td>                
-                  <td>17</td>
-                </tr>
-                <tr>
-                  <td>Allow</td>                
-                  <td>10</td>
+                  <td>center</td>
+                  <td>51</td>
                 </tr>
               </tbody>
             </table>
@@ -112,7 +126,7 @@ import LineChart from '../charts/LineChart'
 import { dropdown } from 'vue-strap'
 
 export default {
-  name: 'concept-extraction',
+  name: 'concept',
   components: {
     LineChart,
     dropdown

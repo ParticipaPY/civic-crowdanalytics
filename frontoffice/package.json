@@ -1,8 +1,7 @@
 {
-  "name": "coreui-vue",
-  "version": "1.0.0-alpha.6",
-  "description": "Open Source Admin Template",
-  "author": "Łukasz Holeczek <lukasz@holeczek.pl>",
+  "name": "civic-crowdanalytics",
+  "version": "0.1.0-alpha.1",
+  "author": "DEI-UCA",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
