@@ -30,10 +30,10 @@ router.register(r'visualizations', views.VisualizationViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^api/', include(router.urls)),
-    # ex: /api/sentiment-analysis/
-    url(r'^api/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
-    # ex: /api/sentiment-analysis/sentiment_analysis_id
-    url(r'^api/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
+    # ex: /api/analysis/sentiment-analysis/
+    url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
+    # ex: /api/analysis/sentiment-analysis/sentiment_analysis_id
+    url(r'^api/analysis/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
     # url(r'^api-auth/',
     #    include('rest_framework.urls', namespace='rest_framework'))
 ]
