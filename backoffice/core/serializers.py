@@ -1,57 +1,34 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Visibility, Analysis, Algorithm, Visualization,
-    VisualizationType, Ownership
+    User, Project, Dataset, Visibility, Attribute, Analysis, Algorithm, 
+    Visualization, VisualizationType, Ownership
 )
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'email',
-            'username',
-            'is_superuser',
-            'password'
-        )
+        fields = ('__all__')
         extra_kwargs = {'password': {'write_only': True}}
 
 
-class VisibilitySerializer(serializers.ModelSerializer):
+class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Visibility
-        fields = ('id', 'description')
+        model = Attribute
+        fields = ('__all__')
 
 
 class DatasetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dataset
-        fields = ('id', 'dataset_name', 'dataset_file')
+        fields = '__all__'
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = (
-            'id',
-            'name',
-            'start_date',
-            'description',
-            'location',
-            'people_editing',
-            'dataset',
-            'visibility'
-        )
-
-
-class AlgorithmSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Algorithm
-        fields = ('id', 'algorithm_name')
+        fields = '__all__'
 
 
 class AnalysisSerializer(serializers.ModelSerializer):
@@ -63,9 +40,9 @@ class AnalysisSerializer(serializers.ModelSerializer):
 class VisualizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visualization
-        fields = ('id', 'payload', 'visualization_type', 'analysis')
+        fields = '__all__'
 
-
+        
 class VisualizationTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = VisualizationType

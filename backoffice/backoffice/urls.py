@@ -25,10 +25,8 @@ from rest_framework_jwt.views import obtain_jwt_token
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet)
+router.register(r'attributes', views.AttributeViewSet)
 router.register(r'datasets', views.DatasetViewSet)
-router.register(r'visibilities', views.VisibilityViewSet)
-router.register(r'analysis', views.AnalysisViewSet)
-router.register(r'algoritms', views.AlgorithmViewSet)
 router.register(r'visualizations', views.VisualizationViewSet)
 router.register(r'visualizationType', views.VisualizationTypeViewSet)
 router.register(r'ownership', views.OwnershipViewSet)
@@ -42,10 +40,13 @@ schema_view = get_swagger_view(title='Backoffice API')
 urlpatterns = [
     url(r'^api/$', schema_view),
     url(r'^api/', include(router.urls)),
+    # ex: /api/analysis/sentiment-analysis/
+    url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
+    # ex: /api/analysis/sentiment-analysis/sentiment_analysis_id
+    url(r'^api/analysis/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
     url(r'^api/auth', obtain_jwt_token),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^admin/', admin.site.urls)
-
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
