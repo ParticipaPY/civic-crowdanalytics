@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Visibility, Attribute, Analysis, Algorithm, 
+    User, Project, Dataset, Attribute, Analysis, 
     Visualization, VisualizationType, Ownership
 )
 from core.serializers import (
