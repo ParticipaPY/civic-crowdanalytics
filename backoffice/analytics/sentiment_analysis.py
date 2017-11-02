@@ -4,7 +4,7 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from textblob import TextBlob
-from utils import tokenize_and_remove_stop_words, tokenize_and_stem
+from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem
 
 
 class SentimentAnalyzer():

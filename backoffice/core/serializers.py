@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Visibility, Attribute, Analysis, Algorithm, 
+    User, Project, Dataset, Attribute, Analysis, 
     Visualization, VisualizationType, Ownership
 )
 
