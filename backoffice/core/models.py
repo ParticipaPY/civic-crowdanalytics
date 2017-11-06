@@ -63,8 +63,14 @@ class AnalysisStatus(models.Model):
     description = models.CharField(max_length=150)
 
 
+class ParameterType(models.Model):
+    description = models.CharField(max_length=150)
+
+
 class Parameter(models.Model):
     name = models.CharField(max_length=150)
+    default_value = models.CharField(max_length=150)
+    parameter_type = models.ForeignKey(ParameterType, on_delete=models.CASCADE)
     analysis_type = models.ForeignKey(AnalysisType, on_delete=models.CASCADE)
 
 

@@ -129,7 +129,7 @@ class SentimentAnalysisList(APIView):
 
 class SentimentAnalysisDetail(APIView):
     """
-    Retrieve, update or delete a snippet instance.
+    Retrieve, update or delete a sentiment analysis instance.
     """
     def get(self, request, pk, format=None):
         analysis = get_object(Analysis,pk)
