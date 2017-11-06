@@ -5,14 +5,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
+from django.db import transaction
 from core.models import (
     User, Project, Dataset, Attribute, Analysis, 
-    Visualization, VisualizationType, Ownership
+    Visualization, VisualizationType, Ownership,
+    Parameter
 )
 from core.serializers import (
     UserSerializer, ProjectSerializer, DatasetSerializer,
     AnalysisSerializer, VisualizationSerializer, VisualizationTypeSerializer, 
-    OwnershipSerializer, GroupSerializer, PermissionSerializer, AttributeSerializer
+    OwnershipSerializer, GroupSerializer, PermissionSerializer, 
+    AttributeSerializer, ArgumentSerializer
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
@@ -74,6 +77,27 @@ def get_object(object, pk):
         raise Http404
 
 
+# Create a list of arguments for an analysis
+# It uses the arguments passed as parameters.
+# If some argument is not supplied, 
+# it uses de default value in the parameters table
+def create_arguments(analysis_type, arguments):
+    arguments_list = []
+    parameters = Parameter.objects.filter(analysis_type_id = analysis_type)
+    for p in parameters:
+        if p.name in arguments:
+            value = arguments[p.name]
+        else:
+            value = p.default_value
+        parameter_id = p.id
+        analysis_id = Analysis.objects.latest('id').id
+        argument = {
+            'value':value, 
+            'parameter':parameter_id,
+            'analysis':analysis_id
+        }
+        arguments_list.append(argument)
+    return arguments_list
 
 # ---
 # API View Classes
@@ -100,8 +124,11 @@ class SentimentAnalysisList(APIView):
             resp.content = ex
             return resp
 
+        # Get arguments
+        arguments = request.data['arguments']
+
         # Call sentiment analizer
-        sentiment_analyzer = SentimentAnalyzer()
+        sentiment_analyzer = SentimentAnalyzer(**arguments)
         sentiment_analyzer.analyze_docs(ideas) 
 
         # Get results
@@ -112,15 +139,27 @@ class SentimentAnalysisList(APIView):
         analysis_status = EXECUTED
 
         #save results
-        analysis = {'name': request.data['name'], 'project': request.data['project'],
-                    'dataset': request.data['dataset'], 'analysis_type': SENTIMENT_ANALYSIS,
-                    'analysis_status':analysis_status, 'result': results}
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': SENTIMENT_ANALYSIS,
+            'analysis_status':analysis_status, 'result': results
+        }            
         
         try: 
-            serializer = AnalysisSerializer(data=analysis)
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(SENTIMENT_ANALYSIS, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
