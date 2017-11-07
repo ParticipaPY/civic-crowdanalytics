@@ -1,4 +1,6 @@
-from nltk import NaiveBayesClassifier
+import collections
+from nltk import NaiveBayesClassifier, DecisionTreeClassifier, MaxentClassifier
+from nltk.metrics import precision, recall, f_measure
 from nltk.classify import apply_features, accuracy
 from utils import clean_html_tags, shuffled
 from concept_extraction import ConceptExtractor
@@ -33,18 +35,26 @@ class DocumentClassifier():
         This is the size of the vocabulary set that will be used for extracting
         features out of the docs
 
+    t_classifier : string, 'NB' by default
+        This is the type of classifier model used. Available types are 'NB' 
+        (Naive Bayes), 'DT' (decision tree)
     '''
 
     def __init__(self, train_p=0.8, eq_label_num=True,  
-                 complete_p=True, vocab_size=500):
+                 complete_p=True, vocab_size=250, 
+                 t_classifier="NB"):
         self._train_p = train_p
         self._eq_label_num = eq_label_num
         self._complete_p = complete_p
         self._vocab_size = vocab_size
+        self._t_classifier = t_classifier
         self._vocab = []
         self._classified_docs = []
         self._classifier = None
         self._accuracy = 0
+        self._precision = {}
+        self._recall = {}
+        self._f_measure = {}
         self._train_docs = []
         self._test_docs = []
 
@@ -118,6 +128,7 @@ class DocumentClassifier():
             counters[cat] = 0
         for (text, cat) in docs:
             counters[cat] += 1
+        self._categories = sorted(categories)
         return counters
 
     def get_doc_features(self, doc):
@@ -162,10 +173,36 @@ class DocumentClassifier():
         # split dev docs and create traning and test set
         self.split_train_and_test(dev_docs)
         train_set = apply_features(self.get_doc_features, self._train_docs)
+        # create and train the classification model according to t_classifier
+        if self._t_classifier == "NB":
+            self._classifier = NaiveBayesClassifier.train(train_set)
+        elif self._t_classifier == "DT":
+            self._classifier = DecisionTreeClassifier.train(train_set)
+        # elif self._t_classifier == "ME":
+        #     self._classifier = MaxentClassifier()
+
+
+    def eval_classifier(self):
+        '''
+        Test the model and calculates the metrics of accuracy, precision,
+        recall and f-measure
+        '''
+
         test_set = apply_features(self.get_doc_features, self._test_docs)
-        # create and train the classification model
-        self._classifier = NaiveBayesClassifier.train(train_set)
         self._accuracy = accuracy(self._classifier, test_set)
+        refsets = collections.defaultdict(set)
+        testsets = collections.defaultdict(set)
+        
+        for i, (feats, label) in enumerate(test_set):
+            refsets[label].add(i)
+            observed = self._classifier.classify(feats)
+            testsets[observed].add(i)
+
+        for cat in self._categories:
+            self._precision[cat] = precision(refsets[cat], testsets[cat])
+            self._recall[cat] = recall(refsets[cat], testsets[cat])
+            self._f_measure[cat] = f_measure(refsets[cat], testsets[cat])
+
 
     def classify_docs(self, docs):
         '''
@@ -191,3 +228,15 @@ class DocumentClassifier():
     @property    
     def accuracy(self):
         return self._accuracy
+    
+    @property
+    def precision(self):
+        return self._precision
+
+    @property
+    def recall(self):
+        return self._recall
+
+    @property
+    def f_measure(self):
+        return self._f_measure
