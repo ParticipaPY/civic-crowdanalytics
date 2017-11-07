@@ -168,24 +168,13 @@ class SentimentAnalysisList(APIView):
 
 class SentimentAnalysisDetail(APIView):
     """
-    Retrieve, update or delete a sentiment analysis instance.
+    Retrieve or delete a sentiment analysis instance.
     """
     def get(self, request, pk, format=None):
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        try:
-            analysis = get_object(Analysis,pk)
-            serializer = AnalysisSerializer(analysis, data=request.data)
-            serializer.is_valid()
-            serializer.save()
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
 
     def delete(self, request, pk, format=None):
         analysis = get_object(Analysis, pk)
