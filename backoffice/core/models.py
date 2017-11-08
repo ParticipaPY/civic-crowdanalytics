@@ -7,7 +7,7 @@ class Dataset(models.Model):
     file = models.FileField()
 
     def __str__(self):
-        return self.dataset_name
+        return self.name
 
 
 class Visibility(models.Model):
@@ -63,6 +63,17 @@ class AnalysisStatus(models.Model):
     description = models.CharField(max_length=150)
 
 
+class ParameterType(models.Model):
+    description = models.CharField(max_length=150)
+
+
+class Parameter(models.Model):
+    name = models.CharField(max_length=150)
+    default_value = models.CharField(max_length=150)
+    parameter_type = models.ForeignKey(ParameterType, on_delete=models.CASCADE)
+    analysis_type = models.ForeignKey(AnalysisType, on_delete=models.CASCADE)
+
+
 class Analysis(models.Model):
     name = models.CharField(max_length=150)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -73,6 +84,12 @@ class Analysis(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Argument(models.Model):
+    value = models.CharField(max_length=150)
+    parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE)
+    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
 
 
 class Report(models.Model):
