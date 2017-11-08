@@ -106,11 +106,64 @@ def create_arguments(analysis_type, arguments):
 
 class SentimentAnalysisParamList(APIView):
     """
-    List all parameters for sentiment analysis.
+    List all parameters for sentiment analysis
     """
     def get(self, request, format=None):
         try:
-            parameters = Parameter.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
+            parameters = Parameter.objects.filter(
+                analysis_type=SENTIMENT_ANALYSIS
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClusteringParamList(APIView):
+    """
+    List all parameters for document clustering
+    """
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLUSTERING
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class ConceptExtractionParamList(APIView):
+    """
+    List all parameters for concept extraction
+    """
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=CONCEPT_EXTRACTION
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClassificationParamList(APIView):
+    """
+    List all parameters for document classification
+    """
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
             serializer = ParameterSerializer(parameters, many=True)
             return Response(serializer.data)
         except Exception as ex:

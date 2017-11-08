@@ -46,6 +46,12 @@ urlpatterns = [
     url(r'^api/analysis/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
     # ex: /api/analysis/sentiment-analysis/parameters/
     url(r'^api/analysis/sentiment-analysis/parameters/$', views.SentimentAnalysisParamList.as_view()),
+    # ex: /api/analysis/doc-clustering/parameters/
+    url(r'^api/analysis/doc-clustering/parameters/$', views.DocumentClusteringParamList.as_view()),
+    # ex: /api/analysis/concept-extraction/parameters/
+    url(r'^api/analysis/concept-extraction/parameters/$', views.ConceptExtractionParamList.as_view()),
+    # ex: /api/analysis/doc-classification/parameters/
+    url(r'^api/analysis/doc-classification/parameters/$', views.DocumentClassificationParamList.as_view()),
 
     url(r'^api/auth', obtain_jwt_token),
     url(r'^api-auth/', include('rest_framework.urls')),
