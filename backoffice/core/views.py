@@ -15,7 +15,7 @@ from core.serializers import (
     UserSerializer, ProjectSerializer, DatasetSerializer,
     AnalysisSerializer, VisualizationSerializer, VisualizationTypeSerializer, 
     OwnershipSerializer, GroupSerializer, PermissionSerializer, 
-    AttributeSerializer, ArgumentSerializer
+    AttributeSerializer, ArgumentSerializer, ParameterSerializer
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
@@ -99,9 +99,26 @@ def create_arguments(analysis_type, arguments):
         arguments_list.append(argument)
     return arguments_list
 
+
 # ---
 # API View Classes
 # ---
+
+class SentimentAnalysisParamList(APIView):
+    """
+    List all parameters for sentiment analysis.
+    """
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
 class SentimentAnalysisList(APIView):
     """
     List all sentiment analysis, or create a new sentiment analysis.

@@ -44,6 +44,9 @@ urlpatterns = [
     url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
     # ex: /api/analysis/sentiment-analysis/sentiment_analysis_id
     url(r'^api/analysis/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
+    # ex: /api/analysis/sentiment-analysis/parameters/
+    url(r'^api/analysis/sentiment-analysis/parameters/$', views.SentimentAnalysisParamList.as_view()),
+
     url(r'^api/auth', obtain_jwt_token),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^admin/', admin.site.urls)
