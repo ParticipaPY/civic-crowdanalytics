@@ -33,9 +33,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ParameterSerializer(serializers.ModelSerializer):
+    parameter_type = serializers.SlugRelatedField(read_only=True, slug_field='description')
+
     class Meta:
         model = Parameter
-        fields = '__all__'
+        fields = ('name','parameter_type','default_value')
 
 
 class ArgumentSerializer(serializers.ModelSerializer):
