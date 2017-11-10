@@ -21,6 +21,7 @@ from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
 from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
+from analytics.concept_extraction import ConceptExtractor
 import pandas as pd
 import json
 import logging
@@ -199,14 +200,14 @@ class SentimentAnalysisList(APIView):
         arguments = request.data['arguments']
 
         # Call sentiment analizer
-        sentiment_analyzer = SentimentAnalyzer(**arguments)
-        sentiment_analyzer.analyze_docs(ideas) 
+        sa = SentimentAnalyzer(**arguments)
+        sa.analyze_docs(ideas) 
 
         # Get results
         docs = []
         sentiments = []
         scores = []
-        for t in sentiment_analyzer.tagged_docs:
+        for t in sa.tagged_docs:
             docs.append(t[0])
             sentiments.append(t[1])
             scores.append(t[2])
@@ -316,7 +317,7 @@ class DocumentClusteringList(APIView):
                 analysisSerializer.save()
                 
                 # Save arguments
-                arguments_list = create_arguments(SENTIMENT_ANALYSIS, arguments)
+                arguments_list = create_arguments(DOCUMENT_CLUSTERING, arguments)
                 for arg in arguments_list:
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
@@ -343,6 +344,95 @@ class DocumentClusteringDetail(APIView):
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ConceptExtractionList(APIView):
+    """
+    List all concept extraction analysis, or create a new concept extraction analysis.
+    """
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        try:    
+            docs = read_dataset(request.data['dataset'])
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+        # Get arguments
+        arguments = request.data['arguments']
+
+        # Call concept extractor
+        ce = ConceptExtractor(**arguments)
+        ce.extract_concepts(docs)
+
+        # Get results
+        concepts = []
+        occurrences = []
+        for t in ce.common_concepts:
+            concepts.append(t[0])
+            occurrences.append(t[1])
+        results = {}
+        results["concepts"] = concepts
+        results["occurrences"] = occurrences
+        results = json.dumps(results)
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': CONCEPT_EXTRACTION,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        try: 
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(CONCEPT_EXTRACTION, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class ConceptExtractionDetail(APIView):
+    """
+    Retrieve or delete a concept extraction instance.
+    """
+    def get(self, request, pk, format=None):
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk, format=None):
+        analysis = get_object(Analysis, pk)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 # ---
 # API ViewSet Classes
