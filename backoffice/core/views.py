@@ -19,7 +19,8 @@ from core.serializers import (
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
-from analytics.sentiment_analysis import SentimentAnalyzer 
+from analytics.sentiment_analysis import SentimentAnalyzer
+from analytics.clustering import DocumentClustering
 import pandas as pd
 import json
 import logging
@@ -202,7 +203,17 @@ class SentimentAnalysisList(APIView):
         sentiment_analyzer.analyze_docs(ideas) 
 
         # Get results
-        results = {a:{b:c} for a,b,c in sentiment_analyzer.tagged_docs}
+        docs = []
+        sentiments = []
+        scores = []
+        for t in sentiment_analyzer.tagged_docs:
+            docs.append(t[0])
+            sentiments.append(t[1])
+            scores.append(t[2])
+        results = {}
+        results["docs"] = docs
+        results["sentiments"] = sentiments
+        results["scores"] = scores
         results = json.dumps(results)
 
         # Set status to Executed
@@ -252,6 +263,86 @@ class SentimentAnalysisDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class DocumentClusteringList(APIView):
+    """
+    List all clustering analysis, or create a new clustering analysis.
+    """
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        try:    
+            docs = read_dataset(request.data['dataset'])
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+        # Get arguments
+        arguments = request.data['arguments']
+
+        # Call document clustering
+        dc = DocumentClustering(**arguments)
+        dc.clustering(docs)
+        
+        # Get results
+        vec = dc.get_coordinate_vectors()
+        vec['x'] = vec['x'].tolist()
+        vec['y'] = vec['y'].tolist()
+        results = json.dumps(vec)
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLUSTERING,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        try: 
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(SENTIMENT_ANALYSIS, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClusteringDetail(APIView):
+    """
+    Retrieve or delete a document clustering instance.
+    """
+    def get(self, request, pk, format=None):
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk, format=None):
+        analysis = get_object(Analysis, pk)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # ---
 # API ViewSet Classes

@@ -5,3 +5,11 @@ pylint
 djangorestframework
 djangorestframework-jwt
 django-rest-swagger
+gunicorn
+django_mysql
+bs4
+pandas
+nltk
+textblob
+sklearn
+scipy
