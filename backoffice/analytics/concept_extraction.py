@@ -9,7 +9,7 @@ Created on Sat Oct 14 17:07:11 2017
 import pandas as pd
 import nltk
 import re
-from utils import tokenize_and_remove_stop_words, download_stop_words
+from analytics.utils import tokenize_and_remove_stop_words, download_stop_words
 
 
 class ConceptExtractor():
