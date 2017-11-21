@@ -13,3 +13,4 @@ nltk
 textblob
 sklearn
 scipy
+django-cors-headers
