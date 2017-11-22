@@ -165,7 +165,6 @@ class DocumentClassifier():
         dev_docs: iterable
             An iterable which yields a list of strings
         '''
-
         # create vocabulary for feature extraction
         ce = ConceptExtractor(num_concepts=self._vocab_size)
         ce.extract_concepts([t for (t,c) in dev_docs])
@@ -187,7 +186,6 @@ class DocumentClassifier():
         Test the model and calculates the metrics of accuracy, precision,
         recall and f-measure
         '''
-
         test_set = apply_features(self.get_doc_features, self._test_docs)
         self._accuracy = accuracy(self._classifier, test_set)
         refsets = collections.defaultdict(set)
@@ -214,8 +212,12 @@ class DocumentClassifier():
             An iterable which yields a list of strings
         '''
 
+        dev_docs = [(t, c) for (t, c) in docs if c!=""]
+        unlabeled_docs = [t for (t, c) in docs if c==""]
+        self.train_classifier(dev_docs)
+        self.eval_classifier()
         results = []
-        for doc in docs:
+        for doc in unlabeled_docs:
             doc_feats = self.get_doc_features(doc)
             result = self._classifier.classify(doc_feats)
             results.append((doc, result))

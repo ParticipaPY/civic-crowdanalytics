@@ -210,3 +210,153 @@ class DocumentClustering:
     @property
     def num_docs_per_cluster(self):
         return self._num_docs_per_clusters
+
+class IterativeDocumentClustering:
+    '''
+    Cluster documents using the DocumentClustering class previously
+    defined. If one of the clusters is too big, it clusters it again
+    and repeat the process until all clusters are small enough.
+    
+    Parameters
+    ----------
+    num_clusters : int, 5 by default
+        The number of clusters in which the documents will be grouped.
+        If a given cluster is too big it will be re clustered so there
+        could be more clusters than num_clusters.
+    
+    context_words : list, empty list by default
+        List of context-specific words that should notbe considered in the 
+        analysis.
+        
+    ngram_range: tuple, (1,1) by default
+        The lower and upper boundary of the range of n-values for different 
+        n-grams to be extracted. All values of n such that 
+        min_n <= n <= max_n will be used.
+    
+    min_df: float in range [0.0, 1.0] or int, default=0.1
+        The minimum number of documents that any term is contained in. It 
+        can either be an integer which sets the number specifically, or a 
+        decimal between 0 and 1 which is interpreted as a percentage of all 
+        documents.
+    
+    max_df: float in range [0.0, 1.0] or int, default=0.9
+        The maximum number of documents that any term is contained in. It 
+        can either be an integer which sets the number specifically, or a 
+        decimal between 0 and 1 which is interpreted as a percentage of all 
+        documents.
+    
+    consider_urls: boolean, False by default
+        Whether URLs should be removed or not.
+    
+    language: string, english by default
+        Language of the documents. Only the languages supported by the
+        library NLTK are supported.
+
+    threshold: float, 0.9 by default
+        Percentage of the docs that defines the maximun size for a cluster.abs
+
+    n_sub_clusters: integer, 3 by default
+        Number of sub cluster on which any big cluster will be re clustered.
+    
+    '''
+    
+    def __init__(self, num_clusters=5, context_words=[], ngram_range=(1,1), 
+                min_df=0.05, max_df=0.9, consider_urls=False, 
+                language='english', threshold=0.6, n_sub_clusters=3):
+        self.num_clusters = num_clusters
+        self.context_words = context_words
+        self.ngram_range = ngram_range
+        self.min_df = min_df
+        self.max_df = max_df
+        self.consider_urls = consider_urls
+        self.language = language
+        self.threshold = threshold
+        self.n_sub_clusters = n_sub_clusters
+        self.clusters_data = {}
+
+    def cluster_subset(self, docs, coords=None, num_clusters=5):
+        '''
+        Cluster a set of docs into num_clusters groups
+
+        Parameters
+        ----------
+        docs: iterable
+            An iterable which yields a list of strings
+        
+        coords: iterable
+            An iterable which yields a list of tuple of (x,y) form where x
+            and y represent bidimensional coordinates of each doc.
+            If None, it uses the get_coordinate_vectors method of the
+            DocumentClustering class to calculate new coordinates.
+
+        num_clusters: int, 5 by default
+            The number of clusters in which the documents will be grouped.
+
+        Returns
+        -------
+        result: dictionary where keys are clusters labels and values are list
+        of the form (t,x,y) where t is the text of a document, and x & y are
+        the coordinates of the document.
+
+        '''
+
+        dc = DocumentClustering(num_clusters=num_clusters,
+                                context_words=self.context_words,
+                                ngram_range=self.ngram_range,
+                                min_df=self.min_df,
+                                max_df=self.max_df)
+        dc.clustering(docs)
+        vec = dc.get_coordinate_vectors()
+        if coords != None:
+            xs = [c[0] for c in coords]
+            ys = [c[1] for c in coords]
+        else:
+            xs = vec["x"]
+            ys = vec["y"]
+        labels = vec["label"]
+        texts = vec["docs"]
+        result = {str(l): [] for l in set(labels)}
+        for i in range(0, len(labels)):
+            cluster = str(labels[i])
+            data = (texts[i], xs[i], ys[i])
+            result[cluster].append(data)
+        return result
+
+    def clustering(self, docs):
+        '''
+        Call cluster_subset method iteratively until all groups are small 
+        enough.
+
+        Parameters
+        ----------
+        docs: iterable
+            An iterable which yields a list of strings
+        '''
+
+        limit =  int(self.threshold*len(docs))
+        #first time cluster_subset is called with the num_clusters attribute
+        result = self.cluster_subset(docs=docs, num_clusters=self.num_clusters)
+        while True:
+            n_docs = {c: len(l) for c,l in result.items()}
+            re_cluster = [c for c,n in n_docs.items() if n > limit]
+            if len(re_cluster) == 0:
+                break
+            # re_cluster contains the labels of groups that are over the limit
+            for c in re_cluster:
+                rc_data = result.pop(c)
+                rc_docs = [t for (t,x,y) in rc_data]
+                saved_coords = [(x,y) for (t,x,y) in rc_data]
+                # cluster_subset is called with the n_sub_clusters attribute
+                # when re-clustering
+                new_res = self.cluster_subset(docs=rc_docs, 
+                                             coords=saved_coords,
+                                             num_clusters=self.n_sub_clusters)
+                for nc,l in new_res.items():
+                    result[c+"."+nc] = l
+        self.clusters_data = result
+    
+    @property
+    def clusters_data(self):
+        return self.clusters_data
+    
+    
