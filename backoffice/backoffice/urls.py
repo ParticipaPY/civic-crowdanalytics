@@ -46,12 +46,16 @@ urlpatterns = [
     url(r'^api/analysis/doc-clustering/$', views.DocumentClusteringList.as_view()),
     # ex: /api/analysis/concept-extraction/
     url(r'^api/analysis/concept-extraction/$', views.ConceptExtractionList.as_view()),
+    # ex: /api/analysis/doc-classification/
+    url(r'^api/analysis/doc-classification/$', views.DocumentClassificationList.as_view()),
     # ex: /api/analysis/sentiment-analysis/sentiment_analysis_id
     url(r'^api/analysis/sentiment-analysis/(?P<pk>[0-9]+)/$', views.SentimentAnalysisDetail.as_view()),
     # ex: /api/analysis/doc-clustering/doc-clustering_id
     url(r'^api/analysis/doc-clustering/(?P<pk>[0-9]+)/$', views.DocumentClusteringDetail.as_view()),
     # ex: /api/analysis/concept-extraction/concept-extraction_id
     url(r'^api/analysis/concept-extraction/(?P<pk>[0-9]+)/$', views.ConceptExtractionDetail.as_view()),
+    # ex: /api/analysis/doc-classification/doc-classification_id
+    url(r'^api/analysis/doc-classification/(?P<pk>[0-9]+)/$', views.DocumentClassificationDetail.as_view()),
     # ex: /api/analysis/sentiment-analysis/parameters/
     url(r'^api/analysis/sentiment-analysis/parameters/$', views.SentimentAnalysisParamList.as_view()),
     # ex: /api/analysis/doc-clustering/parameters/

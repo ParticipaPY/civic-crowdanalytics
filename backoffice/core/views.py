@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 # Create a list of strings from a dataset
-def read_dataset(dataset_id):
+def create_docs(dataset_id):
     # Get dataset
     ds = Dataset.objects.get(id=dataset_id)
     ds_file = str(ds.file)
@@ -69,6 +69,14 @@ def read_dataset(dataset_id):
     dataset_list = dataset['concatenation'].tolist()  
 
     return dataset_list
+
+
+# Create a list of tuples (text, label) from a dataset
+def create_dev_docs(dataset_id, attribute_id):
+    # IN DEVELOP
+    dataset_list = []
+    return dataset_list
+
 
 
 # Get object from primary key
@@ -175,10 +183,10 @@ class DocumentClassificationParamList(APIView):
 
 
 class SentimentAnalysisList(APIView):
-    """
-    List all sentiment analysis, or create a new sentiment analysis.
-    """
     def get(self, request, format=None):
+        """
+        List all sentiment analysis
+        """
         try:
             analysis = Analysis.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -189,8 +197,11 @@ class SentimentAnalysisList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        Create a new sentiment analysis.
+        """
         try:    
-            ideas = read_dataset(request.data['dataset'])
+            ideas = create_docs(request.data['dataset'])
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
@@ -249,26 +260,29 @@ class SentimentAnalysisList(APIView):
 
 
 class SentimentAnalysisDetail(APIView):
-    """
-    Retrieve or delete a sentiment analysis instance.
-    """
     def get(self, request, pk, format=None):
+        """
+        Retrieve a sentiment analysis instance
+        """
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
 
 
     def delete(self, request, pk, format=None):
+        """
+        Delete a sentiment analysis instance
+        """
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class DocumentClusteringList(APIView):
-    """
-    List all clustering analysis, or create a new clustering analysis.
-    """
     def get(self, request, format=None):
+        """
+        List all clustering analysis
+        """
         try:
             analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -279,8 +293,11 @@ class DocumentClusteringList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        Create a new clustering analysis.
+        """
         try:    
-            docs = read_dataset(request.data['dataset'])
+            docs = create_docs(request.data['dataset'])
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
@@ -331,26 +348,29 @@ class DocumentClusteringList(APIView):
 
 
 class DocumentClusteringDetail(APIView):
-    """
-    Retrieve or delete a document clustering instance.
-    """
     def get(self, request, pk, format=None):
+        """
+        Retrieve a document clustering instance.
+        """
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
 
 
     def delete(self, request, pk, format=None):
+        """
+        Delete a document clustering instance.
+        """
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ConceptExtractionList(APIView):
-    """
-    List all concept extraction analysis, or create a new concept extraction analysis.
-    """
     def get(self, request, format=None):
+        """
+        List all concept extraction analysis
+        """
         try:
             analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -361,8 +381,11 @@ class ConceptExtractionList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        Create a new concept extraction analysis.
+        """
         try:    
-            docs = read_dataset(request.data['dataset'])
+            docs = create_docs(request.data['dataset'])
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
@@ -418,20 +441,109 @@ class ConceptExtractionList(APIView):
 
 
 class ConceptExtractionDetail(APIView):
-    """
-    Retrieve or delete a concept extraction instance.
-    """
     def get(self, request, pk, format=None):
+        """
+        Retrieve a concept extraction instance
+        """
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
 
 
     def delete(self, request, pk, format=None):
+        """
+        Delete a concept extraction instance
+        """
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class DocumentClassificationList(APIView):
+    def get(self, request, format=None):
+        """
+        List all document classification analysis
+        """
+        try:
+            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLASSIFICATION)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        Create a new document classification analysis
+        """
+        try:    
+            dev_docs = create_docs(
+                request.data['dataset'], 
+            )
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+        # Get arguments
+        arguments = request.data['arguments']
+
+        # Call concept extractor
+        #dc = DocumentClassifier(**arguments)
+        #dc.classify_docs(dev_docs)
+
+        # Get results
+        results = {}
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLASSIFICATION,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        try: 
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(DOCUMENT_CLASSIFICATION, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClassificationDetail(APIView):
+    def get(self, request, pk, format=None):
+        """
+        Retrieve a document classification instance
+        """
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk, format=None):
+        """
+        Delete a document classification instance
+        """
+        analysis = get_object(Analysis, pk)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # ---
