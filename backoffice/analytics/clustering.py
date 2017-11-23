@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import cosine_similarity
-from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
+from utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
                   download_stop_words
 
 
@@ -258,11 +258,14 @@ class IterativeDocumentClustering:
     n_sub_clusters: integer, 3 by default
         Number of sub cluster on which any big cluster will be re clustered.
     
+    num_temrs: integer, 3 by default
+        Number of top terms per cluster
     '''
     
     def __init__(self, num_clusters=5, context_words=[], ngram_range=(1,1), 
                 min_df=0.05, max_df=0.9, consider_urls=False, 
-                language='english', threshold=0.6, n_sub_clusters=3):
+                language='english', threshold=0.6, n_sub_clusters=3,
+                num_terms=3):
         self.num_clusters = num_clusters
         self.context_words = context_words
         self.ngram_range = ngram_range
@@ -272,7 +275,8 @@ class IterativeDocumentClustering:
         self.language = language
         self.threshold = threshold
         self.n_sub_clusters = n_sub_clusters
-        self.clusters_data = {}
+        self.num_terms = num_terms
+        self._clusters_data = {}
 
     def cluster_subset(self, docs, coords=None, num_clusters=5):
         '''
@@ -298,6 +302,8 @@ class IterativeDocumentClustering:
         of the form (t,x,y) where t is the text of a document, and x & y are
         the coordinates of the document.
 
+        top_terms: dictionary where keys are clusters labels and values are
+        strings that have the top termns per clusters.
         '''
 
         dc = DocumentClustering(num_clusters=num_clusters,
@@ -320,7 +326,10 @@ class IterativeDocumentClustering:
             cluster = str(labels[i])
             data = (texts[i], xs[i], ys[i])
             result[cluster].append(data)
-        return result
+
+        top_terms = {str(c): tt for c,tt in dc.top_terms_per_cluster\
+                                             (self.num_terms).items()}
+        return result, top_terms
 
     def clustering(self, docs):
         '''
@@ -332,31 +341,44 @@ class IterativeDocumentClustering:
         docs: iterable
             An iterable which yields a list of strings
         '''
-
+        top_terms = {}
         limit =  int(self.threshold*len(docs))
         #first time cluster_subset is called with the num_clusters attribute
-        result = self.cluster_subset(docs=docs, num_clusters=self.num_clusters)
+        result, top_terms = self.cluster_subset(docs=docs,
+                                                num_clusters=self.num_clusters)
         while True:
             n_docs = {c: len(l) for c,l in result.items()}
             re_cluster = [c for c,n in n_docs.items() if n > limit]
             if len(re_cluster) == 0:
                 break
             # re_cluster contains the labels of groups that are over the limit
-            for c in re_cluster:
-                rc_data = result.pop(c)
+            for rc in re_cluster:
+                # remove big cluster from final result
+                rc_data = result.pop(rc)
                 rc_docs = [t for (t,x,y) in rc_data]
                 saved_coords = [(x,y) for (t,x,y) in rc_data]
                 # cluster_subset is called with the n_sub_clusters attribute
                 # when re-clustering
-                new_res = self.cluster_subset(docs=rc_docs, 
+                new_res, new_terms = self.cluster_subset(docs=rc_docs, 
                                              coords=saved_coords,
                                              num_clusters=self.n_sub_clusters)
+                # add new clusters to final result
                 for nc,l in new_res.items():
-                    result[c+"."+nc] = l
-        self.clusters_data = result
+                    result[rc+"."+nc] = l
+                # remove top terms of big clusters
+                top_terms.pop(rc)
+                # add new clusters' top terms
+                for nc,tt in new_terms.items():
+                    top_terms[rc+"."+nc] = tt
+        self._clusters_data = result
+        self._top_terms = top_terms
     
     @property
     def clusters_data(self):
-        return self.clusters_data
+        return self._clusters_data
+
+    @property
+    def top_terms_per_cluster(self):
+        return self._top_terms
     
     
