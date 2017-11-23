@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import cosine_similarity
-from utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
+from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem,\
                   download_stop_words
 
 
