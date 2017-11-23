@@ -42,14 +42,19 @@ def create_docs(dataset_id):
     ds_file = str(ds.file)
         
     # Get dataset attributes that are included for analysis
-    attributes = Attribute.objects.filter(dataset_id=dataset_id, included_in_analysis=True)
-    attributes = attributes.values_list('name', flat=True)
+    attributes = Attribute.objects.filter(
+        dataset_id=dataset_id, 
+        included_in_analysis=True
+    )
     
     # Get dataset attributes that have datatype string
     if not attributes:
-        attributes = Attribute.objects.filter(dataset_id=dataset_id, attribute_type=STRING)
-        attributes = attributes.values_list('name', flat=True)
+        attributes = Attribute.objects.filter(
+            dataset_id=dataset_id, 
+            attribute_type=STRING
+        )
     
+    attributes = attributes.values_list('name', flat=True)
     attributes = list(attributes)
     
     # Import the data
@@ -73,10 +78,54 @@ def create_docs(dataset_id):
 
 # Create a list of tuples (text, label) from a dataset
 def create_dev_docs(dataset_id, attribute_id):
-    # IN DEVELOP
-    dataset_list = []
-    return dataset_list
+    # Get dataset
+    ds = Dataset.objects.get(id=dataset_id)
+    ds_file = str(ds.file)
+        
+    # Get dataset attributes that are included for analysis
+    attributes = Attribute.objects.filter(
+        dataset_id=dataset_id, 
+        included_in_analysis=True
+    )
 
+    # Get dataset attributes that have datatype string
+    if not attributes:
+        attributes = Attribute.objects.filter(
+            dataset_id=dataset_id, 
+            attribute_type=STRING
+        )
+    
+    attributes = attributes.values_list('name', flat=True)
+
+    # Get label column
+    label = attributes.filter(id=attribute_id)
+    label = label.values_list('name', flat=True)
+    label = list(label)
+    
+    # Get text column
+    text = attributes.exclude(id=attribute_id)
+    text = text.values_list('name', flat=True)    
+    text = list(text)
+
+    # Import the data
+    dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
+                          quoting=3)  # ignore double quotes
+
+    # Select interested columns
+    dataset = dataset[text+label]
+
+    # Drop NA rows  
+    dataset = dataset.dropna()   
+
+    # Create list of tuples
+    lt = [tuple(x) for x in dataset.values]
+    list_of_tuples = []
+    for tup in lt:
+        text = ' '.join(str(tup[i]) for i in range(len(tup)-1))
+        label = tup[len(tup)-1]
+        list_of_tuples.append((text,label))
+
+    return list_of_tuples
 
 
 # Get object from primary key
@@ -478,8 +527,9 @@ class DocumentClassificationList(APIView):
         Create a new document classification analysis
         """
         try:    
-            dev_docs = create_docs(
-                request.data['dataset'], 
+            dev_docs = create_dev_docs(
+                request.data['dataset'],
+                request.data['attribute'] 
             )
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
@@ -511,14 +561,14 @@ class DocumentClassificationList(APIView):
                 # Save analysis
                 analysisSerializer = AnalysisSerializer(data=analysis)
                 analysisSerializer.is_valid()
-                analysisSerializer.save()
+                #analysisSerializer.save()
                 
                 # Save arguments
                 arguments_list = create_arguments(DOCUMENT_CLASSIFICATION, arguments)
                 for arg in arguments_list:
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
-                    argumentSerializer.save()
+                    #argumentSerializer.save()
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
