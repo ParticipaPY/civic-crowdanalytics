@@ -2,8 +2,8 @@ import collections
 from nltk import NaiveBayesClassifier, DecisionTreeClassifier, MaxentClassifier
 from nltk.metrics import precision, recall, f_measure
 from nltk.classify import apply_features, accuracy
-from utils import clean_html_tags, shuffled
-from concept_extraction import ConceptExtractor
+from analytics.utils import clean_html_tags, shuffled
+from analytics.concept_extraction import ConceptExtractor
 
 class DocumentClassifier():
     '''

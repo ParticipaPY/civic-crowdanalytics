@@ -22,7 +22,9 @@ from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
 from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
+from analytics.classification import DocumentClassifier
 import pandas as pd
+import numpy as np
 import json
 import logging
 
@@ -114,8 +116,8 @@ def create_dev_docs(dataset_id, attribute_id):
     # Select interested columns
     dataset = dataset[text+label]
 
-    # Drop NA rows  
-    dataset = dataset.dropna()   
+    # Replace NA values to empty string     
+    dataset = dataset.replace(np.nan, '', regex=True)
 
     # Create list of tuples
     lt = [tuple(x) for x in dataset.values]
@@ -538,13 +540,21 @@ class DocumentClassificationList(APIView):
 
         # Get arguments
         arguments = request.data['arguments']
-
+        
         # Call concept extractor
-        #dc = DocumentClassifier(**arguments)
-        #dc.classify_docs(dev_docs)
+        dc = DocumentClassifier(**arguments)
+        dc.classify_docs(dev_docs)
 
         # Get results
+        docs = []
+        categories = []
+        for t in dc.classified_docs:
+            docs.append(t[0])
+            categories.append(t[1])
         results = {}
+        results["docs"] = docs
+        results["categories"] = categories
+        results = json.dumps(results)
 
         # Set status to Executed
         analysis_status = EXECUTED
@@ -561,14 +571,14 @@ class DocumentClassificationList(APIView):
                 # Save analysis
                 analysisSerializer = AnalysisSerializer(data=analysis)
                 analysisSerializer.is_valid()
-                #analysisSerializer.save()
+                analysisSerializer.save()
                 
                 # Save arguments
                 arguments_list = create_arguments(DOCUMENT_CLASSIFICATION, arguments)
                 for arg in arguments_list:
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
-                    #argumentSerializer.save()
+                    argumentSerializer.save()
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
