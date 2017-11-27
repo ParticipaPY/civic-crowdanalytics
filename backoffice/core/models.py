@@ -1,10 +1,17 @@
 from django.db import models
 from django_mysql.models import JSONField
 from django.contrib.auth.models import AbstractUser
+from core.constants import *
+
+
+class CreationStatus(models.Model):
+    description = models.CharField(max_length=150)
+
 
 class Dataset(models.Model):
     name = models.CharField(max_length=50)
     file = models.FileField()
+    creation_status = models.ForeignKey(CreationStatus, on_delete=models.CASCADE, default=DRAFT)
 
     def __str__(self):
         return self.name
