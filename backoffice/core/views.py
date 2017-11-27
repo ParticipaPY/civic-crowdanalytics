@@ -9,7 +9,7 @@ from django.db import transaction
 from core.models import (
     User, Project, Dataset, Attribute, Analysis, 
     Visualization, VisualizationType, Ownership,
-    Parameter
+    Parameter, CreationStatus
 )
 from core.serializers import (
     UserSerializer, ProjectSerializer, DatasetSerializer,
@@ -40,8 +40,7 @@ logger = logging.getLogger(__name__)
 def get_object(object, pk):
     """
     Get object from primary key
-    """
-    
+    """    
     try:
         return object.objects.get(pk=pk)
     except object.DoesNotExist:
@@ -52,7 +51,6 @@ def get_dataset(dataset_id):
     """
     Get dataset instance from dataset_id
     """
-    
     ds = Dataset.objects.get(id=dataset_id)
     ds_file = str(ds.file)        
     dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
@@ -63,7 +61,6 @@ def get_attributes(dataset_id):
     """
     Get dataset attributes as a queryset from dataset_id
     """
-
     # Get dataset attributes that are included for analysis
     attributes = Attribute.objects.filter(
         dataset_id=dataset_id, 
@@ -86,7 +83,6 @@ def create_docs(dataset_id):
     """
     Create a list of strings from a dataset
     """
-
     dataset = get_dataset(dataset_id)
     attributes = get_attributes(dataset_id)
     attributes = list(attributes)    
@@ -110,7 +106,6 @@ def create_dev_docs(dataset_id, attribute_id):
     """
     Create a list of tuples (text, label) from a dataset
     """
-    
     dataset = get_dataset(dataset_id)
     attributes = get_attributes(dataset_id)
 
@@ -148,7 +143,6 @@ def create_arguments(analysis_type, arguments):
     If some argument is not supplied, 
     it uses de default value in the parameters table
     """
-
     arguments_list = []
     parameters = Parameter.objects.filter(analysis_type_id = analysis_type)
     for p in parameters:
@@ -178,7 +172,6 @@ class AnalysisObjectDetail(APIView):
         """
         Retrieve an analysis object instance
         """
-
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
@@ -188,7 +181,6 @@ class AnalysisObjectDetail(APIView):
         """
         Delete an analysis object instance
         """
-
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -199,7 +191,6 @@ class SentimentAnalysisParamList(APIView):
         """
         List all parameters for sentiment analysis
         """
-
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=SENTIMENT_ANALYSIS
@@ -217,7 +208,6 @@ class DocumentClassificationParamList(APIView):
         """
         List all parameters for document classification
         """
-
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=DOCUMENT_CLASSIFICATION
@@ -235,7 +225,6 @@ class DocumentClusteringParamList(APIView):
         """
         List all parameters for document clustering
         """
-
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=DOCUMENT_CLUSTERING
@@ -253,7 +242,6 @@ class ConceptExtractionParamList(APIView):
         """
         List all parameters for concept extraction
         """
-
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=CONCEPT_EXTRACTION
@@ -271,7 +259,6 @@ class SentimentAnalysisList(APIView):
         """
         List all sentiment analysis
         """
-
         try:
             analysis = Analysis.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -285,7 +272,6 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
-
         try:    
             ideas = create_docs(request.data['dataset'])
         except Exception as ex:
@@ -350,7 +336,6 @@ class DocumentClassificationList(APIView):
         """
         List all document classification analysis
         """
-
         try:
             analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLASSIFICATION)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -364,7 +349,6 @@ class DocumentClassificationList(APIView):
         """
         Create a new document classification analysis
         """
-
         try:    
             dev_docs = create_dev_docs(
                 request.data['dataset'],
@@ -429,7 +413,6 @@ class DocumentClusteringList(APIView):
         """
         List all clustering analysis
         """
-
         try:
             analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -443,7 +426,6 @@ class DocumentClusteringList(APIView):
         """
         Create a new clustering analysis
         """
-
         try:    
             docs = create_docs(request.data['dataset'])
         except Exception as ex:
@@ -500,7 +482,6 @@ class ConceptExtractionList(APIView):
         """
         List all concept extraction analysis
         """
-
         try:
             analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -586,13 +567,17 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    # hash passwords after creating an user
     def perform_create(self, serializer):
+        """
+        Hash passwords after creating an user
+        """
         password = make_password(self.request.data['password'])
         serializer.save(password=password)
 
-    # hash passwords after updating an user
     def perform_update(self, serializer):
+        """
+        Hash passwords after updating an user
+        """
         if 'password' in self.request.data:
             password = make_password(self.request.data['password'])
             serializer.save(password=password)
@@ -604,6 +589,16 @@ class UserViewSet(viewsets.ModelViewSet):
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all().prefetch_related('dataset')
     serializer_class = ProjectSerializer
+
+    def create(self, request):
+        """
+        Update dataset creation status when posting a project
+        """
+        dataset_id = self.request.data['dataset'][0]
+        dataset = Dataset.objects.get(id=dataset_id)        
+        dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
+        dataset.save()
+        return super().create(request)
 
     
 @permission_classes((CorePermissions, ))

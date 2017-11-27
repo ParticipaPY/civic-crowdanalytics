@@ -1,5 +1,19 @@
 [
   {
+    "model": "core.creationstatus",
+    "pk": 1,
+    "fields": {
+      "description": "Draft"
+    }
+  },
+  {
+    "model": "core.creationstatus",
+    "pk": 2,
+    "fields": {
+      "description": "Completed"
+    }
+  },
+  {
     "model": "core.visibility",
     "pk": 1,
     "fields": {
