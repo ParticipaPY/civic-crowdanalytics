@@ -173,12 +173,33 @@ def create_arguments(analysis_type, arguments):
 # ---
 
 
-class SentimentAnalysisParamList(APIView):
-    """
-    List all parameters for sentiment analysis
-    """
+class AnalysisObjectDetail(APIView):
+    def get(self, request, pk, format=None):
+        """
+        Retrieve an analysis object instance
+        """
 
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk, format=None):
+        """
+        Delete an analysis object instance
+        """
+
+        analysis = get_object(Analysis, pk)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SentimentAnalysisParamList(APIView):
     def get(self, request, format=None):
+        """
+        List all parameters for sentiment analysis
+        """
+
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=SENTIMENT_ANALYSIS
@@ -191,12 +212,30 @@ class SentimentAnalysisParamList(APIView):
             return resp
 
 
-class DocumentClusteringParamList(APIView):
-    """
-    List all parameters for document clustering
-    """
-
+class DocumentClassificationParamList(APIView):
     def get(self, request, format=None):
+        """
+        List all parameters for document classification
+        """
+
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClusteringParamList(APIView):
+    def get(self, request, format=None):
+        """
+        List all parameters for document clustering
+        """
+
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=DOCUMENT_CLUSTERING
@@ -210,32 +249,14 @@ class DocumentClusteringParamList(APIView):
 
 
 class ConceptExtractionParamList(APIView):
-    """
-    List all parameters for concept extraction
-    """
-
     def get(self, request, format=None):
+        """
+        List all parameters for concept extraction
+        """
+
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=CONCEPT_EXTRACTION
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClassificationParamList(APIView):
-    """
-    List all parameters for document classification
-    """
-
-    def get(self, request, format=None):
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
             )
             serializer = ParameterSerializer(parameters, many=True)
             return Response(serializer.data)
@@ -262,7 +283,7 @@ class SentimentAnalysisList(APIView):
 
     def post(self, request, format=None):
         """
-        Create a new sentiment analysis.
+        Create a new sentiment analysis
         """
 
         try:    
@@ -322,215 +343,6 @@ class SentimentAnalysisList(APIView):
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
-
-
-class SentimentAnalysisDetail(APIView):
-    def get(self, request, pk, format=None):
-        """
-        Retrieve a sentiment analysis instance
-        """
-
-        analysis = get_object(Analysis,pk)
-        serializer = AnalysisSerializer(analysis)
-        return Response(serializer.data)
-
-
-    def delete(self, request, pk, format=None):
-        """
-        Delete a sentiment analysis instance
-        """
-
-        analysis = get_object(Analysis, pk)
-        analysis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class DocumentClusteringList(APIView):
-    def get(self, request, format=None):
-        """
-        List all clustering analysis
-        """
-
-        try:
-            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new clustering analysis.
-        """
-
-        try:    
-            docs = create_docs(request.data['dataset'])
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-        # Get arguments
-        arguments = request.data['arguments']
-
-        # Call document clustering
-        dc = DocumentClustering(**arguments)
-        dc.clustering(docs)
-        
-        # Get results
-        vec = dc.get_coordinate_vectors()
-        vec['x'] = vec['x'].tolist()
-        vec['y'] = vec['y'].tolist()
-        results = json.dumps(vec)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLUSTERING,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(DOCUMENT_CLUSTERING, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
-                
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClusteringDetail(APIView):
-    def get(self, request, pk, format=None):
-        """
-        Retrieve a document clustering instance.
-        """
-
-        analysis = get_object(Analysis,pk)
-        serializer = AnalysisSerializer(analysis)
-        return Response(serializer.data)
-
-
-    def delete(self, request, pk, format=None):
-        """
-        Delete a document clustering instance.
-        """
-
-        analysis = get_object(Analysis, pk)
-        analysis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ConceptExtractionList(APIView):
-    def get(self, request, format=None):
-        """
-        List all concept extraction analysis
-        """
-
-        try:
-            analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new concept extraction analysis.
-        """
-        try:    
-            docs = create_docs(request.data['dataset'])
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-        # Get arguments
-        arguments = request.data['arguments']
-
-        # Call concept extractor
-        ce = ConceptExtractor(**arguments)
-        ce.extract_concepts(docs)
-
-        # Get results
-        concepts = []
-        occurrences = []
-        for t in ce.common_concepts:
-            concepts.append(t[0])
-            occurrences.append(t[1])
-        results = {}
-        results["concepts"] = concepts
-        results["occurrences"] = occurrences
-        results = json.dumps(results)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': CONCEPT_EXTRACTION,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(CONCEPT_EXTRACTION, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
-                
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class ConceptExtractionDetail(APIView):
-    def get(self, request, pk, format=None):
-        """
-        Retrieve a concept extraction instance
-        """
-
-        analysis = get_object(Analysis,pk)
-        serializer = AnalysisSerializer(analysis)
-        return Response(serializer.data)
-
-
-    def delete(self, request, pk, format=None):
-        """
-        Delete a concept extraction instance
-        """
-
-        analysis = get_object(Analysis, pk)
-        analysis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class DocumentClassificationList(APIView):
@@ -612,26 +424,156 @@ class DocumentClassificationList(APIView):
             return resp
 
 
-class DocumentClassificationDetail(APIView):
-    def get(self, request, pk, format=None):
+class DocumentClusteringList(APIView):
+    def get(self, request, format=None):
         """
-        Retrieve a document classification instance
-        """
-
-        analysis = get_object(Analysis,pk)
-        serializer = AnalysisSerializer(analysis)
-        return Response(serializer.data)
-
-
-    def delete(self, request, pk, format=None):
-        """
-        Delete a document classification instance
+        List all clustering analysis
         """
 
-        analysis = get_object(Analysis, pk)
-        analysis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
 
+    def post(self, request, format=None):
+        """
+        Create a new clustering analysis
+        """
+
+        try:    
+            docs = create_docs(request.data['dataset'])
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+        # Get arguments
+        arguments = request.data['arguments']
+
+        # Call document clustering
+        dc = DocumentClustering(**arguments)
+        dc.clustering(docs)
+        
+        # Get results
+        vec = dc.get_coordinate_vectors()
+        vec['x'] = vec['x'].tolist()
+        vec['y'] = vec['y'].tolist()
+        results = json.dumps(vec)
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLUSTERING,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        try: 
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(DOCUMENT_CLUSTERING, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class ConceptExtractionList(APIView):
+    def get(self, request, format=None):
+        """
+        List all concept extraction analysis
+        """
+
+        try:
+            analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        Create a new concept extraction analysis
+        """
+        try:    
+            docs = create_docs(request.data['dataset'])
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+        # Get arguments
+        arguments = request.data['arguments']
+
+        # Call concept extractor
+        ce = ConceptExtractor(**arguments)
+        ce.extract_concepts(docs)
+
+        # Get results
+        concepts = []
+        occurrences = []
+        for t in ce.common_concepts:
+            concepts.append(t[0])
+            occurrences.append(t[1])
+        results = {}
+        results["concepts"] = concepts
+        results["occurrences"] = occurrences
+        results = json.dumps(results)
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': request.data['project'],
+            'dataset': request.data['dataset'], 'analysis_type': CONCEPT_EXTRACTION,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        try: 
+            with transaction.atomic():
+                # Save analysis
+                analysisSerializer = AnalysisSerializer(data=analysis)
+                analysisSerializer.is_valid()
+                analysisSerializer.save()
+                
+                # Save arguments
+                arguments_list = create_arguments(CONCEPT_EXTRACTION, arguments)
+                for arg in arguments_list:
+                    argumentSerializer = ArgumentSerializer(data=arg)
+                    argumentSerializer.is_valid()
+                    argumentSerializer.save()
+                
+                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class SentimentAnalysisDetail(AnalysisObjectDetail): pass
+class DocumentClassificationDetail(AnalysisObjectDetail): pass
+class DocumentClusteringDetail(AnalysisObjectDetail): pass
+class ConceptExtractionDetail(AnalysisObjectDetail): pass
 
 
 # ---
