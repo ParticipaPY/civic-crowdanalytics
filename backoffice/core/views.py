@@ -37,12 +37,33 @@ logger = logging.getLogger(__name__)
 # ---
 
 
-# Create a list of strings from a dataset
-def create_docs(dataset_id):
-    # Get dataset
+def get_object(object, pk):
+    """
+    Get object from primary key
+    """
+    
+    try:
+        return object.objects.get(pk=pk)
+    except object.DoesNotExist:
+        raise Http404
+
+
+def get_dataset(dataset_id):
+    """
+    Get dataset instance from dataset_id
+    """
+    
     ds = Dataset.objects.get(id=dataset_id)
-    ds_file = str(ds.file)
-        
+    ds_file = str(ds.file)        
+    dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
+                          quoting=3)  # ignore double quotes
+    return dataset
+
+def get_attributes(dataset_id):
+    """
+    Get dataset attributes as a queryset from dataset_id
+    """
+
     # Get dataset attributes that are included for analysis
     attributes = Attribute.objects.filter(
         dataset_id=dataset_id, 
@@ -57,11 +78,18 @@ def create_docs(dataset_id):
         )
     
     attributes = attributes.values_list('name', flat=True)
-    attributes = list(attributes)
-    
-    # Import the data
-    dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
-                          quoting=3)  # ignore double quotes
+
+    return attributes
+
+
+def create_docs(dataset_id):
+    """
+    Create a list of strings from a dataset
+    """
+
+    dataset = get_dataset(dataset_id)
+    attributes = get_attributes(dataset_id)
+    attributes = list(attributes)    
 
     # Select interested columns
     dataset = dataset[attributes]
@@ -78,26 +106,13 @@ def create_docs(dataset_id):
     return dataset_list
 
 
-# Create a list of tuples (text, label) from a dataset
 def create_dev_docs(dataset_id, attribute_id):
-    # Get dataset
-    ds = Dataset.objects.get(id=dataset_id)
-    ds_file = str(ds.file)
-        
-    # Get dataset attributes that are included for analysis
-    attributes = Attribute.objects.filter(
-        dataset_id=dataset_id, 
-        included_in_analysis=True
-    )
-
-    # Get dataset attributes that have datatype string
-    if not attributes:
-        attributes = Attribute.objects.filter(
-            dataset_id=dataset_id, 
-            attribute_type=STRING
-        )
+    """
+    Create a list of tuples (text, label) from a dataset
+    """
     
-    attributes = attributes.values_list('name', flat=True)
+    dataset = get_dataset(dataset_id)
+    attributes = get_attributes(dataset_id)
 
     # Get label column
     label = attributes.filter(id=attribute_id)
@@ -108,10 +123,6 @@ def create_dev_docs(dataset_id, attribute_id):
     text = attributes.exclude(id=attribute_id)
     text = text.values_list('name', flat=True)    
     text = list(text)
-
-    # Import the data
-    dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
-                          quoting=3)  # ignore double quotes
 
     # Select interested columns
     dataset = dataset[text+label]
@@ -130,19 +141,14 @@ def create_dev_docs(dataset_id, attribute_id):
     return list_of_tuples
 
 
-# Get object from primary key
-def get_object(object, pk):
-    try:
-        return object.objects.get(pk=pk)
-    except object.DoesNotExist:
-        raise Http404
-
-
-# Create a list of arguments for an analysis
-# It uses the arguments passed as parameters.
-# If some argument is not supplied, 
-# it uses de default value in the parameters table
 def create_arguments(analysis_type, arguments):
+    """
+    Create a list of arguments for an analysis
+    It uses the arguments passed as parameters.
+    If some argument is not supplied, 
+    it uses de default value in the parameters table
+    """
+
     arguments_list = []
     parameters = Parameter.objects.filter(analysis_type_id = analysis_type)
     for p in parameters:
@@ -161,14 +167,17 @@ def create_arguments(analysis_type, arguments):
     return arguments_list
 
 
+
 # ---
 # API View Classes
 # ---
+
 
 class SentimentAnalysisParamList(APIView):
     """
     List all parameters for sentiment analysis
     """
+
     def get(self, request, format=None):
         try:
             parameters = Parameter.objects.filter(
@@ -186,6 +195,7 @@ class DocumentClusteringParamList(APIView):
     """
     List all parameters for document clustering
     """
+
     def get(self, request, format=None):
         try:
             parameters = Parameter.objects.filter(
@@ -203,6 +213,7 @@ class ConceptExtractionParamList(APIView):
     """
     List all parameters for concept extraction
     """
+
     def get(self, request, format=None):
         try:
             parameters = Parameter.objects.filter(
@@ -220,6 +231,7 @@ class DocumentClassificationParamList(APIView):
     """
     List all parameters for document classification
     """
+
     def get(self, request, format=None):
         try:
             parameters = Parameter.objects.filter(
@@ -238,6 +250,7 @@ class SentimentAnalysisList(APIView):
         """
         List all sentiment analysis
         """
+
         try:
             analysis = Analysis.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -251,6 +264,7 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis.
         """
+
         try:    
             ideas = create_docs(request.data['dataset'])
         except Exception as ex:
@@ -315,6 +329,7 @@ class SentimentAnalysisDetail(APIView):
         """
         Retrieve a sentiment analysis instance
         """
+
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
@@ -324,6 +339,7 @@ class SentimentAnalysisDetail(APIView):
         """
         Delete a sentiment analysis instance
         """
+
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -334,6 +350,7 @@ class DocumentClusteringList(APIView):
         """
         List all clustering analysis
         """
+
         try:
             analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -347,6 +364,7 @@ class DocumentClusteringList(APIView):
         """
         Create a new clustering analysis.
         """
+
         try:    
             docs = create_docs(request.data['dataset'])
         except Exception as ex:
@@ -403,6 +421,7 @@ class DocumentClusteringDetail(APIView):
         """
         Retrieve a document clustering instance.
         """
+
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
@@ -412,6 +431,7 @@ class DocumentClusteringDetail(APIView):
         """
         Delete a document clustering instance.
         """
+
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -422,6 +442,7 @@ class ConceptExtractionList(APIView):
         """
         List all concept extraction analysis
         """
+
         try:
             analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -496,6 +517,7 @@ class ConceptExtractionDetail(APIView):
         """
         Retrieve a concept extraction instance
         """
+
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
@@ -505,6 +527,7 @@ class ConceptExtractionDetail(APIView):
         """
         Delete a concept extraction instance
         """
+
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -515,6 +538,7 @@ class DocumentClassificationList(APIView):
         """
         List all document classification analysis
         """
+
         try:
             analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLASSIFICATION)
             serializer = AnalysisSerializer(analysis, many=True)
@@ -528,6 +552,7 @@ class DocumentClassificationList(APIView):
         """
         Create a new document classification analysis
         """
+
         try:    
             dev_docs = create_dev_docs(
                 request.data['dataset'],
@@ -592,6 +617,7 @@ class DocumentClassificationDetail(APIView):
         """
         Retrieve a document classification instance
         """
+
         analysis = get_object(Analysis,pk)
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
@@ -601,14 +627,18 @@ class DocumentClassificationDetail(APIView):
         """
         Delete a document classification instance
         """
+
         analysis = get_object(Analysis, pk)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 # ---
 # API ViewSet Classes
 # ---
+
+
 @permission_classes((CorePermissions, ))
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
