@@ -222,6 +222,7 @@ class DocumentClassifier():
             result = self._classifier.classify(doc_feats)
             results.append((doc, result))
         self._classified_docs = results
+        self._final_cat_count = self.count_categories(dev_docs+results)
     
     @property
     def classified_docs(self):
@@ -242,3 +243,7 @@ class DocumentClassifier():
     @property
     def f_measure(self):
         return self._f_measure
+
+    @property
+    def category_count(self):
+        return self._final_cat_count
