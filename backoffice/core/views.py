@@ -368,20 +368,26 @@ class DocumentClassificationList(APIView):
         # Get arguments
         arguments = request.data['arguments']
         
-        # Call concept extractor
+        # Call document classifier
         dc = DocumentClassifier(**arguments)
         dc.classify_docs(dev_docs)
 
         # Get results
-        docs = []
-        categories = []
+        ideas_category = {}
         for t in dc.classified_docs:
-            docs.append(t[0])
-            categories.append(t[1])
-        results = {}
-        results["docs"] = docs
-        results["categories"] = categories
-        results = json.dumps(results)
+            doc = t[0]
+            category = t[1]
+            idea = {"idea":doc}
+            if category in ideas_category:
+                ideas_category[category].append(idea)
+            else:
+                ideas_category[category] = [idea]
+
+        results = []
+        for category, ideas_list in ideas_category.items():
+            cat = {"category":category, "count":len(ideas_list), "ideas": ideas_list}
+            results.append(cat)
+        results = json.dumps(results)        
 
         # Set status to Executed
         analysis_status = EXECUTED
@@ -445,12 +451,24 @@ class DocumentClusteringList(APIView):
         # Call document clustering
         dc = DocumentClustering(**arguments)
         dc.clustering(docs)
-        
+
         # Get results
         vec = dc.get_coordinate_vectors()
-        vec['x'] = vec['x'].tolist()
-        vec['y'] = vec['y'].tolist()
-        results = json.dumps(vec)
+        ideas_clusters = [[] for x in range(dc.num_clusters)] 
+        num_docs = len(vec["docs"])
+        for i in range(num_docs):
+            doc = vec["docs"][i]            
+            x = vec["x"][i]
+            y = vec["y"][i]
+            cluster = vec["label"][i]
+            idea = {"idea":doc, "posx":x, "posy":y}
+            ideas_clusters[cluster].append(idea) 
+        
+        results = []
+        for i in range(dc.num_clusters):
+            cluster = {"cluster":i, "ideas":ideas_clusters[i]}
+            results.append(cluster)
+        results = json.dumps(results)
 
         # Set status to Executed
         analysis_status = EXECUTED
