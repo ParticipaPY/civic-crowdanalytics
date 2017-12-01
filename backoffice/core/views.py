@@ -160,6 +160,19 @@ def create_arguments(analysis_type, arguments):
     return arguments_list
 
 
+def create_dev_docs_temp(dataset_id):
+    """
+    Temporal function to call create_dev_docs function without having the label 
+    attribute_id value. The label attributed_id value should be selected by 
+    the user in a configuration page which doesnt exist yet.
+    This function looks for a column with name "label" in the dataset and gets 
+    his associated attribute_id. Then it calls the create_dev_docs function
+    """ 
+    attributes = get_attributes(dataset_id)
+    label = attributes.filter(name="label")
+    attribute_id = label.values_list('id', flat=True)[0]
+    return create_dev_docs(dataset_id, attribute_id)
+
 
 # ---
 # API View Classes
@@ -356,10 +369,13 @@ class DocumentClassificationList(APIView):
         Create a new document classification analysis
         """
         try:    
+            dev_docs = create_dev_docs_temp(request.data['dataset'])
+            """
             dev_docs = create_dev_docs(
                 request.data['dataset'],
-                request.data['attribute'] 
+                request.data['label_attribute'] 
             )
+            """
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
