@@ -52,9 +52,8 @@ def get_dataset(dataset_id):
     Get dataset instance from dataset_id
     """
     ds = Dataset.objects.get(id=dataset_id)
-    ds_file = str(ds.file)        
-    dataset = pd.read_csv('datasets/'+ds_file, delimiter = '\t', 
-                          quoting=3)  # ignore double quotes
+    ds_file = 'datasets/'+str(ds.file)
+    dataset = pd.read_csv(ds_file, sep = None, engine='python')
     return dataset
 
 def get_attributes(dataset_id):
@@ -287,17 +286,24 @@ class SentimentAnalysisList(APIView):
         sa.analyze_docs(ideas) 
 
         # Get results
-        docs = []
-        sentiments = []
-        scores = []
-        for t in sa.tagged_docs:
-            docs.append(t[0])
-            sentiments.append(t[1])
-            scores.append(t[2])
-        results = {}
-        results["docs"] = docs
-        results["sentiments"] = sentiments
-        results["scores"] = scores
+        neg_ideas = []
+        neu_ideas = []
+        pos_ideas = []
+        for t in sa.tagged_docs:            
+            doc, sentiment, score = (t[i] for i in range(3))
+            idea = {"idea":doc, "score":score}
+            if sentiment == "neg":
+                neg_ideas.append(idea)
+            if sentiment == "neu":
+                neu_ideas.append(idea)
+            if sentiment == "pos":
+                pos_ideas.append(idea)
+
+        neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
+        neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
+        pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
+
+        results = [neg_sentiment,neu_sentiment,pos_sentiment]
         results = json.dumps(results)
 
         # Set status to Executed
@@ -362,20 +368,26 @@ class DocumentClassificationList(APIView):
         # Get arguments
         arguments = request.data['arguments']
         
-        # Call concept extractor
+        # Call document classifier
         dc = DocumentClassifier(**arguments)
         dc.classify_docs(dev_docs)
 
         # Get results
-        docs = []
-        categories = []
+        ideas_category = {}
         for t in dc.classified_docs:
-            docs.append(t[0])
-            categories.append(t[1])
-        results = {}
-        results["docs"] = docs
-        results["categories"] = categories
-        results = json.dumps(results)
+            doc = t[0]
+            category = t[1]
+            idea = {"idea":doc}
+            if category in ideas_category:
+                ideas_category[category].append(idea)
+            else:
+                ideas_category[category] = [idea]
+
+        results = []
+        for category, ideas_list in ideas_category.items():
+            cat = {"category":category, "count":len(ideas_list), "ideas": ideas_list}
+            results.append(cat)
+        results = json.dumps(results)        
 
         # Set status to Executed
         analysis_status = EXECUTED
@@ -439,12 +451,24 @@ class DocumentClusteringList(APIView):
         # Call document clustering
         dc = DocumentClustering(**arguments)
         dc.clustering(docs)
-        
+
         # Get results
         vec = dc.get_coordinate_vectors()
-        vec['x'] = vec['x'].tolist()
-        vec['y'] = vec['y'].tolist()
-        results = json.dumps(vec)
+        ideas_clusters = [[] for x in range(dc.num_clusters)] 
+        num_docs = len(vec["docs"])
+        for i in range(num_docs):
+            doc = vec["docs"][i]            
+            x = vec["x"][i]
+            y = vec["y"][i]
+            cluster = vec["label"][i]
+            idea = {"idea":doc, "posx":x, "posy":y}
+            ideas_clusters[cluster].append(idea) 
+        
+        results = []
+        for i in range(dc.num_clusters):
+            cluster = {"cluster":i, "ideas":ideas_clusters[i]}
+            results.append(cluster)
+        results = json.dumps(results)
 
         # Set status to Executed
         analysis_status = EXECUTED
@@ -510,16 +534,13 @@ class ConceptExtractionList(APIView):
         ce.extract_concepts(docs)
 
         # Get results
-        concepts = []
-        occurrences = []
+        results = []
         for t in ce.common_concepts:
-            concepts.append(t[0])
-            occurrences.append(t[1])
-        results = {}
-        results["concepts"] = concepts
-        results["occurrences"] = occurrences
+            concept, occurrences = (t[i] for i in range(2))
+            concept_occurrences = {"concept":concept, "occurrences":occurrences}
+            results.append(concept_occurrences)
         results = json.dumps(results)
-
+       
         # Set status to Executed
         analysis_status = EXECUTED
 
