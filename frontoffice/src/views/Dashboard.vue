@@ -109,6 +109,7 @@
       </div><!--/.col-->
     </div><!--/.row-->
     
+    <div class="">
     <div class="row">
       <div class="col-sm-12 col-lg-6">
         <div class="card card-accent-success">
@@ -202,6 +203,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
 
   </div>

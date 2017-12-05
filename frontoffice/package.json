@@ -13,6 +13,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "chart.js": ">= 2.5.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
@@ -22,7 +23,8 @@
     "vue": ">= 2.3.3",
     "vue-chartjs": ">= 2.6.3",
     "vue-router": "2.5.3",
-    "vue-strap": "github:wffranco/vue-strap"
+    "vue-strap": "github:wffranco/vue-strap",
+    "vue-wordcloud": "^1.0.2"
   },
   "devDependencies": {
     "autoprefixer": "7.1.1",
