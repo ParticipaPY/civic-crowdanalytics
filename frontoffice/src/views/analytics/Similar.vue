@@ -16,9 +16,16 @@
             </dropdown>
           </div>
           <div class="card-block">
-            <div>
-              <bubble-chart/>
-            </div>
+            <tabbed-panel v-model="activeTab" ref="graphCloudPanel" navStyle="pill">
+              <tabbed-panel-tab header="Graph">
+                <bubble-chart/>
+              </tabbed-panel-tab>
+              <tabbed-panel-tab header="Word Cloud">
+                <div id="clouddiv">
+                  <wordcloud :data="defaultWords" nameKey="name" valueKey="value" ref="cloud" :wordClick="wordClick"></wordcloud>
+                </div>
+              </tabbed-panel-tab>
+            </tabbed-panel>
           </div>
         </div>
       </div>
@@ -146,12 +153,83 @@
 import BubbleChart from '../charts/BubbleChart'
 
 import { dropdown } from 'vue-strap'
+import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
+import tabbedPanelTab from '../../components/TabbedPanel/Tab'
+import wordcloud from 'vue-wordcloud'
 
 export default {
   name: 'similar',
   components: {
     BubbleChart,
-    dropdown
+    dropdown,
+    wordcloud,
+    tabbedPanel,
+    tabbedPanelTab
+  },
+  methods: {
+    renderWordcloud: function () {
+      this.$el.querySelector('#clouddiv svg').remove()
+      this.$refs.cloud.getSize()
+      this.$refs.cloud.chart = this.$refs.cloud.createChart()
+      this.$refs.cloud.renderChart()
+      this.wordCloudWasRendered = true
+    },
+    wordClick: function (text, vm) {
+      console.log(text)
+      console.log(vm)
+    }
+  },
+  watch: {
+    activeTab (val) {
+      if (val === 1 && !this.wordCloudWasRendered) {
+        setTimeout(() => { this.renderWordcloud() }, 500)
+      }
+    }
+  },
+  data: function () {
+    return {
+      activeTab: 0,
+      wordCloudWasRendered: false,
+      defaultWords: [
+        {
+          'name': 'Cat',
+          'value': 26
+        },
+        {
+          'name': 'fish',
+          'value': 19
+        },
+        {
+          'name': 'things',
+          'value': 18
+        },
+        {
+          'name': 'look',
+          'value': 16
+        },
+        {
+          'name': 'two',
+          'value': 15
+        },
+        {
+          'name': 'fun',
+          'value': 9
+        },
+        {
+          'name': 'know',
+          'value': 9
+        },
+        {
+          'name': 'good',
+          'value': 9
+        },
+        {
+          'name': 'play',
+          'value': 6
+        }
+      ]
+    }
   }
 }
+
 </script>

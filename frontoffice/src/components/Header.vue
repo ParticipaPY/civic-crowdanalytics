@@ -46,7 +46,6 @@ export default {
     dropdown,
     alert
   },
-  data () {},
   methods: {
     click () {
       // do nothing

@@ -1,23 +1,27 @@
 <template>
   <div class="animated fadeIn" id="new-project">
-    
+    <alert v-model="showAlert" placement="top" duration="3000" type="success" width="400px" dismissable>
+      <span class="icon-ok-circled alert-icon-float-left"></span>
+      <strong>Well Done!</strong>
+      <p>You successfully read this important alert message.</p>
+    </alert>
     <div class="card">
       <div class="card-header">
         Create a New Project
       </div>
       <div class="card-body">
         <form>
-          <tabbed-panel v-model="activeTab" :tab-click="false" ref="wiz">
+          <tabbed-panel v-model="wizActiveTab" :tab-click="false" ref="wiz">
             <tabbed-panel-tab header="Project Name">
               <div class="row">
                 <div class="col-xl-9">
                   <div class="form-group">
                     <label>Project Name</label>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" v-model="project.name">
                   </div>
                   <div class="form-group">
                     <label>Project Description</label>
-                    <textarea class="form-control" rows="4"></textarea>
+                    <textarea class="form-control" rows="4" v-model="project.description"></textarea>
                   </div>
                   <div class="form-group">
                     <label>Project Owner</label><br>
@@ -35,21 +39,21 @@
                     <panel is-open header="Privacy Settings">
                       <div class="form-group">
                         <label>Project visibility</label>
-                        <select class="form-control form-control-sm">
-                          <option>Public</option>
-                          <option>Private</option>
-                          <option>Team</option>
+                        <select class="form-control form-control-sm" v-model="project.visibility">
+                          <option value="1">Public</option>
+                          <option value="2">Private</option>
+                          <option value="3">Team</option>
                         </select>
                         <div class="form-check">
                           <label class="form-check-label">
-                            <input class="form-check-input" type="checkbox" value="">
+                            <input class="form-check-input" type="checkbox" v-model="project.people_editing" value="1">
                             Allow people to edit
                           </label>
                         </div>
                       </div>
                     </panel>
                     <panel is-open header="Folder Location">
-                      <button-group id="folders" v-model="selectedFolder" type="primary">
+                      <button-group id="folders" v-model="project.location" type="primary">
                         <radio selected-value="1"><i class="fa fa-folder fa-lg"></i>Project Lorem</radio>
                         <radio selected-value="2"><i class="fa fa-folder fa-lg"></i>Project Ipsum</radio>
                         <radio selected-value="3"><i class="fa fa-folder fa-lg"></i>Project Dolor</radio>
@@ -60,7 +64,6 @@
                         <radio selected-value="8"><i class="fa fa-folder fa-lg"></i>Project Setentiae</radio>
                       </button-group>
                       <button class="btn btn-new-folder"><i class="fa fa-plus-square fa-lg"></i>Add New Folder</button>
-                      </ul>
                     </panel>
                   </accordion>
                 </div>
@@ -71,7 +74,7 @@
                 <div class="col-xl-9">
                   <div class="form-group">
                     <label>Data Set Name</label>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" v-model="dataset.name">
                   </div>
                   <div class="form-group" v-if="columns.length==0">
                     <label>Select Data Set File</label>
@@ -100,10 +103,11 @@
                                 <div class="row">
                                   <div class="col-md-3">
                                     <p><strong>Type</strong></p>
-                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="string" checked> String<br>
-                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="number"> Number<br>
-                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="datetime"> Date & Time<br>
-                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="ignore"> Ignore
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="1" checked> String<br>
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="2"> Number<br>
+                                    <input type="radio" :id="column + '_columnType'" :name="column + '_columnType'" value="3"> Date & Time<br>
+                                    <br>
+                                    <input type="checkbox" :id="column + '_include'" :name="column + '_include'" value="include"> Include in analysis
                                   </div>
                                   <div class="col-md-9 data-value">
                                     <p><strong>Column Data Value</strong></p>
@@ -136,11 +140,12 @@
 </template>
 
 <script>
+import {Backend} from '../../Backend'
 
 import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
 import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
-import { accordion, panel, radio, buttonGroup } from 'vue-strap'
+import { alert, accordion, panel, radio, buttonGroup } from 'vue-strap'
 import Papa from 'papaparse'
 // import LineNavigator from 'line-navigator'
 
@@ -152,21 +157,44 @@ export default {
     accordion,
     panel,
     radio,
-    buttonGroup
+    buttonGroup,
+    alert
   },
-
+  computed: {
+    project_visibility () {
+      return this.project.visibility
+    }
+  },
+  watch: {
+    project_visibility (val) {
+      this.project.visibility = parseInt(val)
+    }
+  },
   data () {
     return {
       columns: [],
-      metadata: [],
-      parsedDataset: []
+      attributes: [],
+      parsedDataset: [],
+      wizActiveTab: 0,
+      project: {
+        name: '',
+        description: '',
+        location: '',
+        visibility: 1,
+        people_editing: false
+      },
+      dataset: {
+        name: '',
+        file: null
+      },
+      showAlert: false
     }
   },
 
   methods: {
     nextPage: function () {
       if (this.$refs.wiz.currentTab() === 1) {
-        this.generateMetadata()
+        this.generateAttributes()
       } else {
         this.$refs.wiz.selectIndex(1)
       }
@@ -179,6 +207,7 @@ export default {
       if (!file.length) return
       this.columns = []
       this.readFile(file[0])
+      this.assignFile(file[0])
     },
     readFile: function (f) {
       // let parent = this
@@ -188,12 +217,11 @@ export default {
       reader.onload = (e) => {
         var type = this.checkType(f)
         switch (type) {
-          case 'json':
-            this.parseJson(e.target.result)
-            break
           case 'csv':
             this.parseCsv(e.target.result)
             break
+          default:
+            console.error('Unknown format')
         }
       }
       reader.readAsText(f)
@@ -206,6 +234,11 @@ export default {
         }
       })
       */
+    },
+    assignFile: function (f) {
+      var reader = new FileReader()
+      reader.readAsDataURL(f)
+      this.dataset.file = f
     },
     parseJson: function (json) {
       var parsed = JSON.parse(json)
@@ -221,9 +254,7 @@ export default {
     },
     checkType: function (f) {
       switch (f.type) {
-        case 'application/json':
-        case 'text/json':
-          return 'json'
+        case 'text/tab-separated-values':
         case 'application/vnd.ms-excel':
         case 'text/csv':
         case 'application/csv':
@@ -234,8 +265,8 @@ export default {
           return ext
       }
     },
-    generateMetadata: function () {
-      this.metadata = [] // Vacía metadata para las pruebas
+    generateAttributes: function () {
+      this.attributes = []
       var cols = this.columns
       for (let k of cols) {
         var name = k + '_columnType'
@@ -246,14 +277,17 @@ export default {
             datatype = e.value
           }
         }
-        if (datatype !== 'ignore') {
-          var meta = {}
-          meta.name = k
-          meta.type = datatype
-          this.metadata.push(meta)
-        }
+        var meta = {}
+        meta.name = k
+        meta.type = parseInt(datatype)
+        meta.include = document.getElementById(k + '_include').checked || false
+        this.attributes.push(meta)
       }
-      console.log(this.metadata)
+      console.log(this.attributes)
+      this.createProject()
+    },
+    createProject: function () {
+      this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
     }
   }
 }
