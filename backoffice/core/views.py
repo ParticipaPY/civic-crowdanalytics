@@ -101,7 +101,7 @@ def create_docs(dataset_id):
     return dataset_list
 
 
-def create_dev_docs(dataset_id, attribute_id):
+def create_dev_docs(dataset_id, label_column="label"):
     """
     Create a list of tuples (text, label) from a dataset
     """
@@ -109,12 +109,12 @@ def create_dev_docs(dataset_id, attribute_id):
     attributes = get_attributes(dataset_id)
 
     # Get label column
-    label = attributes.filter(id=attribute_id)
+    label = attributes.filter(name=label_column)
     label = label.values_list('name', flat=True)
     label = list(label)
-    
+
     # Get text column
-    text = attributes.exclude(id=attribute_id)
+    text = attributes.exclude(name=label_column)
     text = text.values_list('name', flat=True)    
     text = list(text)
 
@@ -158,7 +158,6 @@ def create_arguments(analysis_type, arguments):
         }
         arguments_list.append(argument)
     return arguments_list
-
 
 
 # ---
@@ -356,10 +355,7 @@ class DocumentClassificationList(APIView):
         Create a new document classification analysis
         """
         try:    
-            dev_docs = create_dev_docs(
-                request.data['dataset'],
-                request.data['attribute'] 
-            )
+            dev_docs = create_dev_docs(request.data['dataset'])
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
