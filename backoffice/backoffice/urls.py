@@ -26,7 +26,6 @@ router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet)
 router.register(r'attributes', views.AttributeViewSet)
-router.register(r'datasets', views.DatasetViewSet)
 router.register(r'visualizations', views.VisualizationViewSet)
 router.register(r'visualizationType', views.VisualizationTypeViewSet)
 router.register(r'ownership', views.OwnershipViewSet)
@@ -40,6 +39,8 @@ schema_view = get_swagger_view(title='Backoffice API')
 urlpatterns = [
     url(r'^api/$', schema_view),
     url(r'^api/', include(router.urls)),
+    # ex: /api/datasets/
+    url(r'^api/datasets/$', views.DatasetList.as_view()),
     # ex: /api/analysis/sentiment-analysis/
     url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
     # ex: /api/analysis/doc-clustering/
