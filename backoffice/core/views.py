@@ -620,6 +620,25 @@ class DatasetList(APIView):
             return resp
 
 
+class DatasetDetail(APIView):
+    def get(self, request, pk, format=None):
+        """
+        Retrieve a dataset instance
+        """
+        dataset = get_object(Dataset,pk)
+        serializer = DatasetSerializer(dataset)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):
+        """
+        Delete a dataset instance
+        """
+        dataset = get_object(Dataset, pk)
+        dataset.file.delete()
+        dataset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # ---
 # API ViewSet Classes
 # ---

@@ -41,6 +41,8 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     # ex: /api/datasets/
     url(r'^api/datasets/$', views.DatasetList.as_view()),
+    # ex: /api/datasets/dataset_id
+    url(r'^api/datasets/(?P<pk>[0-9]+)/$', views.DatasetDetail.as_view()),
     # ex: /api/analysis/sentiment-analysis/
     url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
     # ex: /api/analysis/doc-clustering/
