@@ -574,6 +574,71 @@ class DocumentClusteringDetail(AnalysisObjectDetail): pass
 class ConceptExtractionDetail(AnalysisObjectDetail): pass
 
 
+class DatasetList(APIView):
+    def get(self, request, format=None):
+        """
+        List all datasets
+        """
+        try:
+            datasets = Dataset.objects.all()
+            serializer = DatasetSerializer(datasets, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        Create a new dataset and his associated attributes
+        """
+        # Get request data
+        dataset = {
+            'name': request.data['name'], 'file': request.data['file']
+        }            
+        attributes = json.loads(request.data['attributes'])
+        
+        try: 
+            with transaction.atomic():
+                # Save dataset
+                datasetSerializer = DatasetSerializer(data=dataset)
+                datasetSerializer.is_valid()
+                datasetSerializer.save()
+                
+                # Save attributes
+                for attr in attributes:
+                    dataset_id = Dataset.objects.latest('id').id
+                    attr.update({'dataset':dataset_id})
+                    attributeSerializer = AttributeSerializer(data=attr)
+                    attributeSerializer.is_valid()
+                    attributeSerializer.save()
+                
+                return Response(datasetSerializer.data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DatasetDetail(APIView):
+    def get(self, request, pk, format=None):
+        """
+        Retrieve a dataset instance
+        """
+        dataset = get_object(Dataset,pk)
+        serializer = DatasetSerializer(dataset)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):
+        """
+        Delete a dataset instance
+        """
+        dataset = get_object(Dataset, pk)
+        dataset.file.delete()
+        dataset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # ---
 # API ViewSet Classes
 # ---
@@ -622,12 +687,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class AttributeViewSet(viewsets.ModelViewSet):
     queryset = Attribute.objects.all()
     serializer_class = AttributeSerializer
-
-
-@permission_classes((CorePermissions, ))
-class DatasetViewSet(viewsets.ModelViewSet):
-    queryset = Dataset.objects.all()
-    serializer_class = DatasetSerializer
 
 
 @permission_classes((CorePermissionsOrAnonReadOnly, ))

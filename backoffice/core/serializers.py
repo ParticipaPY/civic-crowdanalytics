@@ -21,9 +21,11 @@ class AttributeSerializer(serializers.ModelSerializer):
 
 
 class DatasetSerializer(serializers.ModelSerializer):
+    attributes = AttributeSerializer(many=True, read_only=True)
+
     class Meta:
         model = Dataset
-        fields = '__all__'
+        fields = ('id','name','file','creation_status','attributes')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
