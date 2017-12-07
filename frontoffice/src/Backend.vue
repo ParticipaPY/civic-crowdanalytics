@@ -17,21 +17,22 @@
   Backend.postProject = function (project, dataset, attributes) {
     var server = this
     let datasetFd = new FormData()
+    let attributesFd = []
+    for (let attr of attributes) {
+      let item = {}
+      item.name = attr.name
+      item.attribute_type = attr.attribute_type
+      item.included_in_analysis = attr.included_in_analysis
+      attributesFd.push(item)
+    }
     datasetFd.append('name', dataset.name)
     datasetFd.append('file', dataset.file, dataset.file.fileName)
+    datasetFd.append('attributes', JSON.stringify(attributesFd))
     server.post('datasets/', datasetFd, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }).then(
       response => {
         var datasetId = response.data.id
-        for (let attr of attributes) {
-          server.post('attributes/', {
-            name: attr.name,
-            attribute_type: attr.type,
-            included_in_analysis: attr.include,
-            dataset: datasetId
-          })
-        }
         server.post('projects/', {
           name: project.name,
           description: project.description,
