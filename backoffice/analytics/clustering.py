@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import cosine_similarity
 from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem,\
@@ -53,6 +53,10 @@ class DocumentClustering:
     language: string, english by default
         Language of the documents. Only the languages supported by the
         library NLTK are supported.
+
+    algorithm: string, 'k-means' by default
+        Clustering algorithm use to group documents
+        Currently available: k-means and agglomerative (hierarchical)
     
     '''
     
@@ -60,7 +64,7 @@ class DocumentClustering:
     
     def __init__(self, num_clusters=5, context_words=[], ngram_range=(1,1), 
                  min_df=0.1, max_df=0.9, consider_urls=False, 
-                 language='english'):
+                 language='english', algorithm="k-means"):
         self.num_clusters = num_clusters
         self.context_words = context_words
         self.ngram_range = ngram_range
@@ -71,12 +75,13 @@ class DocumentClustering:
         # properties
         self._docs = None
         self._corpus = pd.DataFrame()
-        self._k_means_model = None
+        self._model = None
         self._tdidf_matrix = {}
         self._features = []
         self._feature_weights = {}
         self._num_docs_per_clusters = {}
         self._clusters = []
+        self._algorithm = algorithm
         # download stop words in case they weren't already downloaded
         download_stop_words()
     
@@ -120,9 +125,13 @@ class DocumentClustering:
         except ValueError as error:
             raise Exception(error)
         # compute clusters
-        self._k_means_model = KMeans(n_clusters=self.num_clusters)
-        self._k_means_model.fit(self._tfidf_matrix)
-        self._clusters = self._k_means_model.labels_.tolist()
+        if self._algorithm == "agglomerative":
+            self._model = AgglomerativeClustering(n_clusters=self.num_clusters)
+            self._model.fit(self._tfidf_matrix.toarray())
+        elif self._algorithm == "k-means":
+            self._model = KMeans(n_clusters=self.num_clusters)
+            self._model.fit(self._tfidf_matrix)
+        self._clusters = self._model.labels_.tolist()
         # create a dictionary of the docs and their clusters
         docs_clusters = {'docs': self._docs, 'cluster': self._clusters}
         docs_clusters_df = pd.DataFrame(docs_clusters, index = [self._clusters] , 
@@ -145,7 +154,7 @@ class DocumentClustering:
         -------
         top_terms : Dictionary of clusters and their top 'n' terms
         '''
-        
+
         if self._corpus.empty:
             cleaned_txt = []
             stemmed_txt = []
@@ -158,7 +167,7 @@ class DocumentClustering:
             self._corpus = pd.DataFrame({'words': cleaned_txt}, index=stemmed_txt)
         top_terms = {}
         # sort cluster centers by proximity to centroid
-        order_centroids = self._k_means_model.cluster_centers_.argsort()[:, ::-1] 
+        order_centroids = self._model.cluster_centers_.argsort()[:, ::-1] 
         for i in range(self.num_clusters):
             str_cluster = ''
             term_counter = 0
