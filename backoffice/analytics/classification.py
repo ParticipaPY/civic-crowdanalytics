@@ -1,9 +1,14 @@
 import collections
-from nltk import NaiveBayesClassifier, DecisionTreeClassifier, MaxentClassifier
+from nltk import NaiveBayesClassifier, DecisionTreeClassifier
 from nltk.metrics import precision, recall, f_measure
 from nltk.classify import apply_features, accuracy
+from nltk.classify.scikitlearn import SklearnClassifier
 from analytics.utils import clean_html_tags, shuffled
-from analytics.concept_extraction import ConceptExtractor
+from concept_extraction import ConceptExtractor
+from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction import DictVectorizer
+
 
 class DocumentClassifier():
     '''
@@ -37,7 +42,8 @@ class DocumentClassifier():
 
     t_classifier : string, 'NB' by default
         This is the type of classifier model used. Available types are 'NB' 
-        (Naive Bayes), 'DT' (decision tree)
+        (Naive Bayes), 'DT' (decision tree), 'RF' (Random Forest), and 'SVM'
+        (Support Vector Machine)
     '''
 
     def __init__(self, train_p=0.8, eq_label_num=True,  
@@ -177,8 +183,10 @@ class DocumentClassifier():
             self._classifier = NaiveBayesClassifier.train(train_set)
         elif self._t_classifier == "DT":
             self._classifier = DecisionTreeClassifier.train(train_set)
-        # elif self._t_classifier == "ME":
-        #     self._classifier = MaxentClassifier()
+        elif self._t_classifier == "RF":
+            self._classifier = SklearnClassifier(RandomForestClassifier()).train(train_set)
+        elif self._t_classifier == "SVM":
+            self._classifier = SklearnClassifier(LinearSVC(), sparse=False).train(train_set)
 
 
     def eval_classifier(self):
@@ -186,7 +194,7 @@ class DocumentClassifier():
         Test the model and calculates the metrics of accuracy, precision,
         recall and f-measure
         '''
-        test_set = apply_features(self.get_doc_features, self._test_docs)
+        test_set = apply_features(self.get_doc_features, self._test_docs, True)
         self._accuracy = accuracy(self._classifier, test_set)
         refsets = collections.defaultdict(set)
         testsets = collections.defaultdict(set)
@@ -204,7 +212,8 @@ class DocumentClassifier():
 
     def classify_docs(self, docs):
         '''
-        Classify a list of once the classifier has been trained
+        First train the classifier with the labeled data.
+        Then classifies the unlabeled data.
 
         Parameters
         ----------
