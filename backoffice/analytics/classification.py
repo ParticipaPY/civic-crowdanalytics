@@ -4,7 +4,7 @@ from nltk.metrics import precision, recall, f_measure
 from nltk.classify import apply_features, accuracy
 from nltk.classify.scikitlearn import SklearnClassifier
 from analytics.utils import clean_html_tags, shuffled
-from concept_extraction import ConceptExtractor
+from analytics.concept_extraction import ConceptExtractor
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction import DictVectorizer
