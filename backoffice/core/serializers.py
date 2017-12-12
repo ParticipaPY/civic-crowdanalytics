@@ -28,12 +28,6 @@ class DatasetSerializer(serializers.ModelSerializer):
         fields = ('id','name','file','creation_status','attributes')
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = '__all__'
-
-
 class ParameterSerializer(serializers.ModelSerializer):
     parameter_type = serializers.SlugRelatedField(read_only=True, slug_field='description')
 
@@ -52,6 +46,23 @@ class AnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Analysis
         fields = '__all__'
+
+
+class ProjectAnalysisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Analysis
+        fields = ('id','analysis_type','analysis_status')
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    analysis = ProjectAnalysisSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = (
+            'id', 'name', 'start_date', 'description', 'location', 
+            'people_editing', 'dataset', 'visibility', 'analysis'
+        )
 
 
 class VisualizationSerializer(serializers.ModelSerializer):

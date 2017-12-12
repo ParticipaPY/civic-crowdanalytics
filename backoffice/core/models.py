@@ -83,7 +83,9 @@ class Parameter(models.Model):
 
 class Analysis(models.Model):
     name = models.CharField(max_length=150)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project, related_name='analysis', on_delete=models.CASCADE
+    )
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
     analysis_type = models.ForeignKey(AnalysisType, on_delete=models.CASCADE)
     analysis_status = models.ForeignKey(AnalysisStatus, on_delete=models.CASCADE)
