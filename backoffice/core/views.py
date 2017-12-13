@@ -23,6 +23,7 @@ from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
 from analytics.classification import DocumentClassifier
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import json
@@ -56,6 +57,7 @@ def get_dataset(dataset_id):
     dataset = pd.read_csv(ds_file, sep = None, engine='python')
     return dataset
 
+
 def get_attributes(dataset_id):
     """
     Get dataset attributes as a queryset from dataset_id
@@ -76,6 +78,15 @@ def get_attributes(dataset_id):
     attributes = attributes.values_list('name', flat=True)
 
     return attributes
+
+
+def modify_project_updated_field(project_id):
+    """
+    Update the updated field of a project with the current time
+    """
+    project = get_object(Project, project_id)
+    project.update_date = datetime.now()
+    project.save()
 
 
 def create_docs(dataset_id):
@@ -180,6 +191,7 @@ class AnalysisObjectDetail(APIView):
         Delete an analysis object instance
         """
         analysis = get_object(Analysis, pk)
+        modify_project_updated_field(analysis.project.id)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -328,7 +340,10 @@ class SentimentAnalysisList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
-                
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
+
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
@@ -408,6 +423,9 @@ class DocumentClassificationList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
@@ -489,6 +507,9 @@ class DocumentClusteringList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
@@ -560,6 +581,9 @@ class ConceptExtractionList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:

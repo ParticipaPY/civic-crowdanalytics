@@ -26,12 +26,13 @@ class Visibility(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=250)
-    start_date = models.DateTimeField(auto_now_add=True, blank=True)
     description = models.CharField(max_length=250, blank=True)
     location = models.CharField(max_length=150, blank=True)
     people_editing = models.BooleanField()
     dataset = models.ManyToManyField(Dataset)
     visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True, blank=True)
+    modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
