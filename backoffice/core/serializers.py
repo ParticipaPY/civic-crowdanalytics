@@ -49,13 +49,21 @@ class AnalysisSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProjectUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','username','first_name','last_name','email')
+
+
 class ProjectAnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Analysis
         fields = ('id','analysis_type','analysis_status')
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectGetSerializer(serializers.ModelSerializer):
+    users = ProjectUserSerializer(many=True, read_only=True)
+    owner = ProjectUserSerializer(read_only=True)
     analysis = ProjectAnalysisSerializer(many=True, read_only=True)
 
     class Meta:
@@ -65,6 +73,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             'visibility', 'datasets', 'users', 'owner', 'created', 'modified', 
             'analysis'
         )
+
+
+class ProjectPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
 
 
 class VisualizationSerializer(serializers.ModelSerializer):

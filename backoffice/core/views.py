@@ -6,15 +6,16 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from core.models import (
     User, Project, Dataset, Attribute, Analysis, Visualization, 
     VisualizationType, Parameter, CreationStatus
 )
 from core.serializers import (
-    UserSerializer, ProjectSerializer, DatasetSerializer,
-    AnalysisSerializer, VisualizationSerializer, VisualizationTypeSerializer, 
-    GroupSerializer, PermissionSerializer, AttributeSerializer, 
-    ArgumentSerializer, ParameterSerializer
+    UserSerializer, DatasetSerializer, ProjectGetSerializer, 
+    ProjectPostSerializer, AnalysisSerializer, VisualizationSerializer, 
+    VisualizationTypeSerializer, GroupSerializer, PermissionSerializer, 
+    AttributeSerializer, ArgumentSerializer, ParameterSerializer,
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
@@ -690,19 +691,36 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
 
 
-@permission_classes((CorePermissions, ))
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
+class ProjectViewSet(viewsets.ViewSet):
+    def list(self, request):
+        """
+        List all projects
+        """
+        queryset = Project.objects.all()
+        serializer = ProjectGetSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        """
+        Retrieve a project instance
+        """
+        queryset = Project.objects.all()
+        project = get_object_or_404(queryset, pk=pk)
+        serializer = ProjectGetSerializer(project)
+        return Response(serializer.data)
+    
     def create(self, request):
+        """
+        Create a new project
+        """
         # Use the current user as user and owner of the project        
         request.data['users'] = [request.user.id]
         request.data['owner'] = request.user.id
         
-        serializer = self.get_serializer(data=request.data)
+        # Save project
+        serializer = ProjectPostSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)        
-        self.perform_create(serializer)
+        serializer.save()
 
         # Update dataset creation status when posting a project
         dataset_id = self.request.data['datasets'][0]
@@ -710,9 +728,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
         dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
         dataset.save()
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def destroy(self, request, pk=None):
+        """
+        Delete a project instance
+        """
+        queryset = Project.objects.all()
+        project = get_object_or_404(queryset, pk=pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     
 @permission_classes((CorePermissions, ))
 class AttributeViewSet(viewsets.ModelViewSet):
