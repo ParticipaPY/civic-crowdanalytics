@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, 
-    Visualization, VisualizationType, Ownership,
-    Parameter, Argument
+    User, Project, Dataset, Attribute, Analysis, Visualization, 
+    VisualizationType, Parameter, Argument
 )
 
 
@@ -29,7 +28,9 @@ class DatasetSerializer(serializers.ModelSerializer):
 
 
 class ParameterSerializer(serializers.ModelSerializer):
-    parameter_type = serializers.SlugRelatedField(read_only=True, slug_field='description')
+    parameter_type = serializers.SlugRelatedField(
+        read_only=True, slug_field='description'
+    )
 
     class Meta:
         model = Parameter
@@ -61,7 +62,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = (
             'id', 'name', 'description', 'location', 'people_editing', 
-            'dataset', 'visibility', 'created', 'modified', 'analysis'
+            'visibility', 'datasets', 'users', 'owner', 'created', 'modified', 
+            'analysis'
         )
 
 
@@ -75,12 +77,6 @@ class VisualizationTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = VisualizationType
         fields = '__all__'
-
-
-class OwnershipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ownership
-        fields = ('id', 'user', 'project', 'date_joined', 'owner')
 
 
 class GroupSerializer(serializers.ModelSerializer):

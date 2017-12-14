@@ -28,7 +28,6 @@ router.register(r'projects', views.ProjectViewSet)
 router.register(r'attributes', views.AttributeViewSet)
 router.register(r'visualizations', views.VisualizationViewSet)
 router.register(r'visualizationType', views.VisualizationTypeViewSet)
-router.register(r'ownership', views.OwnershipViewSet)
 router.register(r'group', views.GroupViewSet)
 router.register(r'permission', views.PermissionViewSet)
 

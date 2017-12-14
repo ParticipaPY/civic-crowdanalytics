@@ -24,32 +24,25 @@ class Visibility(models.Model):
         return self.description
 
 
+class User(AbstractUser):
+    def __str__(self):
+        return self.username
+
+
 class Project(models.Model):
     name = models.CharField(max_length=250)
     description = models.CharField(max_length=250, blank=True)
     location = models.CharField(max_length=150, blank=True)
     people_editing = models.BooleanField()
-    dataset = models.ManyToManyField(Dataset)
     visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
+    datasets = models.ManyToManyField(Dataset)
+    users = models.ManyToManyField(User)
+    owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True, blank=True)
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
-
-
-class User(AbstractUser):
-    project = models.ManyToManyField(Project, through='Ownership')
-
-    def __str__(self):
-        return self.username
-
-
-class Ownership(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    date_joined = models.DateField()
-    owner = models.BooleanField()
 
 
 class AttributeType(models.Model):

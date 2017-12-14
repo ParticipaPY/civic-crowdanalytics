@@ -7,15 +7,14 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, 
-    Visualization, VisualizationType, Ownership,
-    Parameter, CreationStatus
+    User, Project, Dataset, Attribute, Analysis, Visualization, 
+    VisualizationType, Parameter, CreationStatus
 )
 from core.serializers import (
     UserSerializer, ProjectSerializer, DatasetSerializer,
     AnalysisSerializer, VisualizationSerializer, VisualizationTypeSerializer, 
-    OwnershipSerializer, GroupSerializer, PermissionSerializer, 
-    AttributeSerializer, ArgumentSerializer, ParameterSerializer
+    GroupSerializer, PermissionSerializer, AttributeSerializer, 
+    ArgumentSerializer, ParameterSerializer
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
@@ -693,18 +692,26 @@ class UserViewSet(viewsets.ModelViewSet):
 
 @permission_classes((CorePermissions, ))
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all().prefetch_related('dataset')
+    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
     def create(self, request):
-        """
-        Update dataset creation status when posting a project
-        """
-        dataset_id = self.request.data['dataset'][0]
+        # Use the current user as user and owner of the project        
+        request.data['users'] = [request.user.id]
+        request.data['owner'] = request.user.id
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)        
+        self.perform_create(serializer)
+
+        # Update dataset creation status when posting a project
+        dataset_id = self.request.data['datasets'][0]
         dataset = Dataset.objects.get(id=dataset_id)        
         dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
         dataset.save()
-        return super().create(request)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     
 @permission_classes((CorePermissions, ))
@@ -729,12 +736,6 @@ class VisualizationViewSet(viewsets.ModelViewSet):
 class VisualizationTypeViewSet(viewsets.ModelViewSet):
     queryset = VisualizationType.objects.all()
     serializer_class = VisualizationTypeSerializer
-
-
-@permission_classes((CorePermissions, ))
-class OwnershipViewSet(viewsets.ModelViewSet):
-    queryset = Ownership.objects.all()
-    serializer_class = OwnershipSerializer
 
 
 @permission_classes((CorePermissions, ))
