@@ -6,16 +6,16 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, 
-    Visualization, VisualizationType, Ownership,
-    Parameter, CreationStatus
+    User, Project, Dataset, Attribute, Analysis, Visualization, 
+    VisualizationType, Parameter, CreationStatus
 )
 from core.serializers import (
-    UserSerializer, ProjectSerializer, DatasetSerializer,
-    AnalysisSerializer, VisualizationSerializer, VisualizationTypeSerializer, 
-    OwnershipSerializer, GroupSerializer, PermissionSerializer, 
-    AttributeSerializer, ArgumentSerializer, ParameterSerializer
+    UserSerializer, DatasetSerializer, ProjectGetSerializer, 
+    ProjectPostSerializer, AnalysisSerializer, VisualizationSerializer, 
+    VisualizationTypeSerializer, GroupSerializer, PermissionSerializer, 
+    AttributeSerializer, ArgumentSerializer, ParameterSerializer,
 )
 from core.constants import *
 from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
@@ -23,6 +23,7 @@ from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
 from analytics.classification import DocumentClassifier
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import json
@@ -56,6 +57,7 @@ def get_dataset(dataset_id):
     dataset = pd.read_csv(ds_file, sep = None, engine='python')
     return dataset
 
+
 def get_attributes(dataset_id):
     """
     Get dataset attributes as a queryset from dataset_id
@@ -76,6 +78,15 @@ def get_attributes(dataset_id):
     attributes = attributes.values_list('name', flat=True)
 
     return attributes
+
+
+def modify_project_updated_field(project_id):
+    """
+    Update the updated field of a project with the current time
+    """
+    project = get_object(Project, project_id)
+    project.update_date = datetime.now()
+    project.save()
 
 
 def create_docs(dataset_id):
@@ -180,6 +191,7 @@ class AnalysisObjectDetail(APIView):
         Delete an analysis object instance
         """
         analysis = get_object(Analysis, pk)
+        modify_project_updated_field(analysis.project.id)
         analysis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -328,7 +340,10 @@ class SentimentAnalysisList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
-                
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
+
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
@@ -408,6 +423,9 @@ class DocumentClassificationList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
@@ -489,6 +507,9 @@ class DocumentClusteringList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
@@ -560,6 +581,9 @@ class ConceptExtractionList(APIView):
                     argumentSerializer = ArgumentSerializer(data=arg)
                     argumentSerializer.is_valid()
                     argumentSerializer.save()
+
+                # Modify project updated field
+                modify_project_updated_field(request.data['project'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
@@ -667,21 +691,54 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
 
 
-@permission_classes((CorePermissions, ))
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all().prefetch_related('dataset')
-    serializer_class = ProjectSerializer
+class ProjectViewSet(viewsets.ViewSet):
+    def list(self, request):
+        """
+        List all projects
+        """
+        queryset = Project.objects.all()
+        serializer = ProjectGetSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    def retrieve(self, request, pk=None):
+        """
+        Retrieve a project instance
+        """
+        queryset = Project.objects.all()
+        project = get_object_or_404(queryset, pk=pk)
+        serializer = ProjectGetSerializer(project)
+        return Response(serializer.data)
+    
     def create(self, request):
         """
-        Update dataset creation status when posting a project
+        Create a new project
         """
-        dataset_id = self.request.data['dataset'][0]
+        # Use the current user as user and owner of the project        
+        request.data['users'] = [request.user.id]
+        request.data['owner'] = request.user.id
+        
+        # Save project
+        serializer = ProjectPostSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)        
+        serializer.save()
+
+        # Update dataset creation status when posting a project
+        dataset_id = self.request.data['datasets'][0]
         dataset = Dataset.objects.get(id=dataset_id)        
         dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
         dataset.save()
-        return super().create(request)
 
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, pk=None):
+        """
+        Delete a project instance
+        """
+        queryset = Project.objects.all()
+        project = get_object_or_404(queryset, pk=pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
     
 @permission_classes((CorePermissions, ))
 class AttributeViewSet(viewsets.ModelViewSet):
@@ -705,12 +762,6 @@ class VisualizationViewSet(viewsets.ModelViewSet):
 class VisualizationTypeViewSet(viewsets.ModelViewSet):
     queryset = VisualizationType.objects.all()
     serializer_class = VisualizationTypeSerializer
-
-
-@permission_classes((CorePermissions, ))
-class OwnershipViewSet(viewsets.ModelViewSet):
-    queryset = Ownership.objects.all()
-    serializer_class = OwnershipSerializer
 
 
 @permission_classes((CorePermissions, ))

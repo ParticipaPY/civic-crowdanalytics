@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, 
-    Visualization, VisualizationType, Ownership,
-    Parameter, Argument
+    User, Project, Dataset, Attribute, Analysis, Visualization, 
+    VisualizationType, Parameter, Argument
 )
 
 
@@ -28,14 +27,10 @@ class DatasetSerializer(serializers.ModelSerializer):
         fields = ('id','name','file','creation_status','attributes')
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = '__all__'
-
-
 class ParameterSerializer(serializers.ModelSerializer):
-    parameter_type = serializers.SlugRelatedField(read_only=True, slug_field='description')
+    parameter_type = serializers.SlugRelatedField(
+        read_only=True, slug_field='description'
+    )
 
     class Meta:
         model = Parameter
@@ -54,6 +49,38 @@ class AnalysisSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProjectUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','username','first_name','last_name','email')
+
+
+class ProjectAnalysisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Analysis
+        fields = ('id','analysis_type','analysis_status')
+
+
+class ProjectGetSerializer(serializers.ModelSerializer):
+    users = ProjectUserSerializer(many=True, read_only=True)
+    owner = ProjectUserSerializer(read_only=True)
+    analysis = ProjectAnalysisSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = (
+            'id', 'name', 'description', 'location', 'people_editing', 
+            'visibility', 'datasets', 'users', 'owner', 'created', 'modified', 
+            'analysis'
+        )
+
+
+class ProjectPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+
 class VisualizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visualization
@@ -64,12 +91,6 @@ class VisualizationTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = VisualizationType
         fields = '__all__'
-
-
-class OwnershipSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ownership
-        fields = ('id', 'user', 'project', 'date_joined', 'owner')
 
 
 class GroupSerializer(serializers.ModelSerializer):
