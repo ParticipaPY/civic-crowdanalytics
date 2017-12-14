@@ -5,13 +5,36 @@
   export const Backend = axios.create({
     baseURL: 'http://159.203.77.35:8080/api',
     headers: {
-      Authorization: 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTI2NjU3MDIsImVtYWlsIjoiIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJhZG1pbiJ9.TbEVtAvx2zkFOq6QFrN6yJFVdQeG4sdnnm578e8wo7c',
       Accept: 'application/json'
     }
   })
+
+  Backend.token = null
+
+  Backend.auth = function () {
+    if (this.token === null) {
+      this.post('/auth/', {
+        username: 'admin',
+        password: '238k74i1Ct'
+      }).then(
+        response => {
+          Backend.token = response.data.token
+          Backend.defaults.headers.common['Authorization'] = response.data.token
+        }
+      ).catch(
+        e => console.log(e)
+      )
+    }
+  }
+
+  Backend.interceptors.request.use(Backend.auth())
   
   Backend.projects = function () {
     return this.get('projects/')
+  }
+
+  Backend.getProjectSummary = function (projectId) {
+    return this.get('/projects/' + projectId)
   }
 
   Backend.postProject = function (project, dataset, attributes) {
@@ -36,7 +59,7 @@
         server.post('projects/', {
           name: project.name,
           description: project.description,
-          dataset: [datasetId],
+          datasets: [datasetId],
           visibility: project.visibility,
           people_editing: project.people_editing
         }).then(
@@ -87,6 +110,10 @@
         console.error(e)
       }
     )
+  }
+
+  Backend.getSentimentAnalysis = function (id) {
+    return this.get('/analysis/sentiment-analysis/' + id)
   }
 
 </script>

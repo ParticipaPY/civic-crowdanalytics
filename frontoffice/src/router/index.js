@@ -5,7 +5,8 @@ import Router from 'vue-router'
 import Full from '@/containers/Full'
 
 // Views
-import Dashboard from '@/views/Dashboard'
+// import Dashboard from '@/views/Dashboard'
+import ProjectDashboard from '@/views/ProjectDashboard'
 import DashboardNew from '@/views/DashboardNew'
 import Projects from '@/views/Projects'
 
@@ -69,20 +70,19 @@ export default new Router({
                   component: New
                 },
                 {
-                  path: 'vallejo-2017',
-                  name: 'Vallejo 2017',
-                  component: Dashboard
+                  path: ':projectId',
+                  name: 'Project Home',
+                  component: ProjectDashboard
                 },
                 {
-                  path: 'vallejo-2017',
-                  redirect: '/vallejo-2017/sentiment',
-                  name: 'Vallejo 2017',
+                  path: ':projectId',
+                  name: 'Project Home',
                   component: {
                     render (c) { return c('router-view') }
                   },
                   children: [
                     {
-                      path: 'sentiment',
+                      path: 'sentiment/:analysisId',
                       name: 'Sentiment Analysis',
                       component: Analysis
                     },

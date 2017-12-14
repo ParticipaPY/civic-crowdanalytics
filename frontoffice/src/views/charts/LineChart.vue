@@ -1,7 +1,30 @@
 <script>
 import { Line } from 'vue-chartjs'
+import {Backend} from '../../Backend'
+// import _ from 'lodash'
 
 export default Line.extend({
+  components: {
+    Backend
+  },
+  props: {
+    analysisId: {type: Number, required: true}
+  },
+  data () {
+    return {
+      data: [],
+      labels: [],
+      labelData: []
+    }
+  },
+  watch: {
+    analysisId: function (n, o) {
+      if (n !== 0 || n !== o) {
+        this.getChart()
+      }
+    }
+  },
+  methods: {},
   mounted () {
     this.renderChart(
       {

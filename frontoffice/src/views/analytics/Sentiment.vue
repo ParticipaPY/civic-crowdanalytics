@@ -51,54 +51,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>I want to help special kids because I love little kids and want to help them.  Why is needed? It is needed because they need help to learn.</td>
+                <tr v-for="item in positiveData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>0.9538</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
-                  <td>
-                    <span class="badge badge-default">Positive</span>
-                  </td>
-                  <td>0.886</td>
-                </tr>
-                <tr>
-                  <td>Restore the downtown and make it more attractive.  Why is needed? To make Vallejo a better place.</td>
-                  <td>
-                    <span class="badge badge-danger">Positive</span>
-                  </td>
-                  <td>0.9022</td>
-                </tr>
-                <tr>
-                  <td>Community Park. To have a nicer park for everyone  Why is needed?To enjoy scenery and kids who want to play safe.</td>
-                  <td>
-                    <span class="badge badge-danger">Positive</span>
-                  </td>
-                  <td>0.8934</td>
-                </tr>
-                <tr>
-                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.9584</td>
-                </tr>
-                <tr>
-                  <td>Most work commuters are coming from the South Bay. Why not run some county-wide shuttles that pick people up from Sunnyvale, San Jose, etc and take them to work in the Stanford Research Park? Some companies there can afford their own shuttle systems, but others can't. Can the TMA help them pool resources to establish a multi-company or public shuttles to the South Bay?</td>                
+                <tr v-for="item in neutralData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
-                  <td>-0.10</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>All new development should be required to add some bike parking. Stanford shopping center is really lacking in this.</td>                
+                <tr v-for="item in negativeData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-danger">Negative</span>
                   </td>
-                  <td>-0.68</td>
+                  <td>{{item.score}}</td>
                 </tr>
               </tbody>
             </table>
@@ -112,14 +84,73 @@
 <script>
 
 import ScatterChart from '../charts/ScatterChart'
-
+import {Backend} from '../../Backend'
 import { dropdown } from 'vue-strap'
+import _ from 'lodash'
 
 export default {
   name: 'sentiment',
   components: {
     ScatterChart,
     dropdown
-  }
+  },
+  data () {
+    return {
+      data: [],
+      positiveData: [],
+      neutralData: [],
+      negativeData: []
+    }
+  },
+  methods: {
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      let ret = []
+      if (parsed.length > 0) {
+        let positiveParsed = _.filter(parsed, (v, k) => v.sentiment === 'pos')[0]
+        let neutralParsed = _.filter(parsed, (v, k) => v.sentiment === 'neu')[0]
+        let negativeParsed = _.filter(parsed, (v, k) => v.sentiment === 'neg')[0]
+        let totalDataLength = positiveParsed.ideas.length + neutralParsed.ideas.length + negativeParsed.ideas.length
+        let dataXPosIncrement = 10 / totalDataLength
+        let header = 0
+        positiveParsed.ideas = _.orderBy(positiveParsed.ideas, ['score'], ['desc'])
+        neutralParsed.ideas = _.orderBy(neutralParsed.ideas, ['score'], ['desc'])
+        negativeParsed.ideas = _.orderBy(negativeParsed.ideas, ['score'], ['desc'])
+        for (let pos of positiveParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.positiveData.push(obj)
+        }
+        for (let neu of neutralParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.neutralData.push(obj)
+        }
+        for (let neg of negativeParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.negativeData.push(obj)
+        }
+        ret.push(this.positiveData, this.neutralData, this.negativeData)
+      }
+      return ret
+    }
+  },
+  created: function () {
+    Backend.getSentimentAnalysis(1).then(
+      response => {
+        this.data = response.data.result
+        this.formatDataset(this.data)
+      }
+    ).catch(
+      e => {
+        console.log(e)
+      }
+    )
+  },
+  mounted () {}
 }
 </script>

@@ -61,11 +61,11 @@
             <router-link :to="'/dashboard/projects/new'" class="btn btn-primary"><i class="fa fa-plus-circle font-lg"></i> New project</router-link>
           </div>
         </div>
-        <div class="row" id="project-box">
+        <div class="row" id="project-box" v-for="project in projects">
           <div class="col-md-12 title">
             <input type="checkbox" name="project1check" id="project1check" v-model="selectedProjects" value="project1">
             <label for="project1check"></label>
-            Project 1 - Name Lorem Ipsum Dolor Sit Amet
+            <router-link :to='{ name: "Project Home", params: { projectId: project.id }}'>{{project.name}}</router-link>
             <div class="actions">
               <a @click="toggleDetails($event)">Hide Details</a>
               <a href="#">Edit</a>
@@ -75,24 +75,20 @@
             <div class="details">
               <div class="col-md-12">
                 <div class="meta">
-                  <div><i class="fa fa-user"></i>Project Owner: <strong>Harold Smith</strong></div>
-                  <div><i class="fa fa-calendar"></i>Created Date: <strong>Jun 01, 2016</strong></div>
-                  <div><i class="fa fa-calendar"></i>Last Modified: <strong>Jun 01, 2016</strong></div>
-                  <div><i class="fa fa-database"></i>Data Sets: <strong>9 sets</strong></div>
-                  <div><i class="fa fa-file-text"></i>Analysis: <strong>15 reports</strong></div>
+                  <div><i class="fa fa-user"></i>Project Owner: <strong>{{ fullName(project.owner.first_name, project.owner.last_name) }}</strong></div>
+                  <div><i class="fa fa-calendar"></i>Created Date: <strong>{{project.created | shortDate}}</strong></div>
+                  <div><i class="fa fa-calendar"></i>Last Modified: <strong>{{project.modified | shortDate}}</strong></div>
+                  <div><i class="fa fa-database"></i>Data Sets: <strong>{{ project.datasets.length }} {{ project.datasets.length == 1 ? 'set' : 'sets' }}</strong></div>
+                  <div><i class="fa fa-file-text"></i>Analysis: <strong>{{ project.analysis.length }}</strong></div>
                 </div>
               </div>
               <div class="col-md-12">
                 <p class="subtitle"><strong>Team Members</strong></p>
-                <div class="faces">
-                  <img src="static/img/avatars/6.jpg">
-                  <img src="static/img/avatars/6.jpg">
-                  <img src="static/img/avatars/6.jpg">
-                  <img src="static/img/avatars/6.jpg">
+                <div class="faces" v-for="user in project.users">
                   <img src="static/img/avatars/6.jpg">
                 </div>
               </div>
-              <div class="col-md-12">
+              <div class="col-md-12" style="display:none">
                 <p class="subtitle"><strong>Latest Analysis Reports</strong></p>
                 <table>
                   <thead>
@@ -172,18 +168,25 @@
 
 <script>
 import {Backend} from '../Backend'
+import moment from 'moment'
 
 export default {
   name: 'dashboardnew',
+  components: {
+    moment
+  },
   methods: {
     toggleDetails (event) {
       console.log(event)
+    },
+    fullName (first, last) {
+      return first + ' ' + last
     }
   },
   created: function () {
     Backend.projects().then(
       response => {
-        console.log(response.data)
+        this.projects = response.data
       }
     ).catch(
       e => {
@@ -193,7 +196,13 @@ export default {
   },
   data () {
     return {
-      selectedProjects: []
+      selectedProjects: [],
+      projects: []
+    }
+  },
+  filters: {
+    shortDate: function (date) {
+      return moment(date).format('MMM Do, YYYY')
     }
   }
 }

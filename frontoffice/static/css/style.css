@@ -9217,6 +9217,8 @@ header.app-header .dropdown-toggle::after {
     color: white;
     padding: 1rem 0.75rem 1rem 3rem;
     font-weight: bold; }
+    #project-box .title a {
+      color: white; }
     #project-box .title .actions {
       font-weight: normal;
       float: right;

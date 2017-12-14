@@ -279,8 +279,8 @@ export default {
         }
         var meta = {}
         meta.name = k
-        meta.type = parseInt(datatype)
-        meta.include = document.getElementById(k + '_include').checked || false
+        meta.attribute_type = parseInt(datatype)
+        meta.included_in_analysis = document.getElementById(k + '_include').checked || false
         this.attributes.push(meta)
       }
       console.log(this.attributes)
