@@ -15,6 +15,7 @@ from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import cosine_similarity
 from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem,\
                   download_stop_words
+from analytics.concept_extraction import ConceptExtractor
 
 
 class DocumentClustering:
@@ -140,7 +141,7 @@ class DocumentClustering:
         self._num_docs_per_clusters = dict(docs_clusters_df['cluster']. \
                                            value_counts())
         return self
-        
+    
     def top_terms_per_cluster(self, num_terms_per_cluster=3):
         '''
         Compute the top 'n' terms per cluster.
@@ -154,33 +155,19 @@ class DocumentClustering:
         -------
         top_terms : Dictionary of clusters and their top 'n' terms
         '''
-
-        if self._corpus.empty:
-            cleaned_txt = []
-            stemmed_txt = []
-            for doc in self._docs:
-                cleaned_txt.extend(tokenize_and_remove_stop_words(doc, 
-                                                                  self.context_words))
-                stemmed_txt.extend(tokenize_and_stem(doc, self.context_words))
-            # create a panda dataframe containing the cleaned and 
-            # stemmed texts
-            self._corpus = pd.DataFrame({'words': cleaned_txt}, index=stemmed_txt)
-        top_terms = {}
-        # sort cluster centers by proximity to centroid
-        order_centroids = self._model.cluster_centers_.argsort()[:, ::-1] 
-        for i in range(self.num_clusters):
-            str_cluster = ''
-            term_counter = 0
-            for idx in order_centroids[i, :num_terms_per_cluster]:
-                str_cluster = str_cluster + \
-                self._corpus.ix[self._features[idx].split(' ')].values. \
-                tolist()[0][0]
-                if term_counter < (num_terms_per_cluster-1):
-                    str_cluster = str_cluster + ', '
-                    term_counter += 1
-            top_terms[i] = str_cluster.strip()
+        clusters_dic = {str(l): [] for l in set(self._clusters)}
+        top_terms = {k:[] for k in clusters_dic.keys()}
+        for i in range(0, len(self._clusters)):
+            label = str(self._clusters[i])
+            clusters_dic[label].append(self._docs[i])      
+        for c,l in clusters_dic.items():
+            ce = ConceptExtractor(num_concepts=num_terms_per_cluster,
+                                  language=self.language, 
+                                  context_words=self.context_words)
+            ce.extract_concepts(l)
+            top_terms[c] = ce.common_concepts
         return top_terms
-    
+
     def get_coordinate_vectors(self):
         '''
         First, the function computes the cosine similarity of each document. 
