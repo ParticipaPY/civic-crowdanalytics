@@ -478,9 +478,22 @@ class DocumentClusteringList(APIView):
             idea = {"idea":doc, "posx":x, "posy":y}
             ideas_clusters[cluster].append(idea) 
         
+        top_terms = dc.top_terms_per_cluster()
+        top_terms_clusters = [[] for x in range(dc.num_clusters)]
+        for cluster in range(dc.num_clusters):
+            for tup in top_terms[str(cluster)]:
+                term = tup[0]
+                score = tup[1]
+                top_term = {"term":term, "score":score}
+                top_terms_clusters[cluster].append(top_term)
+
         results = []
         for i in range(dc.num_clusters):
-            cluster = {"cluster":i, "ideas":ideas_clusters[i]}
+            cluster = {
+                "cluster":i, 
+                "top_terms": top_terms_clusters[i], 
+                "ideas":ideas_clusters[i]
+            }
             results.append(cluster)
         results = json.dumps(results)
 
