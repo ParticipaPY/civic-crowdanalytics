@@ -147,6 +147,7 @@ import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
 import { alert, accordion, panel, radio, buttonGroup } from 'vue-strap'
 import Papa from 'papaparse'
+import axios from 'axios'
 // import LineNavigator from 'line-navigator'
 
 export default {
@@ -287,7 +288,31 @@ export default {
       this.createProject()
     },
     createProject: function () {
-      this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
+      var toor = this
+      Backend.postDataset(this.dataset, this.attributes).then(
+        response => {
+          let datasetId = response.data.id
+          Backend.postProject(this.project, datasetId).then(
+            response => {
+              let projectName = response.data.name
+              let projectId = response.data.id
+              axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
+                results => {
+                  console.log(results)
+                  toor.showAlert = true
+                }
+              )).catch(
+                e => console.log(e)
+              )
+            }
+          ).catch(
+            e => console.log(e)
+          )
+        }
+      ).catch(
+        e => console.log(e)
+      )
+      // this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
     }
   }
 }

@@ -1,42 +1,6 @@
 <template>
   <div class="animated fadeIn">
     <div class="row">
-      <!-- <div class="col">
-        <div class="card card-accent-primary">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> 
-            <div class="h1 text-muted text-right">
-              <i class="icon-people"></i>
-            </div>
-            <h2 class="card-title"><b>850</b></h2>
-            <p class="card-text">Participants</p>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card card-accent-success">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
-            <div class="h1 text-muted text-right">
-              <i class="icon-speech"></i>
-            </div>
-            <h2 class="card-title"><b>230</b></h2>
-            <p class="card-text">Ideas</p>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card card-accent-warning">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
-            <div class="h1 text-muted text-right">
-              <i class="icon-bubbles"></i>
-            </div>
-            <h2 class="card-title"><b>400</b></h2>
-            <p class="card-text">Comments</p>
-          </div>
-        </div>
-      </div><!--/.col-->
       <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-success">
           <div class="card-block p-3 clearfix">
@@ -48,7 +12,7 @@
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
           <div class="card-footer px-3 py-2">
-            <router-link :to="'concept'" class="font-weight-bold font-xs btn-block text-muted" append><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+            <router-link class="font-weight-bold font-xs btn-block text-muted" :to="{name: 'Concept Extraction', params: {analysisId: conceptId}}"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
         </div>
       </div><!--/.col-->
@@ -62,7 +26,7 @@
             <p class="card-text">Avg. ideas per category</p>
           </div>
           <div class="card-footer px-3 py-2">
-            <router-link :to="'category'" class="font-weight-bold font-xs btn-block text-muted" append><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+            <router-link class="font-weight-bold font-xs btn-block text-muted" :to="{name: 'Category Summary', params: {analysisId: categoryId}}"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
         </div>
@@ -77,7 +41,7 @@
             <p class="card-text">Clusters of Ideas</p>
           </div>
           <div class="card-footer px-3 py-2">
-            <router-link :to="'similar'" class="font-weight-bold font-xs btn-block text-muted" append><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+            <router-link class="font-weight-bold font-xs btn-block text-muted" :to="{name: 'Similar Ideas', params: {analysisId: clusterId}}"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
           <!-- <card-line1-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
         </div>
@@ -103,7 +67,7 @@
           </div>
           <!-- <card-bar-chart-example class="chart-wrapper px-3" style="height:70px;" height="70"/> -->
           <div class="card-footer px-3 py-2">
-            <router-link :to="{name: 'Sentiment Analysis', params: {analysisId: 1}}" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
+            <router-link :to="{name: 'Sentiment Analysis', params: {analysisId: sentimentId}}" class="font-weight-bold font-xs btn-block text-muted"><i class="fa fa-angle-right float-right font-lg"></i> View More</router-link>
           </div>
         </div>
       </div><!--/.col-->
@@ -118,7 +82,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/concept'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Concept Extraction', params: {analysisId: conceptId}}">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -129,7 +93,7 @@
           </div>
           <div class="card-block">
             <div>
-              <line-chart/>
+              <line-chart :analysis-id="conceptId"/>
             </div>
           </div>
         </div>
@@ -141,7 +105,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/category'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Category Summary', params: {analysisId: categoryId}}">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -152,7 +116,7 @@
           </div>
           <div class="card-block">
             <div>
-              <bar-chart/>
+              <bar-chart :analysis-id="categoryId"/>
             </div>
           </div>
         </div>
@@ -166,7 +130,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="'/dashboard/projects/vallejo-2017/similar'">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Similar Ideas', params: {analysisId: clusterId}}">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
@@ -177,7 +141,7 @@
           </div>
           <div class="card-block">
             <div>
-              <bubble-chart/>
+              <bubble-chart :analysis-id="clusterId"/>
             </div>
           </div>
         </div>
@@ -189,7 +153,7 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="{name: 'Sentiment Analysis', params: {analysisId: 1}}">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Sentiment Analysis', params: {analysisId: sentimentId}}">View Fullscreen</router-link>
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>

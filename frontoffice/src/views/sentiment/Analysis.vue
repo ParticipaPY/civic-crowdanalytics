@@ -142,7 +142,7 @@ export default {
       response => {
         this.data = response.data.result
         this.formatDataset(this.data)
-        this.sentimentId = this.$route.params.analysisId
+        this.sentimentId = parseInt(this.$route.params.analysisId)
       }
     ).catch(
       e => {

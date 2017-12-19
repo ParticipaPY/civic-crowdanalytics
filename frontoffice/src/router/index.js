@@ -12,9 +12,9 @@ import Projects from '@/views/Projects'
 
 // Views - Analytics
 // import Sentiment from '@/views/analytics/Sentiment'
-import Category from '@/views/analytics/Category'
+import Category from '@/views/category/Classification'
 // import Concept from '@/views/analytics/Concept'
-import Similar from '@/views/analytics/Similar'
+import Similar from '@/views/similar/Cluster'
 
 // Views - Projects
 import New from '@/views/projects/New'
@@ -87,17 +87,17 @@ export default new Router({
                       component: Analysis
                     },
                     {
-                      path: 'concept',
+                      path: 'concept/:analysisId',
                       name: 'Concept Extraction',
                       component: Extraction
                     },
                     {
-                      path: 'category',
+                      path: 'category/:analysisId',
                       name: 'Category Summary',
                       component: Category
                     },
                     {
-                      path: 'similar',
+                      path: 'similar/:analysisId',
                       name: 'Similar Ideas',
                       component: Similar
                     }
