@@ -4,7 +4,8 @@
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from textblob import TextBlob
-from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem
+from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
+                  clean_emojis, translate_docs
 
 
 class SentimentAnalyzer():
@@ -28,6 +29,10 @@ class SentimentAnalyzer():
     algorithm : string, 'ntlk_vader' by default
         The algorithm used to calculate the polarity score of a doc.
         Immplemented algorithms: 'ntlk_vader', 'textblob_base'
+
+    language: string, 'english'; by default
+        Language on which documents are written
+        Implemented languages: 'spanish'
     '''
 
     _sia = SentimentIntensityAnalyzer()
@@ -35,10 +40,12 @@ class SentimentAnalyzer():
 
     def __init__(self, neu_inf_lim=-0.3,
                  neu_sup_lim=0.3,
-                 algorithm="nltk_vader"):
+                 algorithm="nltk_vader", 
+                 language="english"):
         self.neu_inf_lim = neu_inf_lim
         self.neu_sup_lim = neu_sup_lim
         self.algorithm = algorithm
+        self.language=language
 
     def get_polarity_score(self, doc):
         '''
@@ -63,7 +70,7 @@ class SentimentAnalyzer():
         for positive, neutral and negative sentiment respectevely;
         and polarity score is a float that ranges from -1 to 1.
         '''
-
+        
         pp_doc = tokenize_and_remove_stop_words(text=doc, join_words=True)
         score = self.get_polarity_score(pp_doc)
         if score >= -1 and score < self.neu_inf_lim:
@@ -79,11 +86,29 @@ class SentimentAnalyzer():
         Analyzes a document collection by applying the analyze_doc()
         method for each document.
         All the results are stored in the _tagged_docs attribute.
+        Emojis are removed from docs.
+        If the docs' language is not english, they are translated to
+        english to use the english sentiment lexicon of the analyzer.
+        If the docs' language is not english, after analyze sentiment
         '''
 
         results = []
-        for doc in docs:
+        docs = clean_emojis(docs)
+        if (self.language != "english"):
+            if (self.language == "spanish"):
+                src = "es"
+            translations = translate_docs(docs, src=src, dest="en")
+            originals = [o for (o,t) in translations]
+            translated = [t for (o,t) in translations]
+        else:
+            translated = docs
+        for doc in translated:
             results.append(self.analyze_doc(doc))
+        
+        if (self.language != "english"):
+        # translation might change docs order
+        # original non translated text must be re inserted in the results
+            results = [(originals[i], results[i][1], results[i][2]) for i in range(len(results))]
         self._tagged_docs = results
 
     @property
