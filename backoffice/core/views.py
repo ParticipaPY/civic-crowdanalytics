@@ -282,15 +282,28 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
-        try:    
-            ideas = create_docs(request.data['dataset'])
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        # Get project_id and dataset if they are supplied
+        if  'project_id' in request.data and request.data['project_id'] and \
+            'dataset_id' in request.data and request.data['dataset_id']:
+            project_id = request.data['project_id']
+            dataset_id = request.data['dataset_id']
+            try:    
+                ideas = create_docs(dataset_id)
+            except Exception as ex:
+                resp = Response(status=status.HTTP_400_BAD_REQUEST)
+                resp.content = ex
+                return resp
+        else:
+            project_id = None
+            dataset_id = None
 
-        # Get arguments
-        arguments = request.data['arguments']
+        #######################################################
+
+        # Get analysis parameters
+        if 'parameters' in request.data and request.data['parameters']:
+            arguments = json.loads(request.data['parameters'])
+        else:
+            arguments = {}
 
         # Call sentiment analizer
         sa = SentimentAnalyzer(**arguments)
@@ -322,8 +335,8 @@ class SentimentAnalysisList(APIView):
 
         #save results
         analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': SENTIMENT_ANALYSIS,
+            'name': request.data['name'], 'project': project_id,
+            'dataset': dataset_id, 'analysis_type': SENTIMENT_ANALYSIS,
             'analysis_status':analysis_status, 'result': results
         }            
         
@@ -342,7 +355,8 @@ class SentimentAnalysisList(APIView):
                     argumentSerializer.save()
 
                 # Modify project updated field
-                modify_project_updated_field(request.data['project'])
+                if project_id:
+                    modify_project_updated_field(project_id)
 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
