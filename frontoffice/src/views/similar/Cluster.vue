@@ -20,9 +20,9 @@
               <tabbed-panel-tab header="Graph">
                 <bubble-chart :analysis-id="clusterId"/>
               </tabbed-panel-tab>
-              <tabbed-panel-tab header="Word Cloud">
+              <tabbed-panel-tab header="Word Cloud" v-if="topTermsHasFinishedLoading">
                 <div id="clouddiv">
-                  <wordcloud :data="topTerms" nameKey="name" valueKey="value" ref="cloud" :wordClick="wordClick"></wordcloud>
+                  <wordcloud :data="wordCloudTerms" nameKey="name" valueKey="value" ref="cloud" :wordClick="wordClick"></wordcloud>
                 </div>
               </tabbed-panel-tab>
             </tabbed-panel>
@@ -118,24 +118,20 @@ export default {
             this.flattened.push(newobj)
           }
           for (let k of parsed[i].top_terms) {
-            let newobj = {}
-            newobj.name = k.term
-            newobj.value = k.score
-            this.topTerms.push(newobj)
+            let addword = {}
+            addword.name = k.term
+            addword.value = k.score
+            this.wordCloudTerms.push(addword)
           }
         }
+        this.topTermsHasFinishedLoading = true
       }
     }
   },
   watch: {
     activeTab (val) {
-      if (val === 1 && !this.wordCloudWasRendered) {
+      if (val === 1 && !this.wordCloudWasRendered && this.topTermsHasFinishedLoading) {
         setTimeout(() => { this.renderWordcloud() }, 500)
-      }
-    },
-    topTerms (n, o) {
-      if (this.topTerms.length > 0) {
-        this.renderWordcloud()
       }
     }
   },
@@ -147,7 +143,7 @@ export default {
       clusterId: 0,
       wordCloudWasRendered: false,
       topTermsHasFinishedLoading: false,
-      topTerms: []
+      wordCloudTerms: []
     }
   },
   mounted () {

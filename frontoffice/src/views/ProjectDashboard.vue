@@ -1,6 +1,5 @@
 <template>
   <div class="animated fadeIn">
-    <button @click="showNotification()">Test notification</button>
     <div class="row">
       <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-success">
