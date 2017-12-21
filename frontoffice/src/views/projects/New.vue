@@ -1,10 +1,5 @@
 <template>
   <div class="animated fadeIn" id="new-project">
-    <alert v-model="showAlert" placement="top" duration="3000" type="success" width="400px" dismissable>
-      <span class="icon-ok-circled alert-icon-float-left"></span>
-      <strong>Well Done!</strong>
-      <p>You successfully read this important alert message.</p>
-    </alert>
     <div class="card">
       <div class="card-header">
         Create a New Project
@@ -145,7 +140,7 @@ import {Backend} from '../../Backend'
 import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
 import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
-import { alert, accordion, panel, radio, buttonGroup } from 'vue-strap'
+import { accordion, panel, radio, buttonGroup } from 'vue-strap'
 import Papa from 'papaparse'
 import axios from 'axios'
 // import LineNavigator from 'line-navigator'

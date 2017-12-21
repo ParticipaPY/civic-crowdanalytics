@@ -3,7 +3,7 @@
   import axios from 'axios'
 
   export const Backend = axios.create({
-    baseURL: 'http://10.20.5.117:8000/api',
+    baseURL: 'http://159.203.77.35:8080/api',
     headers: {
       Accept: 'application/json'
     }
@@ -19,7 +19,7 @@
       }).then(
         response => {
           Backend.token = response.data.token
-          Backend.defaults.headers.common['Authorization'] = response.data.token
+          Backend.defaults.headers.common['Authorization'] = 'JWT ' + response.data.token
         }
       ).catch(
         e => console.log(e)
