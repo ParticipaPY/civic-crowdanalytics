@@ -27,6 +27,7 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import json
+import os
 import logging
 
 
@@ -48,13 +49,25 @@ def get_object(object, pk):
         raise Http404
 
 
-def get_dataset(dataset_id):
+def read_stored_dataset(dataset_id):
     """
-    Get dataset instance from dataset_id
+    Read dataset instance from dataset_id
     """
     ds = Dataset.objects.get(id=dataset_id)
     ds_file = 'datasets/'+str(ds.file)
     dataset = pd.read_csv(ds_file, sep = None, engine='python')
+    return dataset
+
+
+def read_in_memory_dataset(datasetFile, attributes):
+    """
+    Read dataset in memory dataset
+    """
+    file_extension = os.path.splitext(datasetFile.name)[1]
+    if file_extension == ".csv":
+        dataset = pd.read_csv(datasetFile, names=attributes, sep=',')
+    if file_extension == ".tsv":
+        dataset = pd.read_csv(datasetFile, names=attributes, sep='\t')
     return dataset
 
 
@@ -89,16 +102,19 @@ def modify_project_updated_field(project_id):
     project.save()
 
 
-def create_docs(dataset_id):
+def create_docs(dataset_id=None, datasetFile=None, datasetColumns=None):
     """
     Create a list of strings from a dataset
     """
-    dataset = get_dataset(dataset_id)
-    attributes = get_attributes(dataset_id)
-    attributes = list(attributes)    
-
-    # Select interested columns
-    dataset = dataset[attributes]
+    if dataset_id:
+        # Read stored dataset from dataset_id
+        attributes = get_attributes(dataset_id)
+        attributes = list(attributes)
+        dataset = read_stored_dataset(dataset_id)
+        dataset = dataset[attributes]
+    else:
+        # Read in memory dataset from file
+        dataset = read_in_memory_dataset(datasetFile, datasetColumns)
 
     # Drop NA rows
     dataset = dataset.dropna()
@@ -116,7 +132,7 @@ def create_dev_docs(dataset_id, label_column="label"):
     """
     Create a list of tuples (text, label) from a dataset
     """
-    dataset = get_dataset(dataset_id)
+    dataset = read_stored_dataset(dataset_id)
     attributes = get_attributes(dataset_id)
 
     # Get label column
@@ -282,22 +298,26 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
-        # Get project_id and dataset if they are supplied
-        if  'project_id' in request.data and request.data['project_id'] and \
-            'dataset_id' in request.data and request.data['dataset_id']:
-            project_id = request.data['project_id']
-            dataset_id = request.data['dataset_id']
-            try:    
+        try:    
+            # Get project_id and dataset if they are supplied
+            if  'project_id' in request.data and request.data['project_id'] and \
+                'dataset_id' in request.data and request.data['dataset_id']:
+                project_id = request.data['project_id']
+                dataset_id = request.data['dataset_id']
                 ideas = create_docs(dataset_id)
-            except Exception as ex:
-                resp = Response(status=status.HTTP_400_BAD_REQUEST)
-                resp.content = ex
-                return resp
-        else:
-            project_id = None
-            dataset_id = None
-
-        #######################################################
+            else:
+                project_id = None
+                dataset_id = None
+                data = request.FILES['data']
+                data_columns = json.loads(request.data['data_columns'])
+                ideas = create_docs(
+                    datasetFile=data,
+                    datasetColumns =data_columns
+                )
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
 
         # Get analysis parameters
         if 'parameters' in request.data and request.data['parameters']:
