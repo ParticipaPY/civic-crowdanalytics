@@ -293,7 +293,7 @@ export default {
               let projectId = response.data.id
               axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
                 results => {
-                  console.log(results)
+                  toor.router.push({ name: 'Project Home', params: { projectId: projectId } })
                   toor.showAlert = true
                 }
               )).catch(

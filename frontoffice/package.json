@@ -22,7 +22,9 @@
     "papaparse": "^4.3.6",
     "vue": ">= 2.3.3",
     "vue-chartjs": ">= 2.6.3",
+    "vue-read-more": "^1.1.0",
     "vue-router": "2.5.3",
+    "vue-snotify": "^3.0.4",
     "vue-strap": "github:wffranco/vue-strap",
     "vue-wordcloud": "^1.0.2"
   },

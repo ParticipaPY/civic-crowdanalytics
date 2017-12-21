@@ -1,5 +1,6 @@
 <template>
   <div class="animated fadeIn">
+    <button @click="showNotification()">Test notification</button>
     <div class="row">
       <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-success">
@@ -207,9 +208,13 @@ export default {
     }
   },
   methods: {
-
+    showNotification () {
+      this.$snotify.success('Example body content', 'Example Title')
+      console.log(this.$snotify)
+    }
   },
   beforeRouteEnter: (to, from, next) => {
+    console.log('ROUTE ENTER!')
     next(vm => {
       Backend.getProjectSummary(to.params.projectId).then(
         response => {

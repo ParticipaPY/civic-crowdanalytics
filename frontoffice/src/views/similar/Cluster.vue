@@ -59,7 +59,7 @@
               </thead>
               <tbody>
                 <tr v-for="item in flattened">
-                  <td>{{ item.content }}</td>
+                  <td class="readmore"><read-more more-str="Read more" :text="item.content" less-str="Read less" :max-chars="400"></read-more></td>
                   <td><span :class="'badge ' + item.class">{{ item.cluster }}</span></td>
                   <td>{{ item.legends }}</td>
                 </tr>

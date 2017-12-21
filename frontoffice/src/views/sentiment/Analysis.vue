@@ -45,28 +45,28 @@
             <table class="table table-striped table-responsive">
               <thead>
                 <tr>
-                  <th>Content</th>
+                  <th style="width:70%">Content</th>
                   <th>Aggregate Sentiment</th>
                   <th>Aggregate Score</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in positiveData">
-                  <td>{{item.idea}}</td>
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
                   <td>{{item.score}}</td>
                 </tr>
                 <tr v-for="item in neutralData">
-                  <td>{{item.idea}}</td>
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
                   <td>{{item.score}}</td>
                 </tr>
                 <tr v-for="item in negativeData">
-                  <td>{{item.idea}}</td>
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-danger">Negative</span>
                   </td>
