@@ -128,22 +128,29 @@ def create_docs(dataset_id=None, datasetFile=None, datasetColumns=None):
     return dataset_list
 
 
-def create_dev_docs(dataset_id, label_column="label"):
+def create_dev_docs(dataset_id=None, datasetFile=None, 
+                    datasetColumns=None, label_column="label"):
     """
     Create a list of tuples (text, label) from a dataset
     """
-    dataset = read_stored_dataset(dataset_id)
-    attributes = get_attributes(dataset_id)
+    if dataset_id:
+        dataset = read_stored_dataset(dataset_id)
+        attributes = get_attributes(dataset_id)
 
-    # Get label column
-    label = attributes.filter(name=label_column)
-    label = label.values_list('name', flat=True)
-    label = list(label)
+        # Get label column
+        label = attributes.filter(name=label_column)
+        label = label.values_list('name', flat=True)
+        label = list(label)
 
-    # Get text column
-    text = attributes.exclude(name=label_column)
-    text = text.values_list('name', flat=True)    
-    text = list(text)
+        # Get text column
+        text = attributes.exclude(name=label_column)
+        text = text.values_list('name', flat=True)    
+        text = list(text)
+    else:
+        dataset = read_in_memory_dataset(datasetFile,datasetColumns)
+        label = ["label"]
+        datasetColumns.remove("label")
+        text = datasetColumns
 
     # Select interested columns
     dataset = dataset[text+label]
@@ -403,15 +410,31 @@ class DocumentClassificationList(APIView):
         """
         Create a new document classification analysis
         """
-        try:    
-            dev_docs = create_dev_docs(request.data['dataset'])
+        try:
+            if  'project_id' in request.data and request.data['project_id'] and \
+                'dataset_id' in request.data and request.data['dataset_id']:
+                project_id = request.data['project_id']
+                dataset_id = request.data['dataset_id']
+                dev_docs = create_dev_docs(request.data['dataset_id'])
+            else:
+                project_id = None
+                dataset_id = None
+                data = request.FILES['data']
+                data_columns = json.loads(request.data['data_columns'])
+                dev_docs = create_dev_docs(
+                    datasetFile=data,
+                    datasetColumns =data_columns
+                )
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
-            return resp
+            return resp                
 
-        # Get arguments
-        arguments = request.data['arguments']
+        # Get analysis parameters
+        if 'parameters' in request.data and request.data['parameters']:
+            arguments = json.loads(request.data['parameters'])
+        else:
+            arguments = {}
         
         # Call document classifier
         dc = DocumentClassifier(**arguments)
@@ -439,8 +462,8 @@ class DocumentClassificationList(APIView):
 
         #save results
         analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLASSIFICATION,
+            'name': request.data['name'], 'project': project_id,
+            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLASSIFICATION,
             'analysis_status':analysis_status, 'result': results
         }            
         
@@ -459,7 +482,8 @@ class DocumentClassificationList(APIView):
                     argumentSerializer.save()
 
                 # Modify project updated field
-                modify_project_updated_field(request.data['project'])
+                if project_id:
+                    modify_project_updated_field(request.data['project_id'])
                 
                 return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
         except Exception as ex:
