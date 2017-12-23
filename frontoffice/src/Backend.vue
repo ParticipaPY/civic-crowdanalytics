@@ -5,17 +5,39 @@
   export const Backend = axios.create({
     baseURL: 'http://159.203.77.35:8080/api',
     headers: {
-      Authorization: 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTI2NjU3MDIsImVtYWlsIjoiIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJhZG1pbiJ9.TbEVtAvx2zkFOq6QFrN6yJFVdQeG4sdnnm578e8wo7c',
       Accept: 'application/json'
     }
   })
+
+  Backend.token = null
+
+  Backend.auth = function () {
+    if (this.token === null) {
+      this.post('/auth/', {
+        username: 'admin',
+        password: '238k74i1Ct'
+      }).then(
+        response => {
+          Backend.token = response.data.token
+          Backend.defaults.headers.common['Authorization'] = 'JWT ' + response.data.token
+        }
+      ).catch(
+        e => console.log(e)
+      )
+    }
+  }
+
+  Backend.interceptors.request.use(Backend.auth())
   
   Backend.projects = function () {
     return this.get('projects/')
   }
 
-  Backend.postProject = function (project, dataset, attributes) {
-    var server = this
+  Backend.getProjectSummary = function (projectId) {
+    return this.get('/projects/' + projectId)
+  }
+
+  Backend.postDataset = function (dataset, attributes) {
     let datasetFd = new FormData()
     let attributesFd = []
     for (let attr of attributes) {
@@ -28,65 +50,61 @@
     datasetFd.append('name', dataset.name)
     datasetFd.append('file', dataset.file, dataset.file.fileName)
     datasetFd.append('attributes', JSON.stringify(attributesFd))
-    server.post('datasets/', datasetFd, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(
-      response => {
-        var datasetId = response.data.id
-        server.post('projects/', {
-          name: project.name,
-          description: project.description,
-          dataset: [datasetId],
-          visibility: project.visibility,
-          people_editing: project.people_editing
-        }).then(
-          response => {
-            // MANUAL ANALYSIS FOR NOW
-            server.post('analysis/sentiment-analysis/', {
-              name: project.name + ' - Sentiment Analysis',
-              project: response.data.id,
-              dataset: datasetId,
-              arguments: {'neu_inf_lim': -0.2, 'neu_sup_lim': 0.2}
-            }).then(
-              response => { console.log(response) }
-            ).catch(e => console.error(e))
-            server.post('analysis/doc-classification/', {
-              name: project.name + ' - Classification',
-              project: response.data.id,
-              dataset: datasetId,
-              arguments: {}
-            }).then(
-              response => { console.log(response) }
-            ).catch(e => console.error(e))
-            server.post('analysis/doc-clustering/', {
-              name: project.name + ' - Clustering',
-              project: response.data.id,
-              dataset: datasetId,
-              arguments: {}
-            }).then(
-              response => { console.log(response) }
-            ).catch(e => console.error(e))
-            server.post('analysis/concept-extraction/', {
-              name: project.name + ' - Concept Extraction',
-              project: response.data.id,
-              dataset: datasetId,
-              arguments: {}
-            }).then(
-              response => { console.log(response) }
-            ).catch(e => console.error(e))
-            return true
-          }
-        ).catch(
-          e => {
-            console.error(e)
-          }
-        )
-      }
-    ).catch(
-      e => {
-        console.error(e)
-      }
-    )
+    return this.post('datasets/', datasetFd)
+  }
+  Backend.postProject = function (project, datasetId) {
+    return this.post('projects/', {
+      name: project.name,
+      description: project.description,
+      datasets: [datasetId],
+      visibility: project.visibility,
+      people_editing: project.people_editing
+    })
+  }
+  Backend.postSentimentAnalysis = function (projectName, projectId, datasetId) {
+    return this.post('analysis/sentiment-analysis/', {
+      name: projectName + ' - Sentiment Analysis',
+      project: projectId,
+      dataset: datasetId,
+      arguments: {'neu_inf_lim': -0.2, 'neu_sup_lim': 0.2}
+    })
+  }
+  Backend.postDocumentClassification = function (projectName, projectId, datasetId) {
+    return this.post('analysis/doc-classification/', {
+      name: projectName + ' - Classification',
+      project: projectId,
+      dataset: datasetId,
+      arguments: {}
+    })
+  }
+  Backend.postDocumentClustering = function (projectName, projectId, datasetId) {
+    return this.post('analysis/doc-clustering/', {
+      name: projectName + ' - Clustering',
+      project: projectId,
+      dataset: datasetId,
+      arguments: {}
+    })
+  }
+  Backend.postConceptExtraction = function (projectName, projectId, datasetId) {
+    return this.post('analysis/concept-extraction/', {
+      name: projectName + ' - Concept Extraction',
+      project: projectId,
+      dataset: datasetId,
+      arguments: {}
+    })
+  }
+
+  Backend.getSentimentAnalysis = function (id) {
+    return this.get('/analysis/sentiment-analysis/' + id)
+  }
+  Backend.getConceptExtraction = function (id) {
+    return this.get('/analysis/concept-extraction/' + id)
+  }
+  Backend.getDocumentClassification = function (id) {
+    return this.get('/analysis/doc-classification/' + id)
+  }
+  Backend.getDocumentClustering = function (id) {
+    return this.get('/analysis/doc-clustering/' + id)
   }
 
 </script>

@@ -1,10 +1,5 @@
 <template>
   <div class="animated fadeIn" id="new-project">
-    <alert v-model="showAlert" placement="top" duration="3000" type="success" width="400px" dismissable>
-      <span class="icon-ok-circled alert-icon-float-left"></span>
-      <strong>Well Done!</strong>
-      <p>You successfully read this important alert message.</p>
-    </alert>
     <div class="card">
       <div class="card-header">
         Create a New Project
@@ -145,8 +140,9 @@ import {Backend} from '../../Backend'
 import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
 import tabbedPanelTab from '../../components/TabbedPanel/Tab'
 
-import { alert, accordion, panel, radio, buttonGroup } from 'vue-strap'
+import { accordion, panel, radio, buttonGroup } from 'vue-strap'
 import Papa from 'papaparse'
+import axios from 'axios'
 // import LineNavigator from 'line-navigator'
 
 export default {
@@ -279,15 +275,39 @@ export default {
         }
         var meta = {}
         meta.name = k
-        meta.type = parseInt(datatype)
-        meta.include = document.getElementById(k + '_include').checked || false
+        meta.attribute_type = parseInt(datatype)
+        meta.included_in_analysis = document.getElementById(k + '_include').checked || false
         this.attributes.push(meta)
       }
       console.log(this.attributes)
       this.createProject()
     },
     createProject: function () {
-      this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
+      var toor = this
+      Backend.postDataset(this.dataset, this.attributes).then(
+        response => {
+          let datasetId = response.data.id
+          Backend.postProject(this.project, datasetId).then(
+            response => {
+              let projectName = response.data.name
+              let projectId = response.data.id
+              axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
+                results => {
+                  toor.router.push({ name: 'Project Home', params: { projectId: projectId } })
+                  toor.showAlert = true
+                }
+              )).catch(
+                e => console.log(e)
+              )
+            }
+          ).catch(
+            e => console.log(e)
+          )
+        }
+      ).catch(
+        e => console.log(e)
+      )
+      // this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
     }
   }
 }

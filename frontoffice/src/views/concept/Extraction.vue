@@ -17,7 +17,7 @@
           </div>
           <div class="card-block">
             <div>
-              <line-chart/>
+              <line-chart :analysis-id="conceptId"/>
             </div>
           </div>
         </div>
@@ -50,65 +50,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>city</td>                
-                  <td>139</td>
-                </tr>
-                <tr>
-                  <td>homeless</td>
-                  <td>136</td>
-                </tr>
-                <tr>
-                  <td>school</td>
-                  <td>118</td>
-                </tr>
-                <tr>
-                  <td>fix</td>
-                  <td>110</td>
-                </tr>
-                <tr>
-                  <td>community</td>
-                  <td>98</td>
-                </tr>
-                <tr>
-                  <td>help</td>
-                  <td>80</td>
-                </tr>
-                <tr>
-                  <td>youth</td>
-                  <td>77</td>
-                </tr>
-                <tr>
-                  <td>street</td>
-                  <td>70</td>
-                </tr>
-                <tr>
-                  <td>housing</td>
-                  <td>66</td>
-                </tr>
-                <tr>
-                  <td>repair</td>
-                  <td>57</td>
-                </tr>
-                <tr>
-                  <td>program</td>
-                  <td>55</td>
-                </tr>
-                <tr>
-                  <td>road</td>
-                  <td>54</td>
-                </tr>
-                <tr>
-                  <td>trash</td>
-                  <td>53</td>
-                </tr>
-                <tr>
-                  <td>park</td>
-                  <td>53</td>
-                </tr>
-                <tr>
-                  <td>center</td>
-                  <td>51</td>
+                <tr v-for="item in parsed">
+                  <td>{{item.concept}}</td>                
+                  <td>{{item.occurrences}}</td>
                 </tr>
               </tbody>
             </table>
@@ -122,7 +66,7 @@
 <script>
 
 import LineChart from '../charts/LineChart'
-
+import {Backend} from '../../Backend'
 import { dropdown } from 'vue-strap'
 
 export default {
@@ -130,6 +74,40 @@ export default {
   components: {
     LineChart,
     dropdown
+  },
+  data () {
+    return {
+      data: [],
+      parsed: [],
+      labels: [],
+      labelData: [],
+      conceptId: 0
+    }
+  },
+  methods: {
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      this.parsed = parsed
+      if (parsed.length > 0) {
+        for (let o of parsed) {
+          this.labels.push(o.concept)
+          this.labelData.push(o.occurrences)
+        }
+      }
+    }
+  },
+  mounted () {
+    Backend.getConceptExtraction(this.$route.params.analysisId).then(
+      response => {
+        this.data = response.data.result
+        this.formatDataset(this.data)
+        this.conceptId = this.$route.params.analysisId
+      }
+    ).catch(
+      e => {
+        console.log(e)
+      }
+    )
   }
 }
 </script>

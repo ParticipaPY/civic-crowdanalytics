@@ -1,1 +1,23 @@
 // Here you can add other styles
+@import "simple.scss";
+
+td.readmore {
+  span {
+    a {
+      &:before {
+        font-family: 'FontAwesome';
+        margin-right: 0.3rem;
+      }
+      &:first-of-type:before {
+        content: '\f0fe';
+      }
+      &:last-of-type:before {
+        content: '\f146';
+      }
+    }
+    font-weight: bold;
+    text-align: right;
+    display: block;
+    margin-top: -0.5rem;
+  }
+}

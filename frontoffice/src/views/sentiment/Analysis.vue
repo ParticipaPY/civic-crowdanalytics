@@ -17,7 +17,7 @@
           </div>
           <div class="card-block">
             <div>
-              <scatter-chart/>
+              <scatter-chart :analysis-id="sentimentId"/>
             </div>
           </div>
         </div>
@@ -45,116 +45,32 @@
             <table class="table table-striped table-responsive">
               <thead>
                 <tr>
-                  <th>Content</th>
+                  <th style="width:70%">Content</th>
                   <th>Aggregate Sentiment</th>
                   <th>Aggregate Score</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Campaign to promote positive things in Vallejo. Why is needed? Highlight the best in Vallejo.</td>                
+                <tr v-for="item in positiveData">
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>0.9584</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>I want to help special kids because I love little kids and want to help them.  Why is needed? It is needed because they need help to learn.</td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.9538</td>
-                </tr>
-                <tr>
-                  <td>Restore the downtown and make it more attractive.  Why is needed? To make Vallejo a better place.</td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.9022</td>
-                </tr>
-                <tr>
-                  <td>Community Park. To have a nicer park for everyone  Why is needed?To enjoy scenery and kids who want to play safe.</td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.8934</td>
-                </tr>
-                <tr>
-                  <td>Vallejo Beautification.  Why is needed? To improve tourism and support community.</td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>0.886</td>
-                </tr>
-                <tr>
-                  <td>Bring in more people with stable incomes.</td>                
+                <tr v-for="item in neutralData">
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
-                  <td>0.296</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>More policing. Why is needed? Prevent crimes.</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>0.0258</td>
-                </tr>
-                <tr>
-                  <td>Multi youth sports complex @ East Vallejo  Little League. Why is needed? Create revenue</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>0.2111</td>
-                </tr>
-                <tr>
-                  <td>Fix schools.</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>0.0</td>
-                </tr>
-                <tr>
-                  <td>Keep farmers market open until 5pm.</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>0.0</td>
-                </tr>
-                <tr>
-                  <td>Road repair because we have bad roads.</td>                
+                <tr v-for="item in negativeData">
+                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
                   <td>
                     <span class="badge badge-danger">Negative</span>
                   </td>
-                  <td>-0.5423</td>
-                </tr>
-                <tr>
-                  <td>Less gentrification and police brutality.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.577</td>
-                </tr>
-                <tr>
-                  <td>Violence in Schools need to stop.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.743</td>
-                </tr>
-                <tr>
-                  <td>End crime. Why is needed? Because there are a lot of robberies.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.7906</td>
-                </tr>
-                <tr>
-                  <td>End police brutality. Why is needed? Stop beating black and brown people.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.9217</td>
+                  <td>{{item.score}}</td>
                 </tr>
               </tbody>
             </table>
@@ -168,14 +84,71 @@
 <script>
 
 import ScatterChart from '../charts/ScatterChart'
-
+import {Backend} from '../../Backend'
 import { dropdown } from 'vue-strap'
+import _ from 'lodash'
 
 export default {
   name: 'sentiment',
   components: {
     ScatterChart,
     dropdown
+  },
+  data () {
+    return {
+      data: [],
+      positiveData: [],
+      neutralData: [],
+      negativeData: [],
+      sentimentId: 0
+    }
+  },
+  methods: {
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      let ret = []
+      if (parsed.length > 0) {
+        let positiveParsed = _.filter(parsed, (v, k) => v.sentiment === 'pos')[0]
+        let neutralParsed = _.filter(parsed, (v, k) => v.sentiment === 'neu')[0]
+        let negativeParsed = _.filter(parsed, (v, k) => v.sentiment === 'neg')[0]
+        positiveParsed.ideas = _.orderBy(positiveParsed.ideas, ['score'], ['desc'])
+        neutralParsed.ideas = _.orderBy(neutralParsed.ideas, ['score'], ['desc'])
+        negativeParsed.ideas = _.orderBy(negativeParsed.ideas, ['score'], ['desc'])
+        for (let pos of positiveParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.positiveData.push(obj)
+        }
+        for (let neu of neutralParsed.ideas) {
+          let obj = {}
+          obj.score = neu.score
+          obj.idea = neu.idea
+          this.neutralData.push(obj)
+        }
+        for (let neg of negativeParsed.ideas) {
+          let obj = {}
+          obj.score = neg.score
+          obj.idea = neg.idea
+          this.negativeData.push(obj)
+        }
+        ret.push(this.positiveData, this.neutralData, this.negativeData)
+      }
+      return ret
+    }
+  },
+  mounted () {
+    Backend.getSentimentAnalysis(this.$route.params.analysisId).then(
+      response => {
+        this.data = response.data.result
+        this.formatDataset(this.data)
+        this.sentimentId = parseInt(this.$route.params.analysisId)
+      }
+    ).catch(
+      e => {
+        console.log(e)
+      }
+    )
   }
 }
 </script>
