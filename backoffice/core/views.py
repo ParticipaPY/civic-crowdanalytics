@@ -194,6 +194,76 @@ def create_arguments(analysis_type, arguments):
     return arguments_list
 
 
+def get_analysis_related_fields(request, analysis_type):
+    """
+    Get the project_id, dataset_id and arguments from the request
+    Create the docs for analysis from the supplied data
+    """
+    if  'project_id' in request.data and request.data['project_id'] and \
+        'dataset_id' in request.data and request.data['dataset_id']:
+        # Get project_id and dataset if they are supplied
+        project_id = request.data['project_id']
+        dataset_id = request.data['dataset_id']
+        if analysis_type == DOCUMENT_CLASSIFICATION:
+            docs = create_dev_docs(dataset_id)
+        else:
+            docs = create_docs(dataset_id)
+    elif 'data_file' in request.data and request.FILES['data_file']:
+        # Get data file if it is supplied
+        project_id = None
+        dataset_id = None
+        data = request.FILES['data_file']
+        data_columns = json.loads(request.data['data_columns'])
+        if analysis_type == DOCUMENT_CLASSIFICATION:
+            docs = create_dev_docs(
+                datasetFile=data,
+                datasetColumns =data_columns
+            )        
+        else:
+            docs = create_docs(
+                datasetFile=data,
+                datasetColumns =data_columns
+            )
+
+    # Get analysis parameters
+    if 'parameters' in request.data and request.data['parameters']:
+        arguments = json.loads(request.data['parameters'])
+    else:
+        arguments = {}
+
+    return project_id, dataset_id, arguments, docs
+
+
+def save_analysis(analysis, arguments, analysis_type, project_id):
+    """
+    Save an analysis in the database after is executed
+    """
+    try: 
+        with transaction.atomic():
+            # Save analysis
+            analysisSerializer = AnalysisSerializer(data=analysis)
+            analysisSerializer.is_valid()
+            analysisSerializer.save()
+            
+            # Save arguments
+            arguments_list = create_arguments(analysis_type, arguments)
+            for arg in arguments_list:
+                argumentSerializer = ArgumentSerializer(data=arg)
+                argumentSerializer.is_valid()
+                argumentSerializer.save()
+
+            # Modify project updated field
+            if project_id:
+                modify_project_updated_field(project_id)
+
+            return Response(
+                analysisSerializer.data, status=status.HTTP_201_CREATED
+            )
+    except Exception as ex:
+        resp = Response(status=status.HTTP_400_BAD_REQUEST)
+        resp.content = ex
+        return resp
+
 # ---
 # API View Classes
 # ---
@@ -227,23 +297,6 @@ class SentimentAnalysisParamList(APIView):
         try:
             parameters = Parameter.objects.filter(
                 analysis_type=SENTIMENT_ANALYSIS
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClassificationParamList(APIView):
-    def get(self, request, format=None):
-        """
-        List all parameters for document classification
-        """
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
             )
             serializer = ParameterSerializer(parameters, many=True)
             return Response(serializer.data)
@@ -287,13 +340,32 @@ class ConceptExtractionParamList(APIView):
             return resp
 
 
+class DocumentClassificationParamList(APIView):
+    def get(self, request, format=None):
+        """
+        List all parameters for document classification
+        """
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
 class SentimentAnalysisList(APIView):
     def get(self, request, format=None):
         """
         List all sentiment analysis
         """
         try:
-            analysis = Analysis.objects.filter(analysis_type=SENTIMENT_ANALYSIS)
+            analysis = Analysis.objects.filter(
+                analysis_type=SENTIMENT_ANALYSIS
+            )
             serializer = AnalysisSerializer(analysis, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -306,35 +378,16 @@ class SentimentAnalysisList(APIView):
         Create a new sentiment analysis
         """
         try:    
-            # Get project_id and dataset if they are supplied
-            if  'project_id' in request.data and request.data['project_id'] and \
-                'dataset_id' in request.data and request.data['dataset_id']:
-                project_id = request.data['project_id']
-                dataset_id = request.data['dataset_id']
-                ideas = create_docs(dataset_id)
-            else:
-                project_id = None
-                dataset_id = None
-                data = request.FILES['data']
-                data_columns = json.loads(request.data['data_columns'])
-                ideas = create_docs(
-                    datasetFile=data,
-                    datasetColumns =data_columns
-                )
+            project_id, dataset_id, arguments, docs = \
+            get_analysis_related_fields(request, SENTIMENT_ANALYSIS)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
 
-        # Get analysis parameters
-        if 'parameters' in request.data and request.data['parameters']:
-            arguments = json.loads(request.data['parameters'])
-        else:
-            arguments = {}
-
         # Call sentiment analizer
         sa = SentimentAnalyzer(**arguments)
-        sa.analyze_docs(ideas) 
+        sa.analyze_docs(docs) 
 
         # Get results
         neg_ideas = []
@@ -367,129 +420,9 @@ class SentimentAnalysisList(APIView):
             'analysis_status':analysis_status, 'result': results
         }            
         
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(SENTIMENT_ANALYSIS, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
-
-                # Modify project updated field
-                if project_id:
-                    modify_project_updated_field(project_id)
-
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClassificationList(APIView):
-    def get(self, request, format=None):
-        """
-        List all document classification analysis
-        """
-        try:
-            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLASSIFICATION)
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new document classification analysis
-        """
-        try:
-            if  'project_id' in request.data and request.data['project_id'] and \
-                'dataset_id' in request.data and request.data['dataset_id']:
-                project_id = request.data['project_id']
-                dataset_id = request.data['dataset_id']
-                dev_docs = create_dev_docs(request.data['dataset_id'])
-            else:
-                project_id = None
-                dataset_id = None
-                data = request.FILES['data']
-                data_columns = json.loads(request.data['data_columns'])
-                dev_docs = create_dev_docs(
-                    datasetFile=data,
-                    datasetColumns =data_columns
-                )
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp                
-
-        # Get analysis parameters
-        if 'parameters' in request.data and request.data['parameters']:
-            arguments = json.loads(request.data['parameters'])
-        else:
-            arguments = {}
-        
-        # Call document classifier
-        dc = DocumentClassifier(**arguments)
-        dc.classify_docs(dev_docs)
-
-        # Get results
-        ideas_category = {}
-        for t in dc.classified_docs:
-            doc = t[0]
-            category = t[1]
-            idea = {"idea":doc}
-            if category in ideas_category:
-                ideas_category[category].append(idea)
-            else:
-                ideas_category[category] = [idea]
-
-        results = []
-        for category, ideas_list in ideas_category.items():
-            cat = {"category":category, "count":len(ideas_list), "ideas": ideas_list}
-            results.append(cat)
-        results = json.dumps(results)        
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLASSIFICATION,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(DOCUMENT_CLASSIFICATION, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
-
-                # Modify project updated field
-                if project_id:
-                    modify_project_updated_field(request.data['project_id'])
-                
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return save_analysis(
+            analysis, arguments, DOCUMENT_CLASSIFICATION, project_id
+        )
 
 
 class DocumentClusteringList(APIView):
@@ -498,7 +431,9 @@ class DocumentClusteringList(APIView):
         List all clustering analysis
         """
         try:
-            analysis = Analysis.objects.filter(analysis_type=DOCUMENT_CLUSTERING)
+            analysis = Analysis.objects.filter(
+                analysis_type=DOCUMENT_CLUSTERING
+            )
             serializer = AnalysisSerializer(analysis, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -511,14 +446,12 @@ class DocumentClusteringList(APIView):
         Create a new clustering analysis
         """
         try:    
-            docs = create_docs(request.data['dataset'])
+            project_id, dataset_id, arguments, docs = \
+            get_analysis_related_fields(request, DOCUMENT_CLUSTERING)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
-
-        # Get arguments
-        arguments = request.data['arguments']
 
         # Call document clustering
         dc = DocumentClustering(**arguments)
@@ -560,33 +493,14 @@ class DocumentClusteringList(APIView):
 
         #save results
         analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': DOCUMENT_CLUSTERING,
+            'name': request.data['name'], 'project': project_id,
+            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLUSTERING,
             'analysis_status':analysis_status, 'result': results
         }            
         
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(DOCUMENT_CLUSTERING, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
-
-                # Modify project updated field
-                modify_project_updated_field(request.data['project'])
-                
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return save_analysis(
+            analysis, arguments, DOCUMENT_CLUSTERING, project_id
+        )
 
 
 class ConceptExtractionList(APIView):
@@ -595,7 +509,9 @@ class ConceptExtractionList(APIView):
         List all concept extraction analysis
         """
         try:
-            analysis = Analysis.objects.filter(analysis_type=CONCEPT_EXTRACTION)
+            analysis = Analysis.objects.filter(
+                analysis_type=CONCEPT_EXTRACTION
+            )
             serializer = AnalysisSerializer(analysis, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -608,14 +524,12 @@ class ConceptExtractionList(APIView):
         Create a new concept extraction analysis
         """
         try:    
-            docs = create_docs(request.data['dataset'])
+            project_id, dataset_id, arguments, docs = \
+            get_analysis_related_fields(request, CONCEPT_EXTRACTION)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
-
-        # Get arguments
-        arguments = request.data['arguments']
 
         # Call concept extractor
         ce = ConceptExtractor(**arguments)
@@ -634,39 +548,88 @@ class ConceptExtractionList(APIView):
 
         #save results
         analysis = {
-            'name': request.data['name'], 'project': request.data['project'],
-            'dataset': request.data['dataset'], 'analysis_type': CONCEPT_EXTRACTION,
+            'name': request.data['name'], 'project': project_id,
+            'dataset': dataset_id, 'analysis_type': CONCEPT_EXTRACTION,
             'analysis_status':analysis_status, 'result': results
         }            
         
-        try: 
-            with transaction.atomic():
-                # Save analysis
-                analysisSerializer = AnalysisSerializer(data=analysis)
-                analysisSerializer.is_valid()
-                analysisSerializer.save()
-                
-                # Save arguments
-                arguments_list = create_arguments(CONCEPT_EXTRACTION, arguments)
-                for arg in arguments_list:
-                    argumentSerializer = ArgumentSerializer(data=arg)
-                    argumentSerializer.is_valid()
-                    argumentSerializer.save()
+        return save_analysis(
+            analysis, arguments, CONCEPT_EXTRACTION, project_id
+        )
 
-                # Modify project updated field
-                modify_project_updated_field(request.data['project'])
-                
-                return Response(analysisSerializer.data, status=status.HTTP_201_CREATED)
+
+class DocumentClassificationList(APIView):
+    def get(self, request, format=None):
+        """
+        List all document classification analysis
+        """
+        try:
+            analysis = Analysis.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
         except Exception as ex:
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
 
+    def post(self, request, format=None):
+        """
+        Create a new document classification analysis
+        """
+        try:
+            project_id, dataset_id, arguments, dev_docs = \
+            get_analysis_related_fields(request, DOCUMENT_CLASSIFICATION)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp                
+
+        # Call document classifier
+        dc = DocumentClassifier(**arguments)
+        dc.classify_docs(dev_docs)
+
+        # Get results
+        ideas_category = {}
+        for t in dc.classified_docs:
+            doc = t[0]
+            category = t[1]
+            idea = {"idea":doc}
+            if category in ideas_category:
+                ideas_category[category].append(idea)
+            else:
+                ideas_category[category] = [idea]
+
+        results = []
+        for category, ideas_list in ideas_category.items():
+            cat = {
+                "category":category, 
+                "count":len(ideas_list), 
+                "ideas": ideas_list
+            }
+            results.append(cat)
+        results = json.dumps(results)        
+
+        # Set status to Executed
+        analysis_status = EXECUTED
+
+        #save results
+        analysis = {
+            'name': request.data['name'], 'project': project_id,
+            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLASSIFICATION,
+            'analysis_status':analysis_status, 'result': results
+        }            
+        
+        return save_analysis(
+            analysis, arguments, DOCUMENT_CLASSIFICATION, project_id
+        )
+
 
 class SentimentAnalysisDetail(AnalysisObjectDetail): pass
-class DocumentClassificationDetail(AnalysisObjectDetail): pass
 class DocumentClusteringDetail(AnalysisObjectDetail): pass
 class ConceptExtractionDetail(AnalysisObjectDetail): pass
+class DocumentClassificationDetail(AnalysisObjectDetail): pass
 
 
 class DatasetList(APIView):
