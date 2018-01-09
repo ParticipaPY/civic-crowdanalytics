@@ -72,6 +72,14 @@ def read_in_memory_dataset(datasetFile, attributes):
     dataset = dataset[attributes]
     return dataset
 
+def read_dataset_from_url(datasetURL, attributes):
+    """
+    Read dataset from URL
+    """
+    dataset = pd.read_csv(datasetURL, sep = None, engine='python')
+    dataset = dataset[attributes]
+    return dataset
+
 
 def get_attributes(dataset_id):
     """
@@ -163,6 +171,9 @@ def get_analysis_related_fields(request, analysis_type):
         if 'data_file' in request.data and request.FILES['data_file']:
             data = request.FILES['data_file']
             dataset = read_in_memory_dataset(data, data_columns)
+        elif request.data.get('data_url'):
+            data = request.data['data_url']
+            dataset = read_dataset_from_url(data, data_columns)
 
     if request.data.get('parameters'):
         arguments = json.loads(request.data['parameters'])
