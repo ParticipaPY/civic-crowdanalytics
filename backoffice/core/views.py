@@ -49,25 +49,27 @@ def get_object(object, pk):
         raise Http404
 
 
-def read_stored_dataset(dataset_id):
+def read_stored_dataset(dataset_id, attributes):
     """
     Read dataset instance from dataset_id
     """
     ds = Dataset.objects.get(id=dataset_id)
     ds_file = 'datasets/'+str(ds.file)
     dataset = pd.read_csv(ds_file, sep = None, engine='python')
+    dataset = dataset[attributes]
     return dataset
 
 
 def read_in_memory_dataset(datasetFile, attributes):
     """
-    Read dataset in memory dataset
+    Read in memory dataset
     """
     file_extension = os.path.splitext(datasetFile.name)[1]
     if file_extension == ".csv":
-        dataset = pd.read_csv(datasetFile, names=attributes, sep=',')
+        dataset = pd.read_csv(datasetFile, sep=',')
     if file_extension == ".tsv":
-        dataset = pd.read_csv(datasetFile, names=attributes, sep='\t')
+        dataset = pd.read_csv(datasetFile, sep='\t')
+    dataset = dataset[attributes]
     return dataset
 
 
@@ -102,20 +104,10 @@ def modify_project_updated_field(project_id):
     project.save()
 
 
-def create_docs(dataset_id=None, datasetFile=None, datasetColumns=None):
+def create_docs(dataset):
     """
     Create a list of strings from a dataset
     """
-    if dataset_id:
-        # Read stored dataset from dataset_id
-        attributes = get_attributes(dataset_id)
-        attributes = list(attributes)
-        dataset = read_stored_dataset(dataset_id)
-        dataset = dataset[attributes]
-    else:
-        # Read in memory dataset from file
-        dataset = read_in_memory_dataset(datasetFile, datasetColumns)
-
     # Drop NA rows
     dataset = dataset.dropna()
     
@@ -123,50 +115,66 @@ def create_docs(dataset_id=None, datasetFile=None, datasetColumns=None):
     dataset['concatenation'] = dataset.apply(' '.join, axis=1)
 
     # Create list of strings
-    dataset_list = dataset['concatenation'].tolist()  
+    ds_list = dataset['concatenation'].tolist()  
 
-    return dataset_list
+    return ds_list
 
 
-def create_dev_docs(dataset_id=None, datasetFile=None, 
-                    datasetColumns=None, label_column="label"):
+def create_dev_docs(dataset):
     """
     Create a list of tuples (text, label) from a dataset
     """
-    if dataset_id:
-        dataset = read_stored_dataset(dataset_id)
-        attributes = get_attributes(dataset_id)
-
-        # Get label column
-        label = attributes.filter(name=label_column)
-        label = label.values_list('name', flat=True)
-        label = list(label)
-
-        # Get text column
-        text = attributes.exclude(name=label_column)
-        text = text.values_list('name', flat=True)    
-        text = list(text)
-    else:
-        dataset = read_in_memory_dataset(datasetFile,datasetColumns)
-        label = ["label"]
-        datasetColumns.remove("label")
-        text = datasetColumns
-
-    # Select interested columns
-    dataset = dataset[text+label]
-
     # Replace NA values to empty string     
     dataset = dataset.replace(np.nan, '', regex=True)
 
     # Create list of tuples
     lt = [tuple(x) for x in dataset.values]
-    list_of_tuples = []
+    ds_list_of_tuples = []
     for tup in lt:
         text = ' '.join(str(tup[i]) for i in range(len(tup)-1))
         label = tup[len(tup)-1]
-        list_of_tuples.append((text,label))
+        ds_list_of_tuples.append((text,label))
 
-    return list_of_tuples
+    return ds_list_of_tuples
+
+
+def get_analysis_related_fields(request, analysis_type):
+    """
+    Get the project_id, dataset_id and arguments from the request
+    Create the docs for analysis from the supplied data
+    """
+    label_column = "label"
+    if  request.data.get('project_id') and request.data.get('dataset_id'):
+        project_id = request.data['project_id']
+        dataset_id = request.data['dataset_id']
+        data_columns = get_attributes(dataset_id)
+        data_columns = list(data_columns)
+        if label_column in data_columns:
+            data_columns.remove(label_column)
+            data_columns.append(label_column)
+        dataset = read_stored_dataset(dataset_id, data_columns)
+    else:
+        project_id = None
+        dataset_id = None
+        data_columns = json.loads(request.data['data_columns'])
+        if label_column in data_columns:
+            data_columns.remove(label_column)
+            data_columns.append(label_column)
+        if 'data_file' in request.data and request.FILES['data_file']:
+            data = request.FILES['data_file']
+            dataset = read_in_memory_dataset(data, data_columns)
+
+    if request.data.get('parameters'):
+        arguments = json.loads(request.data['parameters'])
+    else:
+        arguments = {}
+    
+    if analysis_type == DOCUMENT_CLASSIFICATION:
+        docs = create_dev_docs(dataset)
+    else:
+        docs = create_docs(dataset)
+
+    return project_id, dataset_id, arguments, docs
 
 
 def create_arguments(analysis_type, arguments):
@@ -192,46 +200,6 @@ def create_arguments(analysis_type, arguments):
         }
         arguments_list.append(argument)
     return arguments_list
-
-
-def get_analysis_related_fields(request, analysis_type):
-    """
-    Get the project_id, dataset_id and arguments from the request
-    Create the docs for analysis from the supplied data
-    """
-    if  'project_id' in request.data and request.data['project_id'] and \
-        'dataset_id' in request.data and request.data['dataset_id']:
-        # Get project_id and dataset if they are supplied
-        project_id = request.data['project_id']
-        dataset_id = request.data['dataset_id']
-        if analysis_type == DOCUMENT_CLASSIFICATION:
-            docs = create_dev_docs(dataset_id)
-        else:
-            docs = create_docs(dataset_id)
-    elif 'data_file' in request.data and request.FILES['data_file']:
-        # Get data file if it is supplied
-        project_id = None
-        dataset_id = None
-        data = request.FILES['data_file']
-        data_columns = json.loads(request.data['data_columns'])
-        if analysis_type == DOCUMENT_CLASSIFICATION:
-            docs = create_dev_docs(
-                datasetFile=data,
-                datasetColumns =data_columns
-            )        
-        else:
-            docs = create_docs(
-                datasetFile=data,
-                datasetColumns =data_columns
-            )
-
-    # Get analysis parameters
-    if 'parameters' in request.data and request.data['parameters']:
-        arguments = json.loads(request.data['parameters'])
-    else:
-        arguments = {}
-
-    return project_id, dataset_id, arguments, docs
 
 
 def save_analysis(analysis, arguments, analysis_type, project_id):
