@@ -26,8 +26,7 @@ from analytics.classification import DocumentClassifier
 from datetime import datetime
 import pandas as pd
 import numpy as np
-import json
-import os
+import json, os, re, ast
 import logging
 
 
@@ -47,6 +46,22 @@ def get_object(object, pk):
         return object.objects.get(pk=pk)
     except object.DoesNotExist:
         raise Http404
+
+
+def is_list_of_strings(lst):
+    """
+    check is a object if of the type list of strings
+    """
+    return bool(lst) and isinstance(lst, list) and \
+    all(isinstance(elem, str) for elem in lst)
+
+
+def is_list_of_tuples(lst):
+    """
+    check is a object if of the type list of tuples
+    """
+    return bool(lst) and isinstance(lst, list) and \
+    all(isinstance(elem, tuple) for elem in lst)
 
 
 def read_stored_dataset(dataset_id, attributes):
@@ -151,39 +166,47 @@ def get_analysis_related_fields(request, analysis_type):
     Get the project_id, dataset_id and arguments from the request
     Create the docs for analysis from the supplied data
     """
-    label_column = "label"
-    if  request.data.get('project_id') and request.data.get('dataset_id'):
-        project_id = request.data['project_id']
-        dataset_id = request.data['dataset_id']
-        data_columns = get_attributes(dataset_id)
-        data_columns = list(data_columns)
-        if label_column in data_columns:
-            data_columns.remove(label_column)
-            data_columns.append(label_column)
-        dataset = read_stored_dataset(dataset_id, data_columns)
-    else:
-        project_id = None
-        dataset_id = None
-        data_columns = json.loads(request.data['data_columns'])
-        if label_column in data_columns:
-            data_columns.remove(label_column)
-            data_columns.append(label_column)
-        if 'data_file' in request.data and request.FILES['data_file']:
-            data = request.FILES['data_file']
-            dataset = read_in_memory_dataset(data, data_columns)
-        elif request.data.get('data_url'):
-            data = request.data['data_url']
-            dataset = read_dataset_from_url(data, data_columns)
-
+    project_id = None
+    dataset_id = None
     if request.data.get('parameters'):
         arguments = json.loads(request.data['parameters'])
     else:
         arguments = {}
-    
-    if analysis_type == DOCUMENT_CLASSIFICATION:
-        docs = create_dev_docs(dataset)
+    if request.data.get('data_object'):
+        if analysis_type == DOCUMENT_CLASSIFICATION:
+            docs = ast.literal_eval(request.data['data_object'])
+            if not is_list_of_tuples(docs):
+                raise ValueError('Bad data_object format')    
+        else:
+            docs = json.loads(request.data['data_object'])
+            if not is_list_of_strings(docs):
+                raise ValueError('Bad data_object format')    
     else:
-        docs = create_docs(dataset)
+        label_column = "label"
+        if  request.data.get('project_id') and request.data.get('dataset_id'):
+            project_id = request.data['project_id']
+            dataset_id = request.data['dataset_id']
+            data_columns = get_attributes(dataset_id)
+            data_columns = list(data_columns)
+            if label_column in data_columns:
+                data_columns.remove(label_column)
+                data_columns.append(label_column)
+            dataset = read_stored_dataset(dataset_id, data_columns)
+        else:
+            data_columns = json.loads(request.data['data_columns'])
+            if label_column in data_columns:
+                data_columns.remove(label_column)
+                data_columns.append(label_column)
+            if 'data_file' in request.data and request.FILES['data_file']:
+                data = request.FILES['data_file']
+                dataset = read_in_memory_dataset(data, data_columns)
+            elif request.data.get('data_url'):
+                data = request.data['data_url']
+                dataset = read_dataset_from_url(data, data_columns)
+        if analysis_type == DOCUMENT_CLASSIFICATION:
+            docs = create_dev_docs(dataset)
+        else:
+            docs = create_docs(dataset)
 
     return project_id, dataset_id, arguments, docs
 
