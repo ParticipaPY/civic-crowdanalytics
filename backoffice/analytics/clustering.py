@@ -9,9 +9,10 @@ Created on Tue Oct 17 16:17:21 2017
 import numpy as np
 import pandas as pd
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.manifold import MDS
+from sklearn import metrics
 from sklearn.metrics.pairwise import cosine_similarity
 from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem,\
                   download_stop_words
@@ -65,7 +66,8 @@ class DocumentClustering:
     
     def __init__(self, num_clusters=5, context_words=[], ngram_range=(1,1), 
                  min_df=0.1, max_df=0.9, consider_urls=False, 
-                 language='english', algorithm="k-means"):
+                 language='english', algorithm="k-means", 
+                 use_idf=False):
         self.num_clusters = num_clusters
         self.context_words = context_words
         self.ngram_range = ngram_range
@@ -73,16 +75,19 @@ class DocumentClustering:
         self.max_df = max_df
         self.consider_urls = consider_urls
         self.language = language
+        self.use_idf = use_idf
         # properties
         self._docs = None
         self._corpus = pd.DataFrame()
         self._model = None
-        self._tdidf_matrix = {}
+        self._tfidf_matrix = {}
         self._features = []
         self._feature_weights = {}
         self._num_docs_per_clusters = {}
         self._clusters = []
         self._algorithm = algorithm
+        self._silhouette_score = 0
+        self._calinski_harabaz_score = 0
         # download stop words in case they weren't already downloaded
         download_stop_words()
     
@@ -111,9 +116,9 @@ class DocumentClustering:
                                                   language=self.language))
         # create td-idf matrix
         tfidf_vectorizer = TfidfVectorizer(max_df=self.max_df, 
-                                           min_df=self.min_df,
-                                           use_idf=True,
-                                           ngram_range=self.ngram_range)
+                                            min_df=self.min_df,
+                                            use_idf=self.use_idf,
+                                            ngram_range=self.ngram_range)
         #fit the vectorizer to ideas
         try:
             self._tfidf_matrix = tfidf_vectorizer.fit_transform(stemmed_docs)
@@ -140,6 +145,12 @@ class DocumentClustering:
         # save the number of documents per cluster
         self._num_docs_per_clusters = dict(docs_clusters_df['cluster']. \
                                            value_counts())
+        self._silhouette_score =  metrics.silhouette_score(self._tfidf_matrix,
+                                                           self._model.labels_,
+                                                            metric='euclidean')
+        self._calinski_harabaz_score = metrics.calinski_harabaz_score(
+                                                 self._tfidf_matrix.toarray(),
+                                                 self._model.labels_)
         return self
     
     def top_terms_per_cluster(self, num_terms_per_cluster=3):
@@ -261,7 +272,7 @@ class IterativeDocumentClustering:
     def __init__(self, num_clusters=5, context_words=[], ngram_range=(1,1), 
                 min_df=0.05, max_df=0.9, consider_urls=False, 
                 language='english', threshold=0.6, n_sub_clusters=3,
-                num_terms=3):
+                num_terms=6, use_idf=False):
         self.num_clusters = num_clusters
         self.context_words = context_words
         self.ngram_range = ngram_range
@@ -272,6 +283,7 @@ class IterativeDocumentClustering:
         self.threshold = threshold
         self.n_sub_clusters = n_sub_clusters
         self.num_terms = num_terms
+        self.use_idf = use_idf
         self._clusters_data = {}
 
     def cluster_subset(self, docs, coords=None, num_clusters=5):
@@ -306,7 +318,8 @@ class IterativeDocumentClustering:
                                 context_words=self.context_words,
                                 ngram_range=self.ngram_range,
                                 min_df=self.min_df,
-                                max_df=self.max_df)
+                                max_df=self.max_df,
+                                use_idf=self.use_idf)
         dc.clustering(docs)
         vec = dc.get_coordinate_vectors()
         if coords != None:
