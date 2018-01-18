@@ -36,7 +36,8 @@ def tokenize_and_remove_stop_words(text, specific_words_to_delete=[],
     cleaned_tokens = [word for word in tokens if word not in 
                       set(stop_words)]
     # keep only letter
-    alpha_tokens = [re.sub('[^A-Za-z]', ' ', token) for token in cleaned_tokens]
+    # alpha_tokens = [re.sub('[^A-Za-z]', ' ', token) for token in cleaned_tokens]
+    alpha_tokens = cleaned_tokens
     filtered_tokens = []
     for token in alpha_tokens:
         if token not in specific_words_to_delete:
@@ -84,7 +85,7 @@ def shuffled(x):
     random.shuffle(y)
     return y
 
-def clean_emojis(docs):
+def clean_emojis(doc):
     cleaned = []
     emoji_pattern = re.compile("["
         "\U0001F600-\U0001F64F"  # emoticons
@@ -92,26 +93,14 @@ def clean_emojis(docs):
         "\U0001F680-\U0001F6FF"  # transport & map symbols
         "\U0001F1E0-\U0001F1FF"  # flags (iOS)
                            "]+", flags=re.UNICODE)
-    for d in docs:
-        cleaned.append(emoji_pattern.sub(r'', d))
-    return cleaned
+    return emoji_pattern.sub(r'', doc)
 
-def translate_docs(docs, src="es", dest="en", join=False):
+def translate_doc(doc, src="es", dest="en", join=False):
     translator = Translator()
-    translations = []
-    failed = []
-    for d in docs:
+    while(True):
         try:
-            t = translator.translate(d, src=src, dest=dest).text
-            translations.append((d,t))
+            t = translator.translate(doc[0:4999], src=src, dest=dest).text
+            return t
+            break
         except:
-            failed.append(d)
-    while(len(failed)>0):
-        sleep(1)
-        d = failed.pop()
-        try:
-            t = translator.translate(d, src=src, dest=dest).text
-            translations.append((d,t))
-        except:
-            failed.append(d)
-    return translations
+            sleep(1)
