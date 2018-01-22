@@ -11,6 +11,7 @@ bs4
 pandas
 nltk
 textblob
+googletrans
 sklearn
 scipy
 django-cors-headers
