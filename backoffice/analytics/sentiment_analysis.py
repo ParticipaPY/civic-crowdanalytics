@@ -198,16 +198,15 @@ class SentimentAnalyzer():
 
     def analyze_docs(self, docs):
         '''
-        Analyzes a document collection by applying the analyze_doc()
-        method for each document.
+        Analyzes a document collection by applying the analyze_doc() method
+        for each document.
         All the results are stored in the _tagged_docs attribute.
-        Emojis are removed from docs.
-        If the docs' language is not english and the algorithm is only for
-        english docs, they are translated to english to use the english 
-        sentiment lexicon of the analyzer. This translation is made using
-        Google Translate's ajax API.
-        Only Spanish and English support completely offline sentiment 
-        analysis.
+        There are 2 languages supported natively:
+        1 - English: through the ntlk_vader or textblob_base algorithms
+        2 - Spanish: through the ML_SentiCon algorithm
+        If you use another language, the module will first translate each 
+        document to english (using Google Translate AJAX API), so it can later
+        re-use ntlk_vader algorithm for english docs.
         '''
 
         results = []
