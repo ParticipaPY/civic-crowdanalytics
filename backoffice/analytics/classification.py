@@ -3,7 +3,7 @@ from nltk import NaiveBayesClassifier, DecisionTreeClassifier
 from nltk.metrics import precision, recall, f_measure
 from nltk.classify import apply_features, accuracy
 from nltk.classify.scikitlearn import SklearnClassifier
-from analytics.utils import clean_html_tags, shuffled
+from analytics.utils import clean_html_tags, shuffled, tokenize_and_stem
 from analytics.concept_extraction import ConceptExtractor
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
@@ -35,7 +35,11 @@ class DocumentClassifier():
         enough for getting the train_p proportion of 'train docs'. If this 
         attribute is True, more documents from 'test docs' will be moved
         to 'train docs' until we get train_p
-    
+
+    n_folds : integer, 10 by default
+        Number of folds to be used in k-fold cross validation technique for
+        choosing different sets as 'train docs'
+
     vocab_size : integer, 500 by default
         This is the size of the vocabulary set that will be used for extracting
         features out of the docs
@@ -44,16 +48,24 @@ class DocumentClassifier():
         This is the type of classifier model used. Available types are 'NB' 
         (Naive Bayes), 'DT' (decision tree), 'RF' (Random Forest), and 'SVM'
         (Support Vector Machine)
+
+    language: string, 'english'; by default
+        Language on which documents are written
     '''
 
     def __init__(self, train_p=0.8, eq_label_num=True,  
-                 complete_p=True, vocab_size=250, 
-                 t_classifier="NB"):
-        self._train_p = train_p
-        self._eq_label_num = eq_label_num
-        self._complete_p = complete_p
-        self._vocab_size = vocab_size
-        self._t_classifier = t_classifier
+                 complete_p=True, n_folds=10,
+                 vocab_size=250, 
+                 t_classifier="NB", language="english", 
+                 stem=False):
+        self.train_p = train_p
+        self.eq_label_num = eq_label_num
+        self.complete_p = complete_p
+        self.n_folds = n_folds
+        self.vocab_size = vocab_size
+        self.t_classifier = t_classifier
+        self.language = language
+        self.stem = stem
         self._vocab = []
         self._classified_docs = []
         self._classifier = None
@@ -83,7 +95,7 @@ class DocumentClassifier():
         # Split docs by label
         for (cat,count) in categories_count.items():
             labeled_docs[cat] = shuffled([t for (t,k) in docs if k == cat])
-        if self._eq_label_num:
+        if self.eq_label_num:
             # Select the same number of doc for all labels
             for cat, cat_docs in labeled_docs.items():
                 cat_limit = label_limit
@@ -96,22 +108,66 @@ class DocumentClassifier():
             l_test = len(test_docs)
             actual_p = l_train / l_docs
             # If the training proportion is not 
-            if self._complete_p == True and actual_p < self._train_p:
+            if self.complete_p == True and actual_p < self.train_p:
                 shuffled_extra = shuffled(test_docs)
                 extra_i = 0
-                while(actual_p < self._train_p and extra_i < l_test):
+                while(actual_p < self.train_p and extra_i < l_test):
                     aux_l_train = l_train + extra_i
                     actual_p = aux_l_train / l_docs
                     extra_i += 1
                 train_docs += shuffled_extra[:extra_i]
                 test_docs = shuffled_extra[extra_i:]
         else:
-            label_limit = int(self._train_p * len(docs))
+            label_limit = int(self.train_p * len(docs))
             shuffled_docs = shuffled(docs)
             train_docs = shuffled_docs[:label_limit]
             test_docs = shuffled_docs[label_limit:]
         self._train_docs = train_docs
         self._test_docs = test_docs
+
+    def cross_validation_train(self, dev_docs):
+        '''
+        Applies k-fold cross validation technique to split the docs into different
+        pairs of training and testing sets. For each pair, it trains and evals the
+        a classifier, choosing the one with the best accuracy
+
+        Parameters
+        ----------
+        dev_docs: iterable
+            An iterable which yields a list of strings
+
+        '''
+        dev_docs = shuffled(dev_docs)
+        accuracies = []
+        best_accuracy = 0
+        subset_size = int(len(dev_docs)/self.n_folds)
+
+        for i in range(self.n_folds):
+            classifier_list = []
+            train_docs = (dev_docs[(i + 1) * subset_size:] + \
+                          dev_docs[:i * subset_size])
+            test_docs = dev_docs[i * subset_size:(i + 1) * subset_size]
+            train_set = apply_features(self.get_doc_features, train_docs)
+            if self.t_classifier == "NB":
+                classifier = NaiveBayesClassifier.train(train_set)
+            elif self.t_classifier == "DT":
+                classifier = DecisionTreeClassifier.train(train_set)
+            elif self.t_classifier == "RF":
+                classifier = SklearnClassifier(RandomForestClassifier())\
+                                                       .train(train_set)
+            elif self.t_classifier == "SVM":
+                classifier = SklearnClassifier(LinearSVC(), sparse=False)\
+                                                         .train(train_set)
+
+            classifier_list.append(classifier)
+            test_set = apply_features(self.get_doc_features, test_docs, True)
+            accuracies.append((accuracy(classifier, test_set)) * 100)
+
+            if accuracies[-1] > best_accuracy:
+                best_accuracy = accuracies[-1]
+                self._classifier = classifier
+                self._train_docs = train_docs
+                self._test_docs = test_docs
     
     def count_categories(self, docs):
         '''
@@ -172,21 +228,14 @@ class DocumentClassifier():
             An iterable which yields a list of strings
         '''
         # create vocabulary for feature extraction
-        ce = ConceptExtractor(num_concepts=self._vocab_size)
+        ce = ConceptExtractor(num_concepts=self.vocab_size, 
+                              language=self.language)
         ce.extract_concepts([t for (t,c) in dev_docs])
-        self._vocab = set([c for (c,f) in ce.common_concepts])
-        # split dev docs and create traning and test set
-        self.split_train_and_test(dev_docs)
-        train_set = apply_features(self.get_doc_features, self._train_docs)
-        # create and train the classification model according to t_classifier
-        if self._t_classifier == "NB":
-            self._classifier = NaiveBayesClassifier.train(train_set)
-        elif self._t_classifier == "DT":
-            self._classifier = DecisionTreeClassifier.train(train_set)
-        elif self._t_classifier == "RF":
-            self._classifier = SklearnClassifier(RandomForestClassifier()).train(train_set)
-        elif self._t_classifier == "SVM":
-            self._classifier = SklearnClassifier(LinearSVC(), sparse=False).train(train_set)
+        self._vocab = sorted([c for (c,f) in ce.common_concepts], key=str.lower)
+        if (self.stem):
+            self._vocab = [tokenize_and_stem(w, language=self.language)[0] \
+                                                    for w in self._vocab]
+        self.cross_validation_train(dev_docs)
 
 
     def eval_classifier(self):
@@ -203,7 +252,7 @@ class DocumentClassifier():
             refsets[label].add(i)
             observed = self._classifier.classify(feats)
             testsets[observed].add(i)
-
+        self.count_categories(self._train_docs)
         for cat in self._categories:
             self._precision[cat] = precision(refsets[cat], testsets[cat])
             self._recall[cat] = recall(refsets[cat], testsets[cat])

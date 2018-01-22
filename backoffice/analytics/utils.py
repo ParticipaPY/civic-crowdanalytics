@@ -8,6 +8,8 @@ import random
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from bs4 import BeautifulSoup
+from googletrans import Translator
+from time import sleep 
 
 
 def download_stop_words():
@@ -34,7 +36,7 @@ def tokenize_and_remove_stop_words(text, specific_words_to_delete=[],
     cleaned_tokens = [word for word in tokens if word not in 
                       set(stop_words)]
     # keep only letter
-    alpha_tokens = [re.sub('[^A-Za-z]', ' ', token) for token in cleaned_tokens]
+    alpha_tokens = cleaned_tokens
     filtered_tokens = []
     for token in alpha_tokens:
         if token not in specific_words_to_delete:
@@ -81,3 +83,23 @@ def shuffled(x):
     y = x[:]
     random.shuffle(y)
     return y
+
+def clean_emojis(doc):
+    cleaned = []
+    emoji_pattern = re.compile("["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', doc)
+
+def translate_doc(doc, src="es", dest="en", join=False):
+    translator = Translator()
+    while(True):
+        try:
+            t = translator.translate(doc[0:4999], src=src, dest=dest).text
+            return t
+            break
+        except:
+            sleep(1)
