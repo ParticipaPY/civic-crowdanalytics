@@ -7,8 +7,6 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from textblob import TextBlob
 from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
                   clean_emojis, translate_doc
-# from lib.SentiStrength import SentiStrength
-
 
 class SentimentAnalyzer():
     '''
@@ -70,14 +68,6 @@ class SentimentAnalyzer():
         lines = fl.readlines()
         self.spa_lemmas = [(l.split()[0], l.split()[1]) for l in lines]
         fl.close()
-        # Positive and negative word list not used for now
-        # Kept for possible future improvements
-        # fp = open(dir+"/lib/isol_positivas_mejorada.csv")
-        # self.isol_pos = [w.replace("\n", "") for w in fp.readlines()]
-        # fp.close()
-        # fn = open(dir+"/lib/isol_negativas_mejorada.csv")
-        # self.isol_neg = [w.replace("\n", "") for w in fn.readlines()]
-        # fn.close()
         fmd = open(dir+"/MLsenticon.es.xml",  encoding='utf-8')
         self.mlsent = {}
         for l in fmd.readlines():
@@ -132,12 +122,6 @@ class SentimentAnalyzer():
         mlsscore = 0
         for word in doc.split():
             lem_word = self.lemmatize_spa(word)
-            # iSol lists not used for now
-            # Kept for possible future improvements
-            # if word in self.isol_pos or lem_word in self.isol_pos:
-            #     n_pos = n_pos + 1
-            # if word in self.isol_neg or lem_word in self.isol_neg:
-            #     n_neg = n_neg + 1
             if word in self.mlsent.keys():
                 mlsscore = mlsscore + self.mlsent[word]
             elif lem_word in self.mlsent.keys():
@@ -183,16 +167,6 @@ class SentimentAnalyzer():
         elif self.algorithm == "textblob_base":
             blob = TextBlob(doc)
             return blob.sentiment.polarity
-        # SentiStrength not supported anymore because is not open source
-        # elif self.algorithm == "SentiStrength":
-        #     if self.language == "english":
-        #         lang = "en"
-        #     elif self.language == "spanish":
-        #         lang = "es"
-        #     elif self.language == "french":
-        #         lang = "fr"
-        #     ss_score = SentiStrength.getSentimentScore(doc, lang)
-        #     return ss_score/4
         elif self.algorithm == "ML-Senticon":
             return self.spa_polarity_score(doc)
 
@@ -230,7 +204,10 @@ class SentimentAnalyzer():
         Emojis are removed from docs.
         If the docs' language is not english and the algorithm is only for
         english docs, they are translated to english to use the english 
-        sentiment lexicon of the analyzer.
+        sentiment lexicon of the analyzer. This translation is made using
+        Google Translate's ajax API.
+        Only Spanish and English support completely offline sentiment 
+        analysis.
         '''
 
         results = []

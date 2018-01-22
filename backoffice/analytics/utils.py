@@ -36,7 +36,6 @@ def tokenize_and_remove_stop_words(text, specific_words_to_delete=[],
     cleaned_tokens = [word for word in tokens if word not in 
                       set(stop_words)]
     # keep only letter
-    # alpha_tokens = [re.sub('[^A-Za-z]', ' ', token) for token in cleaned_tokens]
     alpha_tokens = cleaned_tokens
     filtered_tokens = []
     for token in alpha_tokens:

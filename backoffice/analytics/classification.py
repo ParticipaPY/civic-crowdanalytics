@@ -235,23 +235,6 @@ class DocumentClassifier():
         if (self.stem):
             self._vocab = [tokenize_and_stem(w, language=self.language)[0] \
                                                     for w in self._vocab]
-        # Training classifier without cross validation
-        # kept for performance comparisson                                            
-        # # split dev docs and create traning and test set
-        # self.split_train_and_test(dev_docs)
-        # train_set = apply_features(self.get_doc_features, self._train_docs)
-        # # create and train the classification model according to t_classifier
-        # if self.t_classifier == "NB":
-        #     self._classifier = NaiveBayesClassifier.train(train_set)
-        # elif self.t_classifier == "DT":
-        #     self._classifier = DecisionTreeClassifier.train(train_set)
-        # elif self.t_classifier == "RF":
-        #     self._classifier = SklearnClassifier(RandomForestClassifier())\
-        #                                                  .train(train_set)
-        # elif self.t_classifier == "SVM":
-        #     self._classifier = SklearnClassifier(LinearSVC(), sparse=False)\
-        #                                                   .train(train_set)
-
         self.cross_validation_train(dev_docs)
 
 
