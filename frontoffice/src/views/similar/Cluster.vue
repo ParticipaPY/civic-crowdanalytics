@@ -44,27 +44,18 @@
                     <span class="input-group-btn">
                       <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
                     </span>
-                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search idea">
+                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search idea" v-model="tableSearchTerm">
                   </div>
                 </div>
               </div>
             </form>
-            <table class="table table-striped table-responsive">
-              <thead>
-                <tr>
-                  <th style="width:70%">Content</th>
-                  <th>Cluster</th>
-                  <th>Legends</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in flattened">
-                  <td class="readmore"><read-more more-str="Read more" :text="item.content" less-str="Read less" :max-chars="400"></read-more></td>
-                  <td><span :class="'badge ' + item.class">{{ item.cluster }}</span></td>
-                  <td>{{ item.legends }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <vue-good-table :columns="tableColumns" :rows="tableRows" :defaultSortBy="{field: 'cluster', type: 'asc'}" :globalSearch="true" :paginate="true" :externalSearchQuery="tableSearchTerm" styleClass="table table-striped table-responsive">
+              <template slot="table-row" scope="props">
+                <td class="readmore"><read-more more-str="Read more" :text="props.row.content" less-str="Read less" :max-chars="400"></read-more></td>
+                <td><span :class="'badge ' + props.row.class">{{props.row.cluster}}</span></td>
+                <td>{{props.row.legends}}</td>
+              </template>
+            </vue-good-table>
           </div>
         </div>
       </div>
@@ -102,8 +93,7 @@ export default {
       this.wordCloudWasRendered = true
     },
     wordClick: function (text, vm) {
-      console.log(text)
-      console.log(vm)
+      this.tableSearchTerm = text
     },
     formatDataset: function () {
       let parsed = JSON.parse(this.data)
@@ -115,7 +105,7 @@ export default {
             newobj.cluster = 'Cluster ' + i
             newobj.class = this.classArray[i]
             newobj.legends = _.map(parsed[i].top_terms, (t) => { return t.term }).join(', ')
-            this.flattened.push(newobj)
+            this.tableRows.push(newobj)
           }
           for (let k of parsed[i].top_terms) {
             let addword = {}
@@ -143,7 +133,27 @@ export default {
       clusterId: 0,
       wordCloudWasRendered: false,
       topTermsHasFinishedLoading: false,
-      wordCloudTerms: []
+      wordCloudTerms: [],
+      tableSearchTerm: '',
+      tableColumns: [
+        {
+          label: 'Content',
+          field: 'idea',
+          filtereable: true,
+          width: '70%'
+        },
+        {
+          label: 'Cluster',
+          field: 'sentiment',
+          filtereable: true
+        },
+        {
+          label: 'Legends',
+          field: 'legends',
+          filtereable: true
+        }
+      ],
+      tableRows: []
     }
   },
   mounted () {

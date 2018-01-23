@@ -61,10 +61,11 @@
             <router-link :to="'/dashboard/projects/new'" class="btn btn-primary"><i class="fa fa-plus-circle font-lg"></i> New project</router-link>
           </div>
         </div>
+        
         <div class="row" id="project-box" v-for="project in projects">
           <div class="col-md-12 title">
-            <input type="checkbox" name="project1check" id="project1check" v-model="selectedProjects" value="project1">
-            <label for="project1check"></label>
+            <input type="checkbox" :name="'project_check_' + project.id" :id="'project_check_' + project.id" v-model="selectedProjects" :value="project.id">
+            <label :for="'project_check_' + project.id"></label>
             <router-link :to='{ name: "Project Home", params: { projectId: project.id }}'>{{project.name}}</router-link>
             <div class="actions">
               <a @click="toggleDetails($event)">Hide Details</a>

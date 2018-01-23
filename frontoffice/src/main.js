@@ -6,6 +6,7 @@ import App from './App'
 import router from './router'
 import Snotify from 'vue-snotify'
 import ReadMore from 'vue-read-more'
+import VueGoodTable from 'vue-good-table'
 
 Vue.use(Snotify, {
   toast: {
@@ -13,6 +14,7 @@ Vue.use(Snotify, {
   }
 })
 Vue.use(ReadMore)
+Vue.use(VueGoodTable)
 
 /* eslint-disable no-new */
 new Vue({

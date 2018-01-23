@@ -37,25 +37,12 @@
                     <span class="input-group-btn">
                       <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
                     </span>
-                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search concept">
+                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search concept" v-model="tableSearchTerm">
                   </div>
                 </div>
               </div>
             </form>
-            <table class="table table-striped table-responsive">
-              <thead>
-                <tr>
-                  <th>Concept</th>
-                  <th>Occurrences</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in parsed">
-                  <td>{{item.concept}}</td>                
-                  <td>{{item.occurrences}}</td>
-                </tr>
-              </tbody>
-            </table>
+            <vue-good-table :columns="tableColumns" :rows="tableRows" :defaultSortBy="{field: 'occurrences', type: 'desc'}" :globalSearch="true" :paginate="true" :externalSearchQuery="tableSearchTerm" styleClass="table table-striped table-responsive" />
           </div>
         </div>
       </div>
@@ -81,13 +68,30 @@ export default {
       parsed: [],
       labels: [],
       labelData: [],
-      conceptId: 0
+      conceptId: 0,
+      tableSearchTerm: '',
+      tableColumns: [
+        {
+          label: 'Concept',
+          field: 'concept',
+          filtereable: true
+        },
+        {
+          label: 'Occurrences',
+          field: 'occurrences',
+          type: 'number',
+          filtereable: true
+        }
+      ],
+      tableRows: []
     }
   },
   methods: {
     formatDataset: function () {
       let parsed = JSON.parse(this.data)
       this.parsed = parsed
+      console.log(this.parsed)
+      this.tableRows = this.parsed
       if (parsed.length > 0) {
         for (let o of parsed) {
           this.labels.push(o.concept)
