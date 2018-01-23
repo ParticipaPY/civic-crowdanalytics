@@ -409,7 +409,10 @@ class SentimentAnalysisList(APIView):
         neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
         pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
 
-        results = [neg_sentiment,neu_sentiment,pos_sentiment]
+        results = []
+        results.append(neg_sentiment)
+        results.append(neu_sentiment)
+        results.append(pos_sentiment)
         results = json.dumps(results)
 
         # Set status to Executed
@@ -423,7 +426,7 @@ class SentimentAnalysisList(APIView):
         }            
         
         return save_analysis(
-            analysis, arguments, DOCUMENT_CLASSIFICATION, project_id
+            analysis, arguments, SENTIMENT_ANALYSIS, project_id
         )
 
 
