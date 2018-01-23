@@ -209,12 +209,13 @@ export default {
   methods: {
     showNotification () {
       this.$snotify.success('Example body content', 'Example Title')
-      console.log(this.$snotify)
     }
   },
   beforeRouteEnter: (to, from, next) => {
     console.log('ROUTE ENTER!')
+    console.log(next)
     next(vm => {
+      console.log(to.params)
       Backend.getProjectSummary(to.params.projectId).then(
         response => {
           vm.project = response.data
@@ -233,6 +234,28 @@ export default {
         }
       )
     })
+  },
+  beforeRouteUpdate: (to, from, next) => {
+    console.log('ROUTE UPDATE')
+    console.log(to.params)
+    Backend.getProjectSummary(to.params.projectId).then(
+      response => {
+        this.project = response.data
+        let sentimentAnalysisList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 1 && v.analysis_status === 3)[0]
+        let documentClusteringList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
+        let conceptExtractionList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
+        let documentClassificationList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
+        this.sentimentId = sentimentAnalysisList.id
+        this.clusterId = documentClusteringList.id
+        this.conceptId = conceptExtractionList.id
+        this.categoryId = documentClassificationList.id
+      }
+    ).catch(
+      e => {
+        console.log(e)
+      }
+    )
+    next()
   }
 }
 </script>

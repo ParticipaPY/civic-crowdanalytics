@@ -121,6 +121,9 @@
                 </div>
               </div>
             </tabbed-panel-tab>
+            <tabbed-panel-tab header="Analysis Configuration">
+
+            </tabbed-panel-tab>
           </tabbed-panel>
         </form>
       </div>
@@ -189,14 +192,18 @@ export default {
 
   methods: {
     nextPage: function () {
-      if (this.$refs.wiz.currentTab() === 1) {
+      if (this.$refs.wiz.currentTab() === 2) {
         this.generateAttributes()
       } else {
-        this.$refs.wiz.selectIndex(1)
+        this.$refs.wiz.index += 1
+        this.$refs.wiz.selectIndex(this.$refs.wiz.index)
       }
     },
     prevPage: function () {
-      this.$refs.wiz.selectIndex(0)
+      if (this.$refs.wiz.index > 0) {
+        this.$refs.wiz.index -= 1
+        this.$refs.wiz.selectIndex(this.$refs.wiz.index)
+      }
     },
     onFileAdd: function (e) {
       var file = e.target.files || e.dataTransfer.files
@@ -279,7 +286,6 @@ export default {
         meta.included_in_analysis = document.getElementById(k + '_include').checked || false
         this.attributes.push(meta)
       }
-      console.log(this.attributes)
       this.createProject()
     },
     createProject: function () {
@@ -293,7 +299,7 @@ export default {
               let projectId = response.data.id
               axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
                 results => {
-                  toor.router.push({ name: 'Project Home', params: { projectId: projectId } })
+                  this.$router.push({ name: 'Project Home', params: { projectId: projectId } })
                   toor.showAlert = true
                 }
               )).catch(

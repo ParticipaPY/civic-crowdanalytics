@@ -37,43 +37,18 @@
                     <span class="input-group-btn">
                       <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
                     </span>
-                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search idea">
+                    <input type="text" id="input1-group2" name="input1-group2" class="form-control" placeholder="Search idea" v-model="tableSearchTerm">
                   </div>
                 </div>
               </div>
             </form>
-            <table class="table table-striped table-responsive">
-              <thead>
-                <tr>
-                  <th style="width:70%">Content</th>
-                  <th>Aggregate Sentiment</th>
-                  <th>Aggregate Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in positiveData">
-                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>{{item.score}}</td>
-                </tr>
-                <tr v-for="item in neutralData">
-                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>{{item.score}}</td>
-                </tr>
-                <tr v-for="item in negativeData">
-                  <td class="readmore"><read-more more-str="Read more" :text="item.idea" less-str="Read less" :max-chars="400"></read-more></td>
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>{{item.score}}</td>
-                </tr>
-              </tbody>
-            </table>
+            <vue-good-table :columns="tableColumns" :rows="tableRows" :defaultSortBy="{field: 'score', type: 'desc'}" :globalSearch="true" :paginate="true" :externalSearchQuery="tableSearchTerm" styleClass="table table-striped table-responsive">
+              <template slot="table-row" scope="props">
+                <td class="readmore"><read-more more-str="Read more" :text="props.row.idea" less-str="Read less" :max-chars="400"></read-more></td>
+                <td><span :class="'badge ' + (props.row.sentiment == 'Positive' ? 'badge-success' : (props.row.sentiment == 'Neutral' ? 'badge-default' : 'badge-danger'))">{{props.row.sentiment}}</span></td>
+                <td>{{props.row.score}}</td>
+              </template>
+            </vue-good-table>
           </div>
         </div>
       </div>
@@ -100,7 +75,28 @@ export default {
       positiveData: [],
       neutralData: [],
       negativeData: [],
-      sentimentId: 0
+      sentimentId: 0,
+      tableSearchTerm: '',
+      tableColumns: [
+        {
+          label: 'Content',
+          field: 'idea',
+          filtereable: true,
+          width: '70%'
+        },
+        {
+          label: 'Aggegate Sentiment',
+          field: 'sentiment',
+          filtereable: false
+        },
+        {
+          label: 'Aggregate Score',
+          field: 'score',
+          type: 'number',
+          filtereable: true
+        }
+      ],
+      tableRows: []
     }
   },
   methods: {
@@ -108,6 +104,7 @@ export default {
       let parsed = JSON.parse(this.data)
       let ret = []
       if (parsed.length > 0) {
+        this.tableRows = parsed[0].ideas
         let positiveParsed = _.filter(parsed, (v, k) => v.sentiment === 'pos')[0]
         let neutralParsed = _.filter(parsed, (v, k) => v.sentiment === 'neu')[0]
         let negativeParsed = _.filter(parsed, (v, k) => v.sentiment === 'neg')[0]
@@ -115,24 +112,15 @@ export default {
         neutralParsed.ideas = _.orderBy(neutralParsed.ideas, ['score'], ['desc'])
         negativeParsed.ideas = _.orderBy(negativeParsed.ideas, ['score'], ['desc'])
         for (let pos of positiveParsed.ideas) {
-          let obj = {}
-          obj.score = pos.score
-          obj.idea = pos.idea
-          this.positiveData.push(obj)
+          pos.sentiment = 'Positive'
         }
         for (let neu of neutralParsed.ideas) {
-          let obj = {}
-          obj.score = neu.score
-          obj.idea = neu.idea
-          this.neutralData.push(obj)
+          neu.sentiment = 'Neutral'
         }
         for (let neg of negativeParsed.ideas) {
-          let obj = {}
-          obj.score = neg.score
-          obj.idea = neg.idea
-          this.negativeData.push(obj)
+          neg.sentiment = 'Negative'
         }
-        ret.push(this.positiveData, this.neutralData, this.negativeData)
+        this.tableRows = this.tableRows.concat(positiveParsed.ideas, neutralParsed.ideas, negativeParsed.ideas)
       }
       return ret
     }
