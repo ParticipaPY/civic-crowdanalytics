@@ -4,7 +4,6 @@
 import nltk
 import os
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from textblob import TextBlob
 from analytics.utils import tokenize_and_remove_stop_words, tokenize_and_stem, \
                   clean_emojis, translate_doc
 
@@ -26,14 +25,14 @@ class SentimentAnalyzer():
         then the seniment is considered positive.
         Use values greater than 0 and lower than 1.
 
-    algorithm : string, 'ntlk_vader' by default
-        The algorithm used to calculate the polarity score of a doc.
-        Immplemented algorithms: 'ntlk_vader', 'textblob_base', 
-        'ML-Senticon' (only for spanish language)
-
     language: string, 'english'; by default
         Language on which documents are written
-        Implemented languages: 'spanish', 'english'
+        There are 2 languages supported natively:
+        1 - 'english': through the ntlk_vader algorithms
+        2 - 'spanish': through the ML_SentiCon algorithm
+        If you use another language, the module will first translate each 
+        document to english (using Google Translate AJAX API), so it can later
+        re-use ntlk_vader algorithm for english docs.
     '''
 
     _sia = SentimentIntensityAnalyzer()
@@ -41,16 +40,25 @@ class SentimentAnalyzer():
 
     def __init__(self, neu_inf_lim=-0.3,
                  neu_sup_lim=0.3,
-                 algorithm="nltk_vader", 
                  language="english"):
         self.neu_inf_lim = neu_inf_lim
         self.neu_sup_lim = neu_sup_lim
-        self.algorithm = algorithm
         self.language=language
         self.translate = False
         self.need_normalization = False
         if language == "spanish":
             self.load_spa_resources()
+            self.algorithm = "ML-Senticon"
+            self.need_normalization = True
+        elif language == "english":
+            self.algorithm = "nltk_vader"
+        else:
+            self.algorithm = "nltk_vader"
+            self.translate = True
+            if self.language == "french":
+                self.src_lang = "fr"
+            elif self.language == "portuguese":
+                self.src_lang = "pt"
 
 
     def load_spa_resources(self):
@@ -79,9 +87,7 @@ class SentimentAnalyzer():
         fmd.close()
         self.min_score = 100
         self.max_score = -100
-        if self.algorithm == "ML-Senticon":
-            self.need_normalization = True
-
+       
 
     def lemmatize_spa(self, spa_word):
         '''
@@ -164,9 +170,6 @@ class SentimentAnalyzer():
 
         if self.algorithm == "nltk_vader":
             return self._sia.polarity_scores(doc)["compound"]
-        elif self.algorithm == "textblob_base":
-            blob = TextBlob(doc)
-            return blob.sentiment.polarity
         elif self.algorithm == "ML-Senticon":
             return self.spa_polarity_score(doc)
 
@@ -201,26 +204,11 @@ class SentimentAnalyzer():
         Analyzes a document collection by applying the analyze_doc() method
         for each document.
         All the results are stored in the _tagged_docs attribute.
-        There are 2 languages supported natively:
-        1 - English: through the ntlk_vader or textblob_base algorithms
-        2 - Spanish: through the ML_SentiCon algorithm
-        If you use another language, the module will first translate each 
-        document to english (using Google Translate AJAX API), so it can later
-        re-use ntlk_vader algorithm for english docs.
+        Normalize the results if needed.
         '''
-
         results = []
-        if (self.algorithm == "nltk_vader" or self.algorithm == "textblob_base")\
-            and self.language != "english":
-            self.translate = True
-            if (self.language == "spanish"):
-                self.src_lang = "es"
-            elif (self.language == "french"):
-                self.src_lang = "fr"
-        
         for doc in docs:
             results.append(self.analyze_doc(doc))
-
         if self.need_normalization:
             results = self.normalize_scores(results)
         self._tagged_docs = results
