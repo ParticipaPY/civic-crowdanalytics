@@ -9,7 +9,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from core.models import (
     User, Project, Dataset, Attribute, Analysis, Visualization, 
-    VisualizationType, Parameter, CreationStatus
+    VisualizationType, Parameter, CreationStatus, AnalysisStatus
 )
 from core.serializers import (
     UserSerializer, DatasetSerializer, ProjectGetSerializer, 
@@ -266,6 +266,82 @@ def save_analysis(analysis, arguments, analysis_type, project_id):
         resp.content = ex
         return resp
 
+
+def create_analysis_results(arguments, docs, analysis_id, analysis_type):
+    """
+    Non-blocking thread to create the results of an analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    if analysis_type == SENTIMENT_ANALYSIS:
+        # Call sentiment analizer
+        sa = SentimentAnalyzer(**arguments)
+        sa.analyze_docs(docs) 
+
+        # Get results
+        neg_ideas = []
+        neu_ideas = []
+        pos_ideas = []
+        for t in sa.tagged_docs:            
+            doc, sentiment, score = (t[i] for i in range(3))
+            idea = {"idea":doc, "score":score}
+            if sentiment == "neg":
+                neg_ideas.append(idea)
+            if sentiment == "neu":
+                neu_ideas.append(idea)
+            if sentiment == "pos":
+                pos_ideas.append(idea)
+
+        neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
+        neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
+        pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
+
+        results = []
+        results.append(neg_sentiment)
+        results.append(neu_sentiment)
+        results.append(pos_sentiment)
+        results = json.dumps(results)
+    elif analysis_type == DOCUMENT_CLUSTERING:
+        # Call document clustering
+        dc = DocumentClustering(**arguments)
+        dc.clustering(docs)
+
+        # Get results
+        vec = dc.get_coordinate_vectors()
+        ideas_clusters = [[] for x in range(dc.num_clusters)] 
+        num_docs = len(vec["docs"])
+        for i in range(num_docs):
+            doc = vec["docs"][i]            
+            x = vec["x"][i]
+            y = vec["y"][i]
+            cluster = vec["label"][i]
+            idea = {"idea":doc, "posx":x, "posy":y}
+            ideas_clusters[cluster].append(idea) 
+        
+        top_terms = dc.top_terms_per_cluster()
+        top_terms_clusters = [[] for x in range(dc.num_clusters)]
+        for cluster in range(dc.num_clusters):
+            for tup in top_terms[str(cluster)]:
+                term = tup[0]
+                score = tup[1]
+                top_term = {"term":term, "score":score}
+                top_terms_clusters[cluster].append(top_term)
+
+        results = []
+        for i in range(dc.num_clusters):
+            cluster = {
+                "cluster":i, 
+                "top_terms": top_terms_clusters[i], 
+                "ideas":ideas_clusters[i]
+            }
+            results.append(cluster)
+        results = json.dumps(results)
+
+    analysis = get_object(Analysis, analysis_id)
+    analysis.result = results
+    analysis.analysis_status = AnalysisStatus.objects.get(id=EXECUTED)
+    analysis.save()
+
+
 # ---
 # API View Classes
 # ---
@@ -379,6 +455,7 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
+        # Get analysis related data
         try:    
             project_id, dataset_id, arguments, docs = \
             get_analysis_related_fields(request, SENTIMENT_ANALYSIS)
@@ -386,48 +463,26 @@ class SentimentAnalysisList(APIView):
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
-
-        # Call sentiment analizer
-        sa = SentimentAnalyzer(**arguments)
-        sa.analyze_docs(docs) 
-
-        # Get results
-        neg_ideas = []
-        neu_ideas = []
-        pos_ideas = []
-        for t in sa.tagged_docs:            
-            doc, sentiment, score = (t[i] for i in range(3))
-            idea = {"idea":doc, "score":score}
-            if sentiment == "neg":
-                neg_ideas.append(idea)
-            if sentiment == "neu":
-                neu_ideas.append(idea)
-            if sentiment == "pos":
-                pos_ideas.append(idea)
-
-        neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
-        neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
-        pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
-
-        results = []
-        results.append(neg_sentiment)
-        results.append(neu_sentiment)
-        results.append(pos_sentiment)
-        results = json.dumps(results)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
+        analysis_status = IN_PROGRESS
+        results = json.dumps([])
+        
+        # Create analysis
         analysis = {
             'name': request.data['name'], 'project': project_id,
             'dataset': dataset_id, 'analysis_type': SENTIMENT_ANALYSIS,
             'analysis_status':analysis_status, 'result': results
-        }            
-        
-        return save_analysis(
+        }           
+        response = save_analysis(
             analysis, arguments, SENTIMENT_ANALYSIS, project_id
         )
+
+        # Create analysis results in a non-blocking thread
+        analysis_id = Analysis.objects.latest('id').id
+        create_analysis_results(
+            arguments,docs,analysis_id,SENTIMENT_ANALYSIS
+        )
+
+        return response
 
 
 class DocumentClusteringList(APIView):
@@ -450,6 +505,7 @@ class DocumentClusteringList(APIView):
         """
         Create a new clustering analysis
         """
+        # Get analysis related data
         try:    
             project_id, dataset_id, arguments, docs = \
             get_analysis_related_fields(request, DOCUMENT_CLUSTERING)
@@ -457,55 +513,26 @@ class DocumentClusteringList(APIView):
             resp = Response(status=status.HTTP_400_BAD_REQUEST)
             resp.content = ex
             return resp
+        analysis_status = IN_PROGRESS
+        results = json.dumps([])
 
-        # Call document clustering
-        dc = DocumentClustering(**arguments)
-        dc.clustering(docs)
-
-        # Get results
-        vec = dc.get_coordinate_vectors()
-        ideas_clusters = [[] for x in range(dc.num_clusters)] 
-        num_docs = len(vec["docs"])
-        for i in range(num_docs):
-            doc = vec["docs"][i]            
-            x = vec["x"][i]
-            y = vec["y"][i]
-            cluster = vec["label"][i]
-            idea = {"idea":doc, "posx":x, "posy":y}
-            ideas_clusters[cluster].append(idea) 
-        
-        top_terms = dc.top_terms_per_cluster()
-        top_terms_clusters = [[] for x in range(dc.num_clusters)]
-        for cluster in range(dc.num_clusters):
-            for tup in top_terms[str(cluster)]:
-                term = tup[0]
-                score = tup[1]
-                top_term = {"term":term, "score":score}
-                top_terms_clusters[cluster].append(top_term)
-
-        results = []
-        for i in range(dc.num_clusters):
-            cluster = {
-                "cluster":i, 
-                "top_terms": top_terms_clusters[i], 
-                "ideas":ideas_clusters[i]
-            }
-            results.append(cluster)
-        results = json.dumps(results)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
+        # Create analysis
         analysis = {
             'name': request.data['name'], 'project': project_id,
             'dataset': dataset_id, 'analysis_type': DOCUMENT_CLUSTERING,
             'analysis_status':analysis_status, 'result': results
         }            
-        
-        return save_analysis(
+        response = save_analysis(
             analysis, arguments, DOCUMENT_CLUSTERING, project_id
         )
+        
+        # Create analysis results in a non-blocking thread
+        analysis_id = Analysis.objects.latest('id').id
+        create_analysis_results(
+            arguments,docs,analysis_id,DOCUMENT_CLUSTERING
+        )
+
+        return response
 
 
 class ConceptExtractionList(APIView):
