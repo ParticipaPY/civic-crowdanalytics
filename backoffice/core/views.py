@@ -277,7 +277,7 @@ def update_analysis(analysis_id, results):
     analysis.result = results
     analysis.analysis_status = AnalysisStatus.objects.get(id=EXECUTED)
     analysis.save()
-    
+
 
 def create_sentiment_analysis_results(arguments, docs, analysis_id):
     """
@@ -411,6 +411,54 @@ def create_document_classification_results(arguments, docs, analysis_id):
     update_analysis(analysis_id, results)
 
 
+def post_analysis(request, analysis_type):
+    """
+    Post an analysis
+    """
+    # Get analysis related data
+    try:    
+        project_id, dataset_id, arguments, docs = \
+        get_analysis_related_fields(request, analysis_type)
+    except Exception as ex:
+        response = Response(status=status.HTTP_400_BAD_REQUEST)
+        response.content = ex
+        return response
+   
+    analysis_status = IN_PROGRESS
+    results = json.dumps([])
+    
+    # Create analysis
+    analysis = {
+        'name': request.data['name'], 'project': project_id,
+        'dataset': dataset_id, 'analysis_type': analysis_type,
+        'analysis_status':analysis_status, 'result': results
+    }           
+    response = save_analysis(
+        analysis, arguments, analysis_type, project_id
+    )
+   
+    # Get target thread function
+    if analysis_type ==  SENTIMENT_ANALYSIS:
+        target_function = create_sentiment_analysis_results
+    elif analysis_type == DOCUMENT_CLUSTERING:
+        target_function = create_document_clustering_results
+    elif analysis_type == CONCEPT_EXTRACTION:
+        target_function = create_concept_extraction_results
+    elif analysis_type == DOCUMENT_CLASSIFICATION:
+        target_function = create_document_classification_results
+
+    # Create analysis results in a non-blocking thread
+    analysis_id = response.data['id']
+    analysis_thread = Thread(
+        target=target_function, 
+        args=(arguments,docs,analysis_id,)
+    )
+    analysis_thread.setDaemon(True)
+    analysis_thread.start()
+
+    return response
+
+
 # ---
 # API View Classes
 # ---
@@ -504,7 +552,7 @@ class DocumentClassificationParamList(APIView):
             return resp
 
 
-class SentimentAnalysisList(APIView):
+class SentimentAnalysisList(APIView):   
     def get(self, request, format=None):
         """
         List all sentiment analysis
@@ -524,37 +572,7 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
-        # Get analysis related data
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, SENTIMENT_ANALYSIS)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-        analysis_status = IN_PROGRESS
-        results = json.dumps([])
-        
-        # Create analysis
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': SENTIMENT_ANALYSIS,
-            'analysis_status':analysis_status, 'result': results
-        }           
-        response = save_analysis(
-            analysis, arguments, SENTIMENT_ANALYSIS, project_id
-        )
-
-        # Create analysis results in a non-blocking thread
-        analysis_id = response.data['id']
-        analysis_thread = Thread(
-            target=create_sentiment_analysis_results, 
-            args=(arguments,docs,analysis_id,)
-        )
-        analysis_thread.setDaemon(True)
-        analysis_thread.start()
-
-        return response
+        return post_analysis(request, SENTIMENT_ANALYSIS)
 
 
 class DocumentClusteringList(APIView):
@@ -577,37 +595,7 @@ class DocumentClusteringList(APIView):
         """
         Create a new clustering analysis
         """
-        # Get analysis related data
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, DOCUMENT_CLUSTERING)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-        analysis_status = IN_PROGRESS
-        results = json.dumps([])
-
-        # Create analysis
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLUSTERING,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        response = save_analysis(
-            analysis, arguments, DOCUMENT_CLUSTERING, project_id
-        )
-        
-        # Create analysis results in a non-blocking thread
-        analysis_id = response.data['id']
-        analysis_thread = Thread(
-            target=create_document_clustering_results, 
-            args=(arguments,docs,analysis_id,)
-        )
-        analysis_thread.setDaemon(True)
-        analysis_thread.start()
-
-        return response
+        return post_analysis(request, DOCUMENT_CLUSTERING)
 
 
 class ConceptExtractionList(APIView):
@@ -630,37 +618,7 @@ class ConceptExtractionList(APIView):
         """
         Create a new concept extraction analysis
         """
-        # Get analysis related data
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, CONCEPT_EXTRACTION)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-        analysis_status = IN_PROGRESS
-        results = json.dumps([])
-
-        # Create analysis
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': CONCEPT_EXTRACTION,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        response = save_analysis(
-            analysis, arguments, CONCEPT_EXTRACTION, project_id
-        )
-
-        # Create analysis results in a non-blocking thread
-        analysis_id = response.data['id']
-        analysis_thread = Thread(
-            target=create_concept_extraction_results, 
-            args=(arguments,docs,analysis_id,)
-        )
-        analysis_thread.setDaemon(True)
-        analysis_thread.start()
-
-        return response
+        return post_analysis(request, CONCEPT_EXTRACTION)
 
 
 class DocumentClassificationList(APIView):
@@ -683,37 +641,7 @@ class DocumentClassificationList(APIView):
         """
         Create a new document classification analysis
         """
-        # Get analysis related data
-        try:
-            project_id, dataset_id, arguments, dev_docs = \
-            get_analysis_related_fields(request, DOCUMENT_CLASSIFICATION)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp                
-        analysis_status = IN_PROGRESS
-        results = json.dumps([])
-
-        # Create analysis
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLASSIFICATION,
-            'analysis_status':analysis_status, 'result': results
-        }
-        response = save_analysis(
-            analysis, arguments, DOCUMENT_CLASSIFICATION, project_id
-        )            
-        
-        # Create analysis results in a non-blocking thread
-        analysis_id = response.data['id']
-        analysis_thread = Thread(
-            target=create_document_classification_results, 
-            args=(arguments,dev_docs,analysis_id,)
-        )
-        analysis_thread.setDaemon(True)
-        analysis_thread.start()
-
-        return response
+        return post_analysis(request, DOCUMENT_CLASSIFICATION)
 
 
 class SentimentAnalysisDetail(AnalysisObjectDetail): pass
