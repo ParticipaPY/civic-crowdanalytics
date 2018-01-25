@@ -9,7 +9,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from core.models import (
     User, Project, Dataset, Attribute, Analysis, Visualization, 
-    VisualizationType, Parameter, CreationStatus
+    VisualizationType, Parameter, CreationStatus, AnalysisStatus
 )
 from core.serializers import (
     UserSerializer, DatasetSerializer, ProjectGetSerializer, 
@@ -24,6 +24,7 @@ from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
 from analytics.classification import DocumentClassifier
 from datetime import datetime
+from threading import Thread
 import pandas as pd
 import numpy as np
 import json, os, re, ast
@@ -266,6 +267,198 @@ def save_analysis(analysis, arguments, analysis_type, project_id):
         resp.content = ex
         return resp
 
+
+def update_analysis(analysis_id, results):
+    """
+    Update analysis result and status
+    """
+    analysis = get_object(Analysis, analysis_id)
+    results = json.dumps(results)
+    analysis.result = results
+    analysis.analysis_status = AnalysisStatus.objects.get(id=EXECUTED)
+    analysis.save()
+
+
+def create_sentiment_analysis_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a sentiment analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call sentiment analizer
+    sa = SentimentAnalyzer(**arguments)
+    sa.analyze_docs(docs) 
+
+    # Get results
+    results = []
+    neg_ideas = []
+    neu_ideas = []
+    pos_ideas = []
+    for t in sa.tagged_docs:            
+        doc, sentiment, score = (t[i] for i in range(3))
+        idea = {"idea":doc, "score":score}
+        if sentiment == "neg":
+            neg_ideas.append(idea)
+        if sentiment == "neu":
+            neu_ideas.append(idea)
+        if sentiment == "pos":
+            pos_ideas.append(idea)
+
+    neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
+    neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
+    pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
+
+    results.append(neg_sentiment)
+    results.append(neu_sentiment)
+    results.append(pos_sentiment)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+        
+
+def create_document_clustering_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a clustering analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call document clustering
+    dc = DocumentClustering(**arguments)
+    dc.clustering(docs)
+
+    # Get results
+    results = []
+    vec = dc.get_coordinate_vectors()
+    ideas_clusters = [[] for x in range(dc.num_clusters)] 
+    num_docs = len(vec["docs"])
+    for i in range(num_docs):
+        doc = vec["docs"][i]            
+        x = vec["x"][i]
+        y = vec["y"][i]
+        cluster = vec["label"][i]
+        idea = {"idea":doc, "posx":x, "posy":y}
+        ideas_clusters[cluster].append(idea) 
+    
+    top_terms = dc.top_terms_per_cluster()
+    top_terms_clusters = [[] for x in range(dc.num_clusters)]
+    for cluster in range(dc.num_clusters):
+        for tup in top_terms[str(cluster)]:
+            term = tup[0]
+            score = tup[1]
+            top_term = {"term":term, "score":score}
+            top_terms_clusters[cluster].append(top_term)
+
+    for i in range(dc.num_clusters):
+        cluster = {
+            "cluster":i, 
+            "top_terms": top_terms_clusters[i], 
+            "ideas":ideas_clusters[i]
+        }
+        results.append(cluster)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+
+
+def create_concept_extraction_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a concept extraction analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call concept extractor
+    ce = ConceptExtractor(**arguments)
+    ce.extract_concepts(docs)
+
+    # Get results
+    results = []
+    for t in ce.common_concepts:
+        concept, occurrences = (t[i] for i in range(2))
+        concept_occurrences = {"concept":concept, "occurrences":occurrences}
+        results.append(concept_occurrences)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+
+
+def create_document_classification_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a classification analysis
+    Change the analysis_status and the results fields of a created analysis
+    """    
+    # Call document classifier
+    dc = DocumentClassifier(**arguments)
+    dc.classify_docs(docs)
+
+    # Get results
+    results = []
+    ideas_category = {}
+    for t in dc.classified_docs:
+        doc = t[0]
+        category = t[1]
+        idea = {"idea":doc}
+        if category in ideas_category:
+            ideas_category[category].append(idea)
+        else:
+            ideas_category[category] = [idea]
+
+    for category, ideas_list in ideas_category.items():
+        cat = {
+            "category":category, 
+            "count":len(ideas_list), 
+            "ideas": ideas_list
+        }
+        results.append(cat)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+
+
+def post_analysis(request, analysis_type):
+    """
+    Post an analysis
+    """
+    # Get analysis related data
+    try:    
+        project_id, dataset_id, arguments, docs = \
+        get_analysis_related_fields(request, analysis_type)
+    except Exception as ex:
+        response = Response(status=status.HTTP_400_BAD_REQUEST)
+        response.content = ex
+        return response
+   
+    analysis_status = IN_PROGRESS
+    results = json.dumps([])
+    
+    # Create analysis
+    analysis = {
+        'name': request.data['name'], 'project': project_id,
+        'dataset': dataset_id, 'analysis_type': analysis_type,
+        'analysis_status':analysis_status, 'result': results
+    }           
+    response = save_analysis(
+        analysis, arguments, analysis_type, project_id
+    )
+   
+    # Get target thread function
+    if analysis_type ==  SENTIMENT_ANALYSIS:
+        target_function = create_sentiment_analysis_results
+    elif analysis_type == DOCUMENT_CLUSTERING:
+        target_function = create_document_clustering_results
+    elif analysis_type == CONCEPT_EXTRACTION:
+        target_function = create_concept_extraction_results
+    elif analysis_type == DOCUMENT_CLASSIFICATION:
+        target_function = create_document_classification_results
+
+    # Create analysis results in a non-blocking thread
+    analysis_id = response.data['id']
+    analysis_thread = Thread(
+        target=target_function, 
+        args=(arguments,docs,analysis_id,)
+    )
+    analysis_thread.setDaemon(True)
+    analysis_thread.start()
+
+    return response
+
+
 # ---
 # API View Classes
 # ---
@@ -359,7 +552,7 @@ class DocumentClassificationParamList(APIView):
             return resp
 
 
-class SentimentAnalysisList(APIView):
+class SentimentAnalysisList(APIView):   
     def get(self, request, format=None):
         """
         List all sentiment analysis
@@ -379,55 +572,7 @@ class SentimentAnalysisList(APIView):
         """
         Create a new sentiment analysis
         """
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, SENTIMENT_ANALYSIS)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-        # Call sentiment analizer
-        sa = SentimentAnalyzer(**arguments)
-        sa.analyze_docs(docs) 
-
-        # Get results
-        neg_ideas = []
-        neu_ideas = []
-        pos_ideas = []
-        for t in sa.tagged_docs:            
-            doc, sentiment, score = (t[i] for i in range(3))
-            idea = {"idea":doc, "score":score}
-            if sentiment == "neg":
-                neg_ideas.append(idea)
-            if sentiment == "neu":
-                neu_ideas.append(idea)
-            if sentiment == "pos":
-                pos_ideas.append(idea)
-
-        neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
-        neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
-        pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
-
-        results = []
-        results.append(neg_sentiment)
-        results.append(neu_sentiment)
-        results.append(pos_sentiment)
-        results = json.dumps(results)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': SENTIMENT_ANALYSIS,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        return save_analysis(
-            analysis, arguments, SENTIMENT_ANALYSIS, project_id
-        )
+        return post_analysis(request, SENTIMENT_ANALYSIS)
 
 
 class DocumentClusteringList(APIView):
@@ -450,62 +595,7 @@ class DocumentClusteringList(APIView):
         """
         Create a new clustering analysis
         """
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, DOCUMENT_CLUSTERING)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-        # Call document clustering
-        dc = DocumentClustering(**arguments)
-        dc.clustering(docs)
-
-        # Get results
-        vec = dc.get_coordinate_vectors()
-        ideas_clusters = [[] for x in range(dc.num_clusters)] 
-        num_docs = len(vec["docs"])
-        for i in range(num_docs):
-            doc = vec["docs"][i]            
-            x = vec["x"][i]
-            y = vec["y"][i]
-            cluster = vec["label"][i]
-            idea = {"idea":doc, "posx":x, "posy":y}
-            ideas_clusters[cluster].append(idea) 
-        
-        top_terms = dc.top_terms_per_cluster()
-        top_terms_clusters = [[] for x in range(dc.num_clusters)]
-        for cluster in range(dc.num_clusters):
-            for tup in top_terms[str(cluster)]:
-                term = tup[0]
-                score = tup[1]
-                top_term = {"term":term, "score":score}
-                top_terms_clusters[cluster].append(top_term)
-
-        results = []
-        for i in range(dc.num_clusters):
-            cluster = {
-                "cluster":i, 
-                "top_terms": top_terms_clusters[i], 
-                "ideas":ideas_clusters[i]
-            }
-            results.append(cluster)
-        results = json.dumps(results)
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLUSTERING,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        return save_analysis(
-            analysis, arguments, DOCUMENT_CLUSTERING, project_id
-        )
+        return post_analysis(request, DOCUMENT_CLUSTERING)
 
 
 class ConceptExtractionList(APIView):
@@ -528,39 +618,7 @@ class ConceptExtractionList(APIView):
         """
         Create a new concept extraction analysis
         """
-        try:    
-            project_id, dataset_id, arguments, docs = \
-            get_analysis_related_fields(request, CONCEPT_EXTRACTION)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-        # Call concept extractor
-        ce = ConceptExtractor(**arguments)
-        ce.extract_concepts(docs)
-
-        # Get results
-        results = []
-        for t in ce.common_concepts:
-            concept, occurrences = (t[i] for i in range(2))
-            concept_occurrences = {"concept":concept, "occurrences":occurrences}
-            results.append(concept_occurrences)
-        results = json.dumps(results)
-       
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': CONCEPT_EXTRACTION,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        return save_analysis(
-            analysis, arguments, CONCEPT_EXTRACTION, project_id
-        )
+        return post_analysis(request, CONCEPT_EXTRACTION)
 
 
 class DocumentClassificationList(APIView):
@@ -583,52 +641,7 @@ class DocumentClassificationList(APIView):
         """
         Create a new document classification analysis
         """
-        try:
-            project_id, dataset_id, arguments, dev_docs = \
-            get_analysis_related_fields(request, DOCUMENT_CLASSIFICATION)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp                
-
-        # Call document classifier
-        dc = DocumentClassifier(**arguments)
-        dc.classify_docs(dev_docs)
-
-        # Get results
-        ideas_category = {}
-        for t in dc.classified_docs:
-            doc = t[0]
-            category = t[1]
-            idea = {"idea":doc}
-            if category in ideas_category:
-                ideas_category[category].append(idea)
-            else:
-                ideas_category[category] = [idea]
-
-        results = []
-        for category, ideas_list in ideas_category.items():
-            cat = {
-                "category":category, 
-                "count":len(ideas_list), 
-                "ideas": ideas_list
-            }
-            results.append(cat)
-        results = json.dumps(results)        
-
-        # Set status to Executed
-        analysis_status = EXECUTED
-
-        #save results
-        analysis = {
-            'name': request.data['name'], 'project': project_id,
-            'dataset': dataset_id, 'analysis_type': DOCUMENT_CLASSIFICATION,
-            'analysis_status':analysis_status, 'result': results
-        }            
-        
-        return save_analysis(
-            analysis, arguments, DOCUMENT_CLASSIFICATION, project_id
-        )
+        return post_analysis(request, DOCUMENT_CLASSIFICATION)
 
 
 class SentimentAnalysisDetail(AnalysisObjectDetail): pass
