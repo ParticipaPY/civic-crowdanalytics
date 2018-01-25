@@ -268,111 +268,147 @@ def save_analysis(analysis, arguments, analysis_type, project_id):
         return resp
 
 
-def create_analysis_results(arguments, docs, analysis_id, analysis_type):
+def update_analysis(analysis_id, results):
     """
-    Non-blocking thread to create the results of an analysis
-    Change the analysis_status and the results fields of a created analysis
+    Update analysis result and status
     """
-    results = []
-    if analysis_type == SENTIMENT_ANALYSIS:
-        # Call sentiment analizer
-        sa = SentimentAnalyzer(**arguments)
-        sa.analyze_docs(docs) 
-
-        # Get results
-        neg_ideas = []
-        neu_ideas = []
-        pos_ideas = []
-        for t in sa.tagged_docs:            
-            doc, sentiment, score = (t[i] for i in range(3))
-            idea = {"idea":doc, "score":score}
-            if sentiment == "neg":
-                neg_ideas.append(idea)
-            if sentiment == "neu":
-                neu_ideas.append(idea)
-            if sentiment == "pos":
-                pos_ideas.append(idea)
-
-        neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
-        neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
-        pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
-
-        results.append(neg_sentiment)
-        results.append(neu_sentiment)
-        results.append(pos_sentiment)
-    elif analysis_type == DOCUMENT_CLUSTERING:
-        # Call document clustering
-        dc = DocumentClustering(**arguments)
-        dc.clustering(docs)
-
-        # Get results
-        vec = dc.get_coordinate_vectors()
-        ideas_clusters = [[] for x in range(dc.num_clusters)] 
-        num_docs = len(vec["docs"])
-        for i in range(num_docs):
-            doc = vec["docs"][i]            
-            x = vec["x"][i]
-            y = vec["y"][i]
-            cluster = vec["label"][i]
-            idea = {"idea":doc, "posx":x, "posy":y}
-            ideas_clusters[cluster].append(idea) 
-        
-        top_terms = dc.top_terms_per_cluster()
-        top_terms_clusters = [[] for x in range(dc.num_clusters)]
-        for cluster in range(dc.num_clusters):
-            for tup in top_terms[str(cluster)]:
-                term = tup[0]
-                score = tup[1]
-                top_term = {"term":term, "score":score}
-                top_terms_clusters[cluster].append(top_term)
-
-        for i in range(dc.num_clusters):
-            cluster = {
-                "cluster":i, 
-                "top_terms": top_terms_clusters[i], 
-                "ideas":ideas_clusters[i]
-            }
-            results.append(cluster)
-    elif analysis_type == CONCEPT_EXTRACTION:
-        # Call concept extractor
-        ce = ConceptExtractor(**arguments)
-        ce.extract_concepts(docs)
-
-        # Get results
-        for t in ce.common_concepts:
-            concept, occurrences = (t[i] for i in range(2))
-            concept_occurrences = {"concept":concept, "occurrences":occurrences}
-            results.append(concept_occurrences)
-    elif analysis_type == DOCUMENT_CLASSIFICATION:
-        # Call document classifier
-        dc = DocumentClassifier(**arguments)
-        dc.classify_docs(docs)
-
-        # Get results
-        ideas_category = {}
-        for t in dc.classified_docs:
-            doc = t[0]
-            category = t[1]
-            idea = {"idea":doc}
-            if category in ideas_category:
-                ideas_category[category].append(idea)
-            else:
-                ideas_category[category] = [idea]
-
-        for category, ideas_list in ideas_category.items():
-            cat = {
-                "category":category, 
-                "count":len(ideas_list), 
-                "ideas": ideas_list
-            }
-            results.append(cat)
-        
-    # Update analysis with the new result and analysis_status
     analysis = get_object(Analysis, analysis_id)
     results = json.dumps(results)
     analysis.result = results
     analysis.analysis_status = AnalysisStatus.objects.get(id=EXECUTED)
     analysis.save()
+    
+
+def create_sentiment_analysis_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a sentiment analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call sentiment analizer
+    sa = SentimentAnalyzer(**arguments)
+    sa.analyze_docs(docs) 
+
+    # Get results
+    results = []
+    neg_ideas = []
+    neu_ideas = []
+    pos_ideas = []
+    for t in sa.tagged_docs:            
+        doc, sentiment, score = (t[i] for i in range(3))
+        idea = {"idea":doc, "score":score}
+        if sentiment == "neg":
+            neg_ideas.append(idea)
+        if sentiment == "neu":
+            neu_ideas.append(idea)
+        if sentiment == "pos":
+            pos_ideas.append(idea)
+
+    neg_sentiment = {"sentiment":"neg", "ideas":neg_ideas}
+    neu_sentiment = {"sentiment":"neu", "ideas":neu_ideas}
+    pos_sentiment = {"sentiment":"pos", "ideas":pos_ideas}
+
+    results.append(neg_sentiment)
+    results.append(neu_sentiment)
+    results.append(pos_sentiment)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+        
+
+def create_document_clustering_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a clustering analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call document clustering
+    dc = DocumentClustering(**arguments)
+    dc.clustering(docs)
+
+    # Get results
+    results = []
+    vec = dc.get_coordinate_vectors()
+    ideas_clusters = [[] for x in range(dc.num_clusters)] 
+    num_docs = len(vec["docs"])
+    for i in range(num_docs):
+        doc = vec["docs"][i]            
+        x = vec["x"][i]
+        y = vec["y"][i]
+        cluster = vec["label"][i]
+        idea = {"idea":doc, "posx":x, "posy":y}
+        ideas_clusters[cluster].append(idea) 
+    
+    top_terms = dc.top_terms_per_cluster()
+    top_terms_clusters = [[] for x in range(dc.num_clusters)]
+    for cluster in range(dc.num_clusters):
+        for tup in top_terms[str(cluster)]:
+            term = tup[0]
+            score = tup[1]
+            top_term = {"term":term, "score":score}
+            top_terms_clusters[cluster].append(top_term)
+
+    for i in range(dc.num_clusters):
+        cluster = {
+            "cluster":i, 
+            "top_terms": top_terms_clusters[i], 
+            "ideas":ideas_clusters[i]
+        }
+        results.append(cluster)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+
+
+def create_concept_extraction_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a concept extraction analysis
+    Change the analysis_status and the results fields of a created analysis
+    """
+    # Call concept extractor
+    ce = ConceptExtractor(**arguments)
+    ce.extract_concepts(docs)
+
+    # Get results
+    results = []
+    for t in ce.common_concepts:
+        concept, occurrences = (t[i] for i in range(2))
+        concept_occurrences = {"concept":concept, "occurrences":occurrences}
+        results.append(concept_occurrences)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
+
+
+def create_document_classification_results(arguments, docs, analysis_id):
+    """
+    Non-blocking thread to create the results of a classification analysis
+    Change the analysis_status and the results fields of a created analysis
+    """    
+    # Call document classifier
+    dc = DocumentClassifier(**arguments)
+    dc.classify_docs(docs)
+
+    # Get results
+    results = []
+    ideas_category = {}
+    for t in dc.classified_docs:
+        doc = t[0]
+        category = t[1]
+        idea = {"idea":doc}
+        if category in ideas_category:
+            ideas_category[category].append(idea)
+        else:
+            ideas_category[category] = [idea]
+
+    for category, ideas_list in ideas_category.items():
+        cat = {
+            "category":category, 
+            "count":len(ideas_list), 
+            "ideas": ideas_list
+        }
+        results.append(cat)
+
+    # Update analysis 
+    update_analysis(analysis_id, results)
 
 
 # ---
@@ -512,8 +548,8 @@ class SentimentAnalysisList(APIView):
         # Create analysis results in a non-blocking thread
         analysis_id = response.data['id']
         analysis_thread = Thread(
-            target=create_analysis_results, 
-            args=(arguments,docs,analysis_id,SENTIMENT_ANALYSIS,)
+            target=create_sentiment_analysis_results, 
+            args=(arguments,docs,analysis_id,)
         )
         analysis_thread.setDaemon(True)
         analysis_thread.start()
@@ -565,8 +601,8 @@ class DocumentClusteringList(APIView):
         # Create analysis results in a non-blocking thread
         analysis_id = response.data['id']
         analysis_thread = Thread(
-            target=create_analysis_results, 
-            args=(arguments,docs,analysis_id,DOCUMENT_CLUSTERING,)
+            target=create_document_clustering_results, 
+            args=(arguments,docs,analysis_id,)
         )
         analysis_thread.setDaemon(True)
         analysis_thread.start()
@@ -618,8 +654,8 @@ class ConceptExtractionList(APIView):
         # Create analysis results in a non-blocking thread
         analysis_id = response.data['id']
         analysis_thread = Thread(
-            target=create_analysis_results, 
-            args=(arguments,docs,analysis_id,CONCEPT_EXTRACTION,)
+            target=create_concept_extraction_results, 
+            args=(arguments,docs,analysis_id,)
         )
         analysis_thread.setDaemon(True)
         analysis_thread.start()
@@ -671,8 +707,8 @@ class DocumentClassificationList(APIView):
         # Create analysis results in a non-blocking thread
         analysis_id = response.data['id']
         analysis_thread = Thread(
-            target=create_analysis_results, 
-            args=(arguments,dev_docs,analysis_id,DOCUMENT_CLASSIFICATION,)
+            target=create_document_classification_results, 
+            args=(arguments,dev_docs,analysis_id,)
         )
         analysis_thread.setDaemon(True)
         analysis_thread.start()
