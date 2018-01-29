@@ -85,7 +85,6 @@ def shuffled(x):
     return y
 
 def clean_emojis(doc):
-    cleaned = []
     emoji_pattern = re.compile("["
         "\U0001F600-\U0001F64F"  # emoticons
         "\U0001F300-\U0001F5FF"  # symbols & pictographs
@@ -94,12 +93,11 @@ def clean_emojis(doc):
                            "]+", flags=re.UNICODE)
     return emoji_pattern.sub(r'', doc)
 
-def translate_doc(doc, src="es", dest="en", join=False):
+def translate_doc(doc, src="es", dest="en"):
     translator = Translator()
     while(True):
         try:
             t = translator.translate(doc[0:4999], src=src, dest=dest).text
             return t
-            break
         except:
             sleep(1)
