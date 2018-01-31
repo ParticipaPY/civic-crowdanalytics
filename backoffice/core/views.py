@@ -555,7 +555,7 @@ class DocumentClassificationParamList(APIView):
 class SentimentAnalysisList(APIView):   
     def get(self, request, format=None):
         """
-        List all sentiment analysis
+        desc: List all sentiment analysis
         """
         try:
             analysis = Analysis.objects.filter(
@@ -570,7 +570,28 @@ class SentimentAnalysisList(APIView):
 
     def post(self, request, format=None):
         """
-        Create a new sentiment analysis
+        desc: Create a new sentiment analysis
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: parameters of the analysis
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: id of the associated project
+          type: integer
+          required: true
+          location: form
+        - name: dataset_id
+          desc: id of the associated dataset
+          type: integer
+          required: true
+          location: form
         """
         return post_analysis(request, SENTIMENT_ANALYSIS)
 
@@ -763,7 +784,19 @@ class ProjectViewSet(viewsets.ViewSet):
     
     def create(self, request):
         """
-        Create a new project
+        desc: create a project
+        parameters:
+        - name: body
+          desc: \" {
+            \\"name\\": \\"some name\\",  
+            \\"description\\": \\"some description\\",
+            \\"location\\": \\"some path\\",
+            \\"people_editing\\": false,
+            \\"datasets\\": [1],
+            \\"visibility\\": 1 
+          } \"
+          required: true
+          location: body
         """
         # Use the current user as user and owner of the project        
         request.data['users'] = [request.user.id]
