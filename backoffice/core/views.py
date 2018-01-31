@@ -642,19 +642,39 @@ class SentimentAnalysisList(APIView):
           required: true
           location: form
         - name: parameters
-          desc: parameters of the analysis
+          desc: "{\\"neu_inf_lim\\":0.3}"
           type: string
           required: false
           location: form
         - name: project_id
           desc: id of the associated project
           type: integer
-          required: true
+          required: false
           location: form
         - name: dataset_id
           desc: id of the associated dataset
           type: integer
-          required: true
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
+          type: string
+          required: false
           location: form
         """
         return post_analysis(request, SENTIMENT_ANALYSIS)
@@ -674,6 +694,50 @@ class DocumentClusteringList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"num_clusters\\":5}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: id of the associated project
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: id of the associated dataset
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
+          type: string
+          required: false
+          location: form
+        """
         return post_analysis(request, DOCUMENT_CLUSTERING)
 
 
@@ -691,6 +755,50 @@ class ConceptExtractionList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"num_concepts\\":5}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: id of the associated project
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: id of the associated dataset
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
+          type: string
+          required: false
+          location: form
+        """
         return post_analysis(request, CONCEPT_EXTRACTION)
 
 
@@ -708,6 +816,54 @@ class DocumentClassificationList(APIView):
             return resp
 
     def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"train_p\\":0.8}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: id of the associated project
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: id of the associated dataset
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[
+                    (\\"text_1\\",\\"label_1\\"),
+                    (\\"text_2\\",\\"label_2\\"),
+                    (\\"text_n\\",\\"label_n\\")
+                ]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
+          type: string
+          required: false
+          location: form
+        """
         return post_analysis(request, DOCUMENT_CLASSIFICATION)
 
 
