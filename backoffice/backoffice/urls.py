@@ -25,11 +25,11 @@ from rest_framework_jwt.views import obtain_jwt_token
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet, base_name='Project')
-router.register(r'attributes', views.AttributeViewSet)
-router.register(r'visualizations', views.VisualizationViewSet)
-router.register(r'visualizationType', views.VisualizationTypeViewSet)
-router.register(r'group', views.GroupViewSet)
-router.register(r'permission', views.PermissionViewSet)
+#router.register(r'attributes', views.AttributeViewSet)
+#router.register(r'visualizations', views.VisualizationViewSet)
+#router.register(r'visualizationType', views.VisualizationTypeViewSet)
+#router.register(r'group', views.GroupViewSet)
+#router.register(r'permission', views.PermissionViewSet)
 
 schema_view = get_swagger_view(title='Backoffice API')
 
