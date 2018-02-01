@@ -160,7 +160,7 @@ class SentimentAnalyzer:
                 n_sentiment = "neu"
             else:
                 n_sentiment = "pos"
-            normalized.append((doc, n_score, n_sentiment))
+            normalized.append((doc, n_sentiment, n_score))
         return normalized
 
         
