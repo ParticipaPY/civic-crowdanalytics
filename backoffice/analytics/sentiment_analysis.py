@@ -148,6 +148,10 @@ class SentimentAnalyzer:
         normalized = []
         max = self.max_score
         min = self.min_score
+
+        #no need to normalize. All docs are neutral
+        if max == 0 and min == 0:
+            return results    
         for (doc, sentiment, score) in results:
             n_score = -1 + ((score-min)*2)/(max-min)
             if n_score < self.neu_inf_lim:
