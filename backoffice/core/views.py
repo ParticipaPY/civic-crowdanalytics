@@ -490,7 +490,7 @@ class DatasetList(APIView):
         desc: 
         parameters:
         - name: name
-          desc: name of the dataset
+          desc: dataset name
           type: string
           required: true
           location: form
@@ -502,17 +502,17 @@ class DatasetList(APIView):
         - name: attributes
           desc: "[
                 {
-                    \\"name\\":\\"column_1\\"
+                    \\"name\\":\\"column 1\\"
                     \\"included_in_analysis\\": true
                     \\"attribute_type\\": 1
                 },
                 {
-                    \\"name\\":\\"column_2\\"
+                    \\"name\\":\\"column 2\\"
                     \\"included_in_analysis\\": true
                     \\"attribute_type\\": 1
                 },
                 {
-                    \\"name\\":\\"column_n\\"
+                    \\"name\\":\\"column n\\"
                     \\"included_in_analysis\\": true
                     \\"attribute_type\\": 1
                 },
@@ -559,6 +559,98 @@ class DatasetDetail(APIView):
         dataset = get_object(Dataset, pk)
         dataset.file.delete()
         dataset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProjectList(APIView):
+    def get(self, request, format=None):
+        try:
+            projects = Project.objects.all()
+            serializer = ProjectGetSerializer(projects, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: project name
+          type: string
+          required: true
+          location: form
+        - name: description
+          desc: project description
+          type: string
+          required: false
+          location: form
+        - name: location
+          desc: project location
+          type: string
+          required: false
+          location: form
+        - name: people_editing
+          desc: specifies if a user can edit a project
+          type: boolean
+          required: false
+          location: form
+        - name: datasets
+          desc: \[dataset_id\]
+          type: string
+          required: true
+          location: form
+        - name: visibility
+          desc: visibility id
+          type: string
+          required: false
+          location: form
+        """
+
+        name = request.data['name']
+        description = request.data.get('description',None) or None
+        location = request.data.get('location',None) or None
+        people_editing = request.data.get('people_editing',False) or False
+        datasets = json.loads(request.data['datasets'])
+        visibility = request.data.get('visibility',PUBLIC) or PUBLIC
+        user_id = request.user.id
+        
+        project = { 
+            'name':name, 
+            'description':description,
+            'location':location,
+            'people_editing':people_editing,
+            'datasets':datasets,
+            'visibility':visibility,
+            'users':[user_id],
+            'owner':user_id
+        }
+    
+        # Save project
+        serializer = ProjectPostSerializer(data=project)
+        serializer.is_valid(raise_exception=True)        
+        serializer.save()
+
+        # Update dataset creation status when posting a project
+        dataset_id = datasets[0]
+        dataset = Dataset.objects.get(id=dataset_id)        
+        dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
+        dataset.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectDetail(APIView):
+    def get(self, request, pk, format=None):
+        project = get_object(Project,pk)
+        serializer = ProjectGetSerializer(project)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):
+        project = get_object(Project, pk)
+        project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -832,58 +924,6 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
-
-class ProjectViewSet(viewsets.ViewSet):
-    def list(self, request):
-        queryset = Project.objects.all()
-        serializer = ProjectGetSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = Project.objects.all()
-        project = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectGetSerializer(project)
-        return Response(serializer.data)
-    
-    def create(self, request):
-        """
-        desc:
-        parameters:
-        - name: body
-          desc: " {
-            \\"name\\": \\"some name\\",  
-            \\"description\\": \\"some description\\",
-            \\"location\\": \\"some path\\",
-            \\"people_editing\\": false,
-            \\"datasets\\": [1],
-            \\"visibility\\": 1 
-          } "
-          required: true
-          location: body
-        """
-        # Use the current user as user and owner of the project        
-        request.data['users'] = [request.user.id]
-        request.data['owner'] = request.user.id
-        
-        # Save project
-        serializer = ProjectPostSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)        
-        serializer.save()
-
-        # Update dataset creation status when posting a project
-        dataset_id = self.request.data['datasets'][0]
-        dataset = Dataset.objects.get(id=dataset_id)        
-        dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
-        dataset.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def destroy(self, request, pk=None):
-        queryset = Project.objects.all()
-        project = get_object_or_404(queryset, pk=pk)
-        project.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
     
 """
 @permission_classes((CorePermissions, ))

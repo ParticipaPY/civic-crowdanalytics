@@ -17,3 +17,9 @@ EXECUTED = 3
 # Creation Status
 DRAFT = 1
 COMPLETED = 2
+
+# Visibilities
+PUBLIC = 1
+PRIVATE = 2
+TEAM = 3
+

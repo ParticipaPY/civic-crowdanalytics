@@ -24,7 +24,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-router.register(r'projects', views.ProjectViewSet, base_name='Project')
+#router.register(r'projects', views.ProjectViewSet, base_name='Project')
 #router.register(r'attributes', views.AttributeViewSet)
 #router.register(r'visualizations', views.VisualizationViewSet)
 #router.register(r'visualizationType', views.VisualizationTypeViewSet)
@@ -42,6 +42,10 @@ urlpatterns = [
     url(r'^api/datasets/$', views.DatasetList.as_view()),
     # ex: /api/datasets/dataset_id
     url(r'^api/datasets/(?P<pk>[0-9]+)/$', views.DatasetDetail.as_view()),
+    # ex: /api/projects/
+    url(r'^api/projects/$', views.ProjectList.as_view()),
+    # ex: /api/projects/project_id
+    url(r'^api/projects/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view()),
     # ex: /api/analysis/sentiment-analysis/
     url(r'^api/analysis/sentiment-analysis/$', views.SentimentAnalysisList.as_view()),
     # ex: /api/analysis/doc-clustering/
