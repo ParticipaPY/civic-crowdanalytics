@@ -39,6 +39,16 @@ logger = logging.getLogger(__name__)
 # ---
 
 
+def inherit_docstring_from(cls):
+    """
+    Decorator for inherit a docstring
+    """
+    def docstring_inheriting_decorator(fn):
+        fn.__doc__ = getattr(cls,fn.__name__).__doc__
+        return fn
+    return docstring_inheriting_decorator
+
+
 def get_object(object, pk):
     """
     Get object from primary key
@@ -412,6 +422,9 @@ def create_document_classification_results(arguments, docs, analysis_id):
 
 
 def post_analysis(request, analysis_type):
+    """
+    Post an analysis
+    """
     # Get analysis related data
     try:    
         project_id, dataset_id, arguments, docs = \
@@ -549,6 +562,54 @@ class DatasetDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class AnalysisObjectList(APIView):
+    def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"parameter\\":value}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: project id
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: dataset id
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[\\"text 1\\",\\"text 2\\",\\"text n\\"]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column 1\\",\\"column 2\\",\\"column n\\"]"
+          type: string
+          required: false
+          location: form
+        """
+
+
 class AnalysisObjectDetail(APIView):
     def get(self, request, pk, format=None):
         analysis = get_object(Analysis,pk)
@@ -619,7 +680,7 @@ class DocumentClassificationParamList(APIView):
             return resp
 
 
-class SentimentAnalysisList(APIView):   
+class SentimentAnalysisList(AnalysisObjectList):   
     def get(self, request, format=None):
         try:
             analysis = Analysis.objects.filter(
@@ -632,55 +693,12 @@ class SentimentAnalysisList(APIView):
             resp.content = ex
             return resp
 
+    @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
-        """
-        desc: 
-        parameters:
-        - name: name
-          desc: Name of the analysis
-          type: string
-          required: true
-          location: form
-        - name: parameters
-          desc: "{\\"neu_inf_lim\\":0.3}"
-          type: string
-          required: false
-          location: form
-        - name: project_id
-          desc: id of the associated project
-          type: integer
-          required: false
-          location: form
-        - name: dataset_id
-          desc: id of the associated dataset
-          type: integer
-          required: false
-          location: form
-        - name: data_file
-          desc: data file
-          type: file
-          required: false
-          location: form
-        - name: data_url
-          desc: url of a file
-          type: string
-          required: false
-          location: form
-        - name: data_object
-          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
-          type: string
-          required: false
-          location: form
-        - name: data_columns
-          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
-          type: string
-          required: false
-          location: form
-        """
         return post_analysis(request, SENTIMENT_ANALYSIS)
 
 
-class DocumentClusteringList(APIView):
+class DocumentClusteringList(AnalysisObjectList):
     def get(self, request, format=None):
         try:
             analysis = Analysis.objects.filter(
@@ -693,55 +711,12 @@ class DocumentClusteringList(APIView):
             resp.content = ex
             return resp
 
+    @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
-        """
-        desc: 
-        parameters:
-        - name: name
-          desc: Name of the analysis
-          type: string
-          required: true
-          location: form
-        - name: parameters
-          desc: "{\\"num_clusters\\":5}"
-          type: string
-          required: false
-          location: form
-        - name: project_id
-          desc: id of the associated project
-          type: integer
-          required: false
-          location: form
-        - name: dataset_id
-          desc: id of the associated dataset
-          type: integer
-          required: false
-          location: form
-        - name: data_file
-          desc: data file
-          type: file
-          required: false
-          location: form
-        - name: data_url
-          desc: url of a file
-          type: string
-          required: false
-          location: form
-        - name: data_object
-          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
-          type: string
-          required: false
-          location: form
-        - name: data_columns
-          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
-          type: string
-          required: false
-          location: form
-        """
         return post_analysis(request, DOCUMENT_CLUSTERING)
 
 
-class ConceptExtractionList(APIView):
+class ConceptExtractionList(AnalysisObjectList):
     def get(self, request, format=None):
         try:
             analysis = Analysis.objects.filter(
@@ -754,55 +729,12 @@ class ConceptExtractionList(APIView):
             resp.content = ex
             return resp
 
+    @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
-        """
-        desc: 
-        parameters:
-        - name: name
-          desc: Name of the analysis
-          type: string
-          required: true
-          location: form
-        - name: parameters
-          desc: "{\\"num_concepts\\":5}"
-          type: string
-          required: false
-          location: form
-        - name: project_id
-          desc: id of the associated project
-          type: integer
-          required: false
-          location: form
-        - name: dataset_id
-          desc: id of the associated dataset
-          type: integer
-          required: false
-          location: form
-        - name: data_file
-          desc: data file
-          type: file
-          required: false
-          location: form
-        - name: data_url
-          desc: url of a file
-          type: string
-          required: false
-          location: form
-        - name: data_object
-          desc: "[\\"text_1\\",\\"text_2\\",\\"text_n\\"]"
-          type: string
-          required: false
-          location: form
-        - name: data_columns
-          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
-          type: string
-          required: false
-          location: form
-        """
         return post_analysis(request, CONCEPT_EXTRACTION)
 
 
-class DocumentClassificationList(APIView):
+class DocumentClassificationList(AnalysisObjectList):
     def get(self, request, format=None):
         try:
             analysis = Analysis.objects.filter(
@@ -825,17 +757,17 @@ class DocumentClassificationList(APIView):
           required: true
           location: form
         - name: parameters
-          desc: "{\\"train_p\\":0.8}"
+          desc: "{\\"parameter\\":value}"
           type: string
           required: false
           location: form
         - name: project_id
-          desc: id of the associated project
+          desc: project id
           type: integer
           required: false
           location: form
         - name: dataset_id
-          desc: id of the associated dataset
+          desc: dataset id
           type: integer
           required: false
           location: form
@@ -845,21 +777,21 @@ class DocumentClassificationList(APIView):
           required: false
           location: form
         - name: data_url
-          desc: url of a file
+          desc: URL of a file
           type: string
           required: false
           location: form
         - name: data_object
           desc: "[
-                    (\\"text_1\\",\\"label_1\\"),
-                    (\\"text_2\\",\\"label_2\\"),
-                    (\\"text_n\\",\\"label_n\\")
+                    (\\"text 1\\",\\"label 1\\"),
+                    (\\"text 2\\",\\"label 2\\"),
+                    (\\"text n\\",\\"label n\\")
                 ]"
           type: string
           required: false
           location: form
         - name: data_columns
-          desc: "[\\"column_1\\",\\"column_2\\",\\"column_n\\"]"
+          desc: "[\\"column 1\\",\\"column 2\\",\\"column n\\"]"
           type: string
           required: false
           location: form
