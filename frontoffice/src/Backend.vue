@@ -53,13 +53,14 @@
     return this.post('datasets/', datasetFd)
   }
   Backend.postProject = function (project, datasetId) {
-    return this.post('projects/', {
-      name: project.name,
-      description: project.description,
-      datasets: [datasetId],
-      visibility: project.visibility,
-      people_editing: project.people_editing
-    })
+    let projectFd = new FormData()
+    let datasets = [datasetId]
+    projectFd.append('name', project.name)
+    projectFd.append('description', project.description)
+    projectFd.append('datasets', JSON.stringify(datasets))
+    projectFd.append('visibility', project.visibility)
+    projectFd.append('people_editing', project.people_editing)
+    return this.post('projects/', projectFd)
   }
   Backend.postSentimentAnalysis = function (projectName, projectId, datasetId) {
     let sentimentAnalysisFd = new FormData()
