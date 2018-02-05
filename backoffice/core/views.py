@@ -39,6 +39,16 @@ logger = logging.getLogger(__name__)
 # ---
 
 
+def inherit_docstring_from(cls):
+    """
+    Decorator for inherit a docstring
+    """
+    def docstring_inheriting_decorator(fn):
+        fn.__doc__ = getattr(cls,fn.__name__).__doc__
+        return fn
+    return docstring_inheriting_decorator
+
+
 def get_object(object, pk):
     """
     Get object from primary key
@@ -464,197 +474,8 @@ def post_analysis(request, analysis_type):
 # ---
 
 
-class AnalysisObjectDetail(APIView):
-    def get(self, request, pk, format=None):
-        """
-        Retrieve an analysis object instance
-        """
-        analysis = get_object(Analysis,pk)
-        serializer = AnalysisSerializer(analysis)
-        return Response(serializer.data)
-
-
-    def delete(self, request, pk, format=None):
-        """
-        Delete an analysis object instance
-        """
-        analysis = get_object(Analysis, pk)
-        modify_project_updated_field(analysis.project.id)
-        analysis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class SentimentAnalysisParamList(APIView):
-    def get(self, request, format=None):
-        """
-        List all parameters for sentiment analysis
-        """
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=SENTIMENT_ANALYSIS
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClusteringParamList(APIView):
-    def get(self, request, format=None):
-        """
-        List all parameters for document clustering
-        """
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLUSTERING
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class ConceptExtractionParamList(APIView):
-    def get(self, request, format=None):
-        """
-        List all parameters for concept extraction
-        """
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=CONCEPT_EXTRACTION
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class DocumentClassificationParamList(APIView):
-    def get(self, request, format=None):
-        """
-        List all parameters for document classification
-        """
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-
-class SentimentAnalysisList(APIView):   
-    def get(self, request, format=None):
-        """
-        List all sentiment analysis
-        """
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=SENTIMENT_ANALYSIS
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new sentiment analysis
-        """
-        return post_analysis(request, SENTIMENT_ANALYSIS)
-
-
-class DocumentClusteringList(APIView):
-    def get(self, request, format=None):
-        """
-        List all clustering analysis
-        """
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=DOCUMENT_CLUSTERING
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new clustering analysis
-        """
-        return post_analysis(request, DOCUMENT_CLUSTERING)
-
-
-class ConceptExtractionList(APIView):
-    def get(self, request, format=None):
-        """
-        List all concept extraction analysis
-        """
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=CONCEPT_EXTRACTION
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new concept extraction analysis
-        """
-        return post_analysis(request, CONCEPT_EXTRACTION)
-
-
-class DocumentClassificationList(APIView):
-    def get(self, request, format=None):
-        """
-        List all document classification analysis
-        """
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
-
-    def post(self, request, format=None):
-        """
-        Create a new document classification analysis
-        """
-        return post_analysis(request, DOCUMENT_CLASSIFICATION)
-
-
-class SentimentAnalysisDetail(AnalysisObjectDetail): pass
-class DocumentClusteringDetail(AnalysisObjectDetail): pass
-class ConceptExtractionDetail(AnalysisObjectDetail): pass
-class DocumentClassificationDetail(AnalysisObjectDetail): pass
-
-
 class DatasetList(APIView):
     def get(self, request, format=None):
-        """
-        List all datasets
-        """
         try:
             datasets = Dataset.objects.all()
             serializer = DatasetSerializer(datasets, many=True)
@@ -666,7 +487,39 @@ class DatasetList(APIView):
 
     def post(self, request, format=None):
         """
-        Create a new dataset and his associated attributes
+        desc: 
+        parameters:
+        - name: name
+          desc: dataset name
+          type: string
+          required: true
+          location: form
+        - name: file
+          desc: data file
+          type: file
+          required: true
+          location: form
+        - name: attributes
+          desc: "[
+                {
+                    \\"name\\":\\"column 1\\"
+                    \\"included_in_analysis\\": true
+                    \\"attribute_type\\": 1
+                },
+                {
+                    \\"name\\":\\"column 2\\"
+                    \\"included_in_analysis\\": true
+                    \\"attribute_type\\": 1
+                },
+                {
+                    \\"name\\":\\"column n\\"
+                    \\"included_in_analysis\\": true
+                    \\"attribute_type\\": 1
+                },
+            ]"
+          type: string
+          required: true
+          location: form
         """
         # Get request data
         dataset = {
@@ -698,21 +551,350 @@ class DatasetList(APIView):
 
 class DatasetDetail(APIView):
     def get(self, request, pk, format=None):
-        """
-        Retrieve a dataset instance
-        """
         dataset = get_object(Dataset,pk)
         serializer = DatasetSerializer(dataset)
         return Response(serializer.data)
 
     def delete(self, request, pk, format=None):
-        """
-        Delete a dataset instance
-        """
         dataset = get_object(Dataset, pk)
         dataset.file.delete()
         dataset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProjectList(APIView):
+    def get(self, request, format=None):
+        try:
+            projects = Project.objects.all()
+            serializer = ProjectGetSerializer(projects, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: project name
+          type: string
+          required: true
+          location: form
+        - name: description
+          desc: project description
+          type: string
+          required: false
+          location: form
+        - name: location
+          desc: project location
+          type: string
+          required: false
+          location: form
+        - name: people_editing
+          desc: specifies if a user can edit a project
+          type: boolean
+          required: false
+          location: form
+        - name: datasets
+          desc: \[dataset_id\]
+          type: string
+          required: true
+          location: form
+        - name: visibility
+          desc: visibility id
+          type: string
+          required: false
+          location: form
+        """
+
+        name = request.data['name']
+        description = request.data.get('description',None) or None
+        location = request.data.get('location',None) or None
+        people_editing = request.data.get('people_editing',False) or False
+        datasets = json.loads(request.data['datasets'])
+        visibility = request.data.get('visibility',PUBLIC) or PUBLIC
+        user_id = request.user.id
+        
+        project = { 
+            'name':name, 
+            'description':description,
+            'location':location,
+            'people_editing':people_editing,
+            'datasets':datasets,
+            'visibility':visibility,
+            'users':[user_id],
+            'owner':user_id
+        }
+    
+        # Save project
+        serializer = ProjectPostSerializer(data=project)
+        serializer.is_valid(raise_exception=True)        
+        serializer.save()
+
+        # Update dataset creation status when posting a project
+        dataset_id = datasets[0]
+        dataset = Dataset.objects.get(id=dataset_id)        
+        dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
+        dataset.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectDetail(APIView):
+    def get(self, request, pk, format=None):
+        project = get_object(Project,pk)
+        serializer = ProjectGetSerializer(project)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):
+        project = get_object(Project, pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AnalysisObjectList(APIView):
+    def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"parameter\\":value}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: project id
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: dataset id
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: url of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[\\"text 1\\",\\"text 2\\",\\"text n\\"]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column 1\\",\\"column 2\\",\\"column n\\"]"
+          type: string
+          required: false
+          location: form
+        """
+
+
+class AnalysisObjectDetail(APIView):
+    def get(self, request, pk, format=None):
+        analysis = get_object(Analysis,pk)
+        serializer = AnalysisSerializer(analysis)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk, format=None):
+        analysis = get_object(Analysis, pk)
+        modify_project_updated_field(analysis.project.id)
+        analysis.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SentimentAnalysisParamList(APIView):
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=SENTIMENT_ANALYSIS
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClusteringParamList(APIView):
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLUSTERING
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class ConceptExtractionParamList(APIView):
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=CONCEPT_EXTRACTION
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class DocumentClassificationParamList(APIView):
+    def get(self, request, format=None):
+        try:
+            parameters = Parameter.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
+            serializer = ParameterSerializer(parameters, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+
+class SentimentAnalysisList(AnalysisObjectList):   
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(
+                analysis_type=SENTIMENT_ANALYSIS
+            )
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    @inherit_docstring_from(AnalysisObjectList)
+    def post(self, request, format=None):
+        return post_analysis(request, SENTIMENT_ANALYSIS)
+
+
+class DocumentClusteringList(AnalysisObjectList):
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(
+                analysis_type=DOCUMENT_CLUSTERING
+            )
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    @inherit_docstring_from(AnalysisObjectList)
+    def post(self, request, format=None):
+        return post_analysis(request, DOCUMENT_CLUSTERING)
+
+
+class ConceptExtractionList(AnalysisObjectList):
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(
+                analysis_type=CONCEPT_EXTRACTION
+            )
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    @inherit_docstring_from(AnalysisObjectList)
+    def post(self, request, format=None):
+        return post_analysis(request, CONCEPT_EXTRACTION)
+
+
+class DocumentClassificationList(AnalysisObjectList):
+    def get(self, request, format=None):
+        try:
+            analysis = Analysis.objects.filter(
+                analysis_type=DOCUMENT_CLASSIFICATION
+            )
+            serializer = AnalysisSerializer(analysis, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            resp = Response(status=status.HTTP_400_BAD_REQUEST)
+            resp.content = ex
+            return resp
+
+    def post(self, request, format=None):
+        """
+        desc: 
+        parameters:
+        - name: name
+          desc: Name of the analysis
+          type: string
+          required: true
+          location: form
+        - name: parameters
+          desc: "{\\"parameter\\":value}"
+          type: string
+          required: false
+          location: form
+        - name: project_id
+          desc: project id
+          type: integer
+          required: false
+          location: form
+        - name: dataset_id
+          desc: dataset id
+          type: integer
+          required: false
+          location: form
+        - name: data_file
+          desc: data file
+          type: file
+          required: false
+          location: form
+        - name: data_url
+          desc: URL of a file
+          type: string
+          required: false
+          location: form
+        - name: data_object
+          desc: "[
+                    (\\"text 1\\",\\"label 1\\"),
+                    (\\"text 2\\",\\"label 2\\"),
+                    (\\"text n\\",\\"label n\\")
+                ]"
+          type: string
+          required: false
+          location: form
+        - name: data_columns
+          desc: "[\\"column 1\\",\\"column 2\\",\\"column n\\"]"
+          type: string
+          required: false
+          location: form
+        """
+        return post_analysis(request, DOCUMENT_CLASSIFICATION)
+
+
+class SentimentAnalysisDetail(AnalysisObjectDetail): pass
+class DocumentClusteringDetail(AnalysisObjectDetail): pass
+class ConceptExtractionDetail(AnalysisObjectDetail): pass
+class DocumentClassificationDetail(AnalysisObjectDetail): pass
 
 
 # ---
@@ -720,7 +902,7 @@ class DatasetDetail(APIView):
 # ---
 
 
-@permission_classes((CorePermissions, ))
+#@permission_classes((CorePermissions, ))
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -742,56 +924,8 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
-
-class ProjectViewSet(viewsets.ViewSet):
-    def list(self, request):
-        """
-        List all projects
-        """
-        queryset = Project.objects.all()
-        serializer = ProjectGetSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        """
-        Retrieve a project instance
-        """
-        queryset = Project.objects.all()
-        project = get_object_or_404(queryset, pk=pk)
-        serializer = ProjectGetSerializer(project)
-        return Response(serializer.data)
     
-    def create(self, request):
-        """
-        Create a new project
-        """
-        # Use the current user as user and owner of the project        
-        request.data['users'] = [request.user.id]
-        request.data['owner'] = request.user.id
-        
-        # Save project
-        serializer = ProjectPostSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)        
-        serializer.save()
-
-        # Update dataset creation status when posting a project
-        dataset_id = self.request.data['datasets'][0]
-        dataset = Dataset.objects.get(id=dataset_id)        
-        dataset.creation_status = CreationStatus.objects.get(id=COMPLETED)
-        dataset.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def destroy(self, request, pk=None):
-        """
-        Delete a project instance
-        """
-        queryset = Project.objects.all()
-        project = get_object_or_404(queryset, pk=pk)
-        project.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    
+"""
 @permission_classes((CorePermissions, ))
 class AttributeViewSet(viewsets.ModelViewSet):
     queryset = Attribute.objects.all()
@@ -826,3 +960,4 @@ class GroupViewSet(viewsets.ModelViewSet):
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+"""

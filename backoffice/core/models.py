@@ -31,8 +31,8 @@ class User(AbstractUser):
 
 class Project(models.Model):
     name = models.CharField(max_length=250)
-    description = models.CharField(max_length=250, blank=True)
-    location = models.CharField(max_length=150, blank=True)
+    description = models.CharField(max_length=250, blank=True, null=True)
+    location = models.CharField(max_length=150, blank=True, null=True)
     people_editing = models.BooleanField()
     visibility = models.ForeignKey(Visibility, on_delete=models.CASCADE)
     datasets = models.ManyToManyField(Dataset)
