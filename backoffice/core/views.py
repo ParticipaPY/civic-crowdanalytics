@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
@@ -903,7 +903,11 @@ class DocumentClassificationDetail(AnalysisObjectDetail): pass
 
 
 #@permission_classes((CorePermissions, ))
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(mixins.CreateModelMixin, 
+                   mixins.RetrieveModelMixin, 
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

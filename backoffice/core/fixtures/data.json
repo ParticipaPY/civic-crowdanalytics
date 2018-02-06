@@ -170,8 +170,8 @@
     "model": "core.parameter",
     "pk": 3,
     "fields": {
-      "name": "algorithm",
-      "default_value": "\"ntlk_vader\"",
+      "name": "language",
+      "default_value": "\"english\"",
       "parameter_type": 3,
       "analysis_type": 1
     }
