@@ -141,19 +141,19 @@ class SentimentAnalyzer:
 
     def normalize_scores(self, results):
         """
-        Normalice polarity scores into the range [-1,1] and 
+        Normalize polarity scores into the range [-1,1] and 
         recalculates predicted sentiment label according to
         the normalized score.
         """
         normalized = []
-        max = self.max_score
-        min = self.min_score
-
+        max_val = self.max_score
+        min_val = self.min_score
+        limit = max([abs(max_val), abs(min_val)])
         #no need to normalize. All docs are neutral
-        if max == 0 and min == 0:
-            return results    
+        if max_val == 0 and min == 0:
+            return results
         for (doc, sentiment, score) in results:
-            n_score = -1 + ((score-min)*2)/(max-min)
+            n_score = score/limit
             if n_score < self.neu_inf_lim:
                 n_sentiment = "neg"
             elif n_score < self.neu_sup_lim:
@@ -213,7 +213,7 @@ class SentimentAnalyzer:
         results = []
         for doc in docs:
             results.append(self.analyze_doc(doc))
-        if self.need_normalization:
+        if self.need_normalization and len(docs) > 1:
             results = self.normalize_scores(results)
         self._tagged_docs = results
 
