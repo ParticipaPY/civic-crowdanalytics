@@ -96,23 +96,3 @@ class Argument(models.Model):
     value = models.CharField(max_length=150)
     parameter = models.ForeignKey(Parameter, on_delete=models.CASCADE)
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-
-
-class Report(models.Model):
-    analysis = models.ManyToManyField(Analysis)
-
-
-class VisualizationType(models.Model):
-    description = models.CharField(max_length=150)
-
-    def __str__(self):
-        return self.description
-
-
-class Visualization(models.Model):
-    payload = models.TextField()
-    analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    visualization_type = models.ForeignKey( 
-        VisualizationType,
-        on_delete=models.CASCADE
-    )
