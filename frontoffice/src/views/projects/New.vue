@@ -127,29 +127,29 @@
                 <div class="col-md-6 analysis-block">
                   <div class="wrapper">
                     <div class="title">
-                      <input type="checkbox" id="analysis_category" name="analysis_category">
+                      <input type="checkbox" id="analysis_category" name="analysis_category" v-model="analysis.include" value="classification">
                       <label for="analysis_category"></label>
                       Classification
                     </div>
                     <div>
                       <label>
                         Language:
-                        <input class="long" type="text" value="English">
+                        <input class="long" type="text" v-model="analysis.classification.language">
                         <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
                       </label>
                       <label>
                         Number of folds for cross validation:
-                        <input type="number" min="1" value="10">
+                        <input type="number" min="1" v-model.number="analysis.classification.n_folds">
                         <span>Number of folds to be used in k-fold cross validation technique for choosing different sets as 'train docs'.</span>
                       </label>
                       <label>
                         Vocabulary size:
-                        <input type="number" min="1" value="500">
+                        <input type="number" min="1" v-model.number="analysis.classification.vocab_size">
                         <span>The size of the vocabulary set that will be used for extracting features out of the docs.</span>
                       </label>
                       <label>
                         Type of Classifier:
-                        <select>
+                        <select v-model="analysis.classification.t_classifier">
                           <option value="NB">Naive Bayes</option>
                           <option value="DT">Decision Tree</option>
                           <option value="RF">Random Forest</option>
@@ -164,24 +164,24 @@
                 <div class="col-md-6 analysis-block">
                   <div class="wrapper">
                     <div class="title">
-                      <input type="checkbox" id="analysis_sentiment" name="analysis_sentiment">
+                      <input type="checkbox" id="analysis_sentiment" name="analysis_sentiment" v-model="analysis.include" value="sentiment">
                       <label for="analysis_sentiment"></label>
                       Sentiment Analysis
                     </div>
                     <div>
                       <label>
                         Language:
-                        <input class="long" type="text" value="English">
+                        <input class="long" type="text" v-model="analysis.sentiment.language">
                         <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
                       </label>
                       <label>
                         Inferior limit for neural interval:
-                        <input type="number" min="-1.00" max="0.00" step="0.01" value="-0.30">
+                        <input type="number" min="-1.00" max="0.00" step="0.01" v-model.number="analysis.sentiment.neu_inf_lim">
                         <span>If a doc's polarity score is lower than this paramenter, then the sentiment is considered negative.</span>
                       </label>
                       <label>
                         Superior limit for neural interval:
-                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.30">
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.sentiment.neu_sup_lim">
                         <span>If a doc's polarity score is greater than this parameter, then the seniment is considered positive.</span>
                       </label>
                     </div>
@@ -191,41 +191,41 @@
                 <div class="col-md-6 analysis-block">
                   <div class="wrapper">
                     <div class="title">
-                      <input type="checkbox" id="analysis_concept" name="analysis_concept">
+                      <input type="checkbox" id="analysis_concept" name="analysis_concept" v-model="analysis.include" value="concept">
                       <label for="analysis_concept"></label>
                       Concept Ocurrences
                     </div>
                     <div>
                       <label>
                         Language:
-                        <input class="long" type="text" value="English">
+                        <input class="long" type="text" v-model="analysis.concept.language">
                         <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
                       </label>
                       <label>
                         Number of concepts to extract:
-                        <input type="number" min="1" value="5">
+                        <input type="number" min="1" v-model.number="analysis.concept.num_concepts">
                         <span>The number of concepts to extract.</span>
                       </label>
                       <label>
                         Context words that should not be considered:
-                        <textarea row="4"></textarea>
+                        <textarea row="4" v-model="analysis.concept.context_words"></textarea>
                         <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
                       </label>
                       <label>
                         N-gram Range
                         <div class="sublabel">
-                          Min: <input type="number" value="1">
-                          Max: <input type="number" value="1">
+                          Min: <input type="number" v-model.number="analysis.concept.ngram_range[0]">
+                          Max: <input type="number" v-model.number="analysis.concept.ngram_range[1]">
                         </div>
                         <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
                       </label>
                       <label>
                         Part of Speech Tags:
-                        <textarea row="4"></textarea>
+                        <textarea row="4" v-model="analysis.concept.pos_vec"></textarea>
                         <span>List of tags related with the part-of-speech that should be considered in the analysis. Please check <a href="http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html" target="_blank">http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html</a> for a complete list of tags.</span>
                       </label>
                       <label>
-                        <input type="checkbox"> Consider Urls
+                        <input type="checkbox" v-model="analysis.concept.consider_urls"> Consider Urls
                         <span>Whether URLs should be removed or not.</span>
                       </label>
                     </div>
@@ -235,58 +235,58 @@
                 <div class="col-md-6 analysis-block">
                   <div class="wrapper">
                     <div class="title">
-                      <input type="checkbox" id="analysis_cluster" name="analysis_cluster">
+                      <input type="checkbox" id="analysis_cluster" name="analysis_cluster" v-model="analysis.include" value="clustering">
                       <label for="analysis_cluster"></label>
                       Clustering
                     </div>
                     <div>
                       <label>
                         Language:
-                        <input class="long" type="text" value="English">
+                        <input class="long" type="text" v-model="analysis.clustering.language">
                         <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
                       </label>
                       <label>
                         Number of clusters:
-                        <input type="number" min="1" value="5">
+                        <input type="number" min="1" v-model.number="analysis.clustering.num_clusters">
                         <span>The number of clusters in which the documents will be grouped.</span>
                       </label>
                       <label>
                         Context Words that should not be considered:
-                        <textarea row="4"></textarea>
+                        <textarea row="4" v-model="analysis.clustering.context_words"></textarea>
                         <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
                       </label>
                       <label>
                         N-gram Range
                         <div class="sublabel">
-                          Min: <input type="number" value="1">
-                          Max: <input type="number" value="1">
+                          Min: <input type="number" v-model.number="analysis.clustering.ngram_range[0]">
+                          Max: <input type="number" v-model="analysis.clustering.ngram_range[1]">
                         </div>
                         <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
                       </label>
                       <label>
                         Minimum document frequency:
-                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.1">
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.clustering.min_df">
                         <span>The minimum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
                       </label>
                       <label>
                         Maximun document frequency:
-                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.9">
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.clustering.max_df">
                         <span>The maximum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
                       </label>
                       <label>
-                        Algorythm:
-                        <select>
+                        Algorithm:
+                        <select v-model="analysis.clustering.algorithm">
                           <option value="k-means">K-means</option>
                           <option value="agglomerative">Agglomerative</option>
                         </select>
                         <span>Clustering algorithm use to group documents.</span>
                       </label>
                       <label>
-                        <input type="checkbox"> Consider Urls
+                        <input type="checkbox" v-model="analysis.clustering.consider_urls"> Consider Urls
                         <span>Whether URLs should be removed or not.</span>
                       </label>
                       <label>
-                        <input type="checkbox"> Use inverse document frequency
+                        <input type="checkbox" v-model="analysis.clustering.use_idf"> Use inverse document frequency
                         <span>If true, it will use TF-IDF vectorization for feature extraction. If false it will use only TF.</span>
                       </label>
                     </div>
@@ -355,6 +355,39 @@ export default {
       dataset: {
         name: '',
         file: null
+      },
+      analysis: {
+        include: [],
+        sentiment: {
+          neu_inf_lim: -0.3,
+          neu_sup_lim: 0.3,
+          language: 'english'
+        },
+        classification: {
+          n_folds: 10,
+          vocab_size: 500,
+          t_classifier: 'NB',
+          language: 'english'
+        },
+        concept: {
+          num_concepts: 5,
+          context_words: '',
+          ngram_range: [1, 1],
+          pos_vec: '',
+          consider_urls: false,
+          language: 'english'
+        },
+        clustering: {
+          num_clusters: 5,
+          context_words: '',
+          ngram_range: [1, 1],
+          min_df: 0.1,
+          max_df: 0.9,
+          consider_urls: false,
+          language: 'english',
+          algorithm: 'k-means',
+          use_idf: false
+        }
       },
       showAlert: false
     }
