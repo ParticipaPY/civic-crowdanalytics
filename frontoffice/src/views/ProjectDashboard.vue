@@ -91,7 +91,7 @@
               </div>
             </dropdown>
           </div>
-          <div class="card-block">
+          <div :class="'card-block ' + (this.pendings.concept ? 'pending' : '')">
             <div>
               <line-chart :analysis-id="conceptId"/>
             </div>
@@ -114,7 +114,7 @@
               </div>
             </dropdown>
           </div>
-          <div class="card-block">
+          <div :class="'card-block ' + (this.pendings.category ? 'pending' : '')">
             <div>
               <bar-chart :analysis-id="categoryId"/>
             </div>
@@ -139,7 +139,7 @@
               </div>
             </dropdown>
           </div>
-          <div class="card-block">
+          <div :class="'card-block ' + (this.pendings.cluster ? 'pending' : '')">
             <div>
               <bubble-chart :analysis-id="clusterId"/>
             </div>
@@ -162,7 +162,7 @@
               </div>
             </dropdown>
           </div>
-          <div class="card-block">
+          <div :class="'card-block ' + (this.pendings.sentiment ? 'pending' : '')">
               <scatter-chart :analysis-id="sentimentId" />
           </div>
         </div>
@@ -203,30 +203,43 @@ export default {
       sentimentId: 0,
       clusterId: 0,
       conceptId: 0,
-      categoryId: 0
+      categoryId: 0,
+      pendings: {
+        sentiment: true,
+        cluster: true,
+        concept: true,
+        category: true
+      }
     }
   },
   methods: {
     showNotification () {
       this.$snotify.success('Example body content', 'Example Title')
+    },
+    setAllPending () {
+      this.pendings.sentiment = true
+      this.pendings.cluster = true
+      this.pendings.concept = true
+      this.pendings.category = true
     }
   },
   beforeRouteEnter: (to, from, next) => {
-    console.log('ROUTE ENTER!')
-    console.log(next)
     next(vm => {
-      console.log(to.params)
       Backend.getProjectSummary(to.params.projectId).then(
         response => {
           vm.project = response.data
-          let sentimentAnalysisList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 1 && v.analysis_status === 3)[0]
-          let documentClusteringList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
-          let conceptExtractionList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
-          let documentClassificationList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
+          let sentimentAnalysisList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 1)[0]
+          let documentClusteringList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 2)[0]
+          let conceptExtractionList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 3)[0]
+          let documentClassificationList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 4)[0]
           vm.sentimentId = sentimentAnalysisList.id
           vm.clusterId = documentClusteringList.id
           vm.conceptId = conceptExtractionList.id
           vm.categoryId = documentClassificationList.id
+          vm.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+          vm.pendings.cluster = documentClusteringList.analysis_status === 2
+          vm.pendings.concept = conceptExtractionList.analysis_status === 2
+          vm.pendings.category = documentClassificationList.analysis_status === 2
         }
       ).catch(
         e => {
@@ -235,9 +248,8 @@ export default {
       )
     })
   },
-  beforeRouteUpdate: (to, from, next) => {
-    console.log('ROUTE UPDATE')
-    console.log(to.params)
+  beforeRouteUpdate (to, from, next) {
+    this.setAllPending()
     Backend.getProjectSummary(to.params.projectId).then(
       response => {
         this.project = response.data
@@ -249,6 +261,10 @@ export default {
         this.clusterId = documentClusteringList.id
         this.conceptId = conceptExtractionList.id
         this.categoryId = documentClassificationList.id
+        this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+        this.pendings.cluster = documentClusteringList.analysis_status === 2
+        this.pendings.concept = conceptExtractionList.analysis_status === 2
+        this.pendings.category = documentClassificationList.analysis_status === 2
       }
     ).catch(
       e => {

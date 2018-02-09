@@ -103,6 +103,11 @@ export default Scatter.extend({
                     return `${truncate(object.label, 100)}`
                   }
                 }
+              },
+              onClick: (e, i) => {
+                console.log(i)
+                console.log(this.data)
+                console.log(i[0]._index)
               }
             })
         }

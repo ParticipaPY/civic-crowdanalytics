@@ -122,7 +122,177 @@
               </div>
             </tabbed-panel-tab>
             <tabbed-panel-tab header="Analysis Configuration">
-
+              <div class="row analysis-config">
+                <!-- CATEGORY -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_category" name="analysis_category">
+                      <label for="analysis_category"></label>
+                      Classification
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" value="English">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of folds for cross validation:
+                        <input type="number" min="1" value="10">
+                        <span>Number of folds to be used in k-fold cross validation technique for choosing different sets as 'train docs'.</span>
+                      </label>
+                      <label>
+                        Vocabulary size:
+                        <input type="number" min="1" value="500">
+                        <span>The size of the vocabulary set that will be used for extracting features out of the docs.</span>
+                      </label>
+                      <label>
+                        Type of Classifier:
+                        <select>
+                          <option value="NB">Naive Bayes</option>
+                          <option value="DT">Decision Tree</option>
+                          <option value="RF">Random Forest</option>
+                          <option value="SVM">Support Vector Machine</option>
+                        </select>
+                        <span>The type of classifier model used.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- SENTIMENT -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_sentiment" name="analysis_sentiment">
+                      <label for="analysis_sentiment"></label>
+                      Sentiment Analysis
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" value="English">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Inferior limit for neural interval:
+                        <input type="number" min="-1.00" max="0.00" step="0.01" value="-0.30">
+                        <span>If a doc's polarity score is lower than this paramenter, then the sentiment is considered negative.</span>
+                      </label>
+                      <label>
+                        Superior limit for neural interval:
+                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.30">
+                        <span>If a doc's polarity score is greater than this parameter, then the seniment is considered positive.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- CONCEPT -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_concept" name="analysis_concept">
+                      <label for="analysis_concept"></label>
+                      Concept Ocurrences
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" value="English">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of concepts to extract:
+                        <input type="number" min="1" value="5">
+                        <span>The number of concepts to extract.</span>
+                      </label>
+                      <label>
+                        Context words that should not be considered:
+                        <textarea row="4"></textarea>
+                        <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
+                      </label>
+                      <label>
+                        N-gram Range
+                        <div class="sublabel">
+                          Min: <input type="number" value="1">
+                          Max: <input type="number" value="1">
+                        </div>
+                        <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
+                      </label>
+                      <label>
+                        Part of Speech Tags:
+                        <textarea row="4"></textarea>
+                        <span>List of tags related with the part-of-speech that should be considered in the analysis. Please check <a href="http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html" target="_blank">http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html</a> for a complete list of tags.</span>
+                      </label>
+                      <label>
+                        <input type="checkbox"> Consider Urls
+                        <span>Whether URLs should be removed or not.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- CLUSTER -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_cluster" name="analysis_cluster">
+                      <label for="analysis_cluster"></label>
+                      Clustering
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" value="English">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of clusters:
+                        <input type="number" min="1" value="5">
+                        <span>The number of clusters in which the documents will be grouped.</span>
+                      </label>
+                      <label>
+                        Context Words that should not be considered:
+                        <textarea row="4"></textarea>
+                        <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
+                      </label>
+                      <label>
+                        N-gram Range
+                        <div class="sublabel">
+                          Min: <input type="number" value="1">
+                          Max: <input type="number" value="1">
+                        </div>
+                        <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
+                      </label>
+                      <label>
+                        Minimum document frequency:
+                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.1">
+                        <span>The minimum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
+                      </label>
+                      <label>
+                        Maximun document frequency:
+                        <input type="number" min="0.00" max="1.00" step="0.01" value="0.9">
+                        <span>The maximum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
+                      </label>
+                      <label>
+                        Algorythm:
+                        <select>
+                          <option value="k-means">K-means</option>
+                          <option value="agglomerative">Agglomerative</option>
+                        </select>
+                        <span>Clustering algorithm use to group documents.</span>
+                      </label>
+                      <label>
+                        <input type="checkbox"> Consider Urls
+                        <span>Whether URLs should be removed or not.</span>
+                      </label>
+                      <label>
+                        <input type="checkbox"> Use inverse document frequency
+                        <span>If true, it will use TF-IDF vectorization for feature extraction. If false it will use only TF.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </tabbed-panel-tab>
           </tabbed-panel>
         </form>
