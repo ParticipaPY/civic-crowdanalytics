@@ -597,7 +597,7 @@ class DatasetDetail(APIView):
 class ProjectList(APIView):
     def get(self, request, format=None):
         try:
-            projects = Project.objects.all()
+            projects = Project.objects.all().filter(owner=self.request.user)
             serializer = ProjectGetSerializer(projects, many=True)
             return Response(serializer.data)
         except Exception as ex:
