@@ -1,8 +1,9 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
@@ -18,7 +19,6 @@ from core.serializers import (
     AttributeSerializer, ArgumentSerializer, ParameterSerializer,
 )
 from core.constants import *
-from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
 from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
@@ -902,8 +902,12 @@ class DocumentClassificationDetail(AnalysisObjectDetail): pass
 # ---
 
 
-#@permission_classes((CorePermissions, ))
-class UserViewSet(viewsets.ModelViewSet):
+@permission_classes((IsAdminUser, ))
+class UserViewSet(mixins.CreateModelMixin, 
+                   mixins.RetrieveModelMixin, 
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
