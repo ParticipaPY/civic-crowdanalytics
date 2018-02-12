@@ -1,24 +1,23 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.decorators import permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, Visualization, 
-    VisualizationType, Parameter, CreationStatus, AnalysisStatus
+    User, Project, Dataset, Attribute, Analysis, Parameter, 
+    CreationStatus, AnalysisStatus
 )
 from core.serializers import (
     UserSerializer, DatasetSerializer, ProjectGetSerializer, 
-    ProjectPostSerializer, AnalysisSerializer, VisualizationSerializer, 
-    VisualizationTypeSerializer, GroupSerializer, PermissionSerializer, 
-    AttributeSerializer, ArgumentSerializer, ParameterSerializer,
+    ProjectPostSerializer, AnalysisSerializer, AttributeSerializer, 
+    ArgumentSerializer, ParameterSerializer,
 )
 from core.constants import *
-from core.permissions import CorePermissions, CorePermissionsOrAnonReadOnly
 from analytics.sentiment_analysis import SentimentAnalyzer
 from analytics.clustering import DocumentClustering
 from analytics.concept_extraction import ConceptExtractor
@@ -97,6 +96,7 @@ def read_in_memory_dataset(datasetFile, attributes):
         dataset = pd.read_csv(datasetFile, sep='\t')
     dataset = dataset[attributes]
     return dataset
+
 
 def read_dataset_from_url(datasetURL, attributes):
     """
@@ -421,6 +421,39 @@ def create_document_classification_results(arguments, docs, analysis_id):
     update_analysis(analysis_id, results)
 
 
+def get_analysis_parameters(analysis_type):
+    """
+    Get the parameters of an analysis 
+    """
+    try:
+        parameters = Parameter.objects.filter(
+            analysis_type=analysis_type
+        )
+        serializer = ParameterSerializer(parameters, many=True)
+        return Response(serializer.data)
+    except Exception as ex:
+        resp = Response(status=status.HTTP_400_BAD_REQUEST)
+        resp.content = ex
+        return resp
+
+
+def get_analysis(request, analysis_type):
+    """
+    Get an analysis
+    """
+    try:
+        analysis = Analysis.objects.filter(
+            analysis_type=analysis_type,
+            project__owner=request.user.id
+        )
+        serializer = AnalysisSerializer(analysis, many=True)
+        return Response(serializer.data)
+    except Exception as ex:
+        resp = Response(status=status.HTTP_400_BAD_REQUEST)
+        resp.content = ex
+        return resp 
+        
+
 def post_analysis(request, analysis_type):
     """
     Post an analysis
@@ -477,7 +510,8 @@ def post_analysis(request, analysis_type):
 class DatasetList(APIView):
     def get(self, request, format=None):
         try:
-            datasets = Dataset.objects.all()
+            datasets = Dataset.objects.filter(project__owner=request.user.id)
+            logger.info(datasets)
             serializer = DatasetSerializer(datasets, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -565,7 +599,7 @@ class DatasetDetail(APIView):
 class ProjectList(APIView):
     def get(self, request, format=None):
         try:
-            projects = Project.objects.all()
+            projects = Project.objects.all().filter(owner=self.request.user)
             serializer = ProjectGetSerializer(projects, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -708,7 +742,6 @@ class AnalysisObjectDetail(APIView):
         serializer = AnalysisSerializer(analysis)
         return Response(serializer.data)
 
-
     def delete(self, request, pk, format=None):
         analysis = get_object(Analysis, pk)
         modify_project_updated_field(analysis.project.id)
@@ -718,72 +751,27 @@ class AnalysisObjectDetail(APIView):
 
 class SentimentAnalysisParamList(APIView):
     def get(self, request, format=None):
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=SENTIMENT_ANALYSIS
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis_parameters(SENTIMENT_ANALYSIS)
 
 
 class DocumentClusteringParamList(APIView):
     def get(self, request, format=None):
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLUSTERING
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis_parameters(DOCUMENT_CLUSTERING)
 
 
 class ConceptExtractionParamList(APIView):
     def get(self, request, format=None):
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=CONCEPT_EXTRACTION
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis_parameters(CONCEPT_EXTRACTION)
 
 
 class DocumentClassificationParamList(APIView):
     def get(self, request, format=None):
-        try:
-            parameters = Parameter.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
-            )
-            serializer = ParameterSerializer(parameters, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis_parameters(DOCUMENT_CLASSIFICATION)
 
 
 class SentimentAnalysisList(AnalysisObjectList):   
     def get(self, request, format=None):
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=SENTIMENT_ANALYSIS
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis(request, SENTIMENT_ANALYSIS)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -792,16 +780,7 @@ class SentimentAnalysisList(AnalysisObjectList):
 
 class DocumentClusteringList(AnalysisObjectList):
     def get(self, request, format=None):
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=DOCUMENT_CLUSTERING
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis(request, DOCUMENT_CLUSTERING)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -810,16 +789,7 @@ class DocumentClusteringList(AnalysisObjectList):
 
 class ConceptExtractionList(AnalysisObjectList):
     def get(self, request, format=None):
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=CONCEPT_EXTRACTION
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis(request, CONCEPT_EXTRACTION)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -828,16 +798,7 @@ class ConceptExtractionList(AnalysisObjectList):
 
 class DocumentClassificationList(AnalysisObjectList):
     def get(self, request, format=None):
-        try:
-            analysis = Analysis.objects.filter(
-                analysis_type=DOCUMENT_CLASSIFICATION
-            )
-            serializer = AnalysisSerializer(analysis, many=True)
-            return Response(serializer.data)
-        except Exception as ex:
-            resp = Response(status=status.HTTP_400_BAD_REQUEST)
-            resp.content = ex
-            return resp
+        return get_analysis(request, DOCUMENT_CLASSIFICATION)
 
     def post(self, request, format=None):
         """
@@ -902,8 +863,12 @@ class DocumentClassificationDetail(AnalysisObjectDetail): pass
 # ---
 
 
-#@permission_classes((CorePermissions, ))
-class UserViewSet(viewsets.ModelViewSet):
+@permission_classes((IsAdminUser, ))
+class UserViewSet(mixins.CreateModelMixin, 
+                   mixins.RetrieveModelMixin, 
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -923,41 +888,3 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save(password=password)
         else:
             serializer.save()
-
-    
-"""
-@permission_classes((CorePermissions, ))
-class AttributeViewSet(viewsets.ModelViewSet):
-    queryset = Attribute.objects.all()
-    serializer_class = AttributeSerializer
-
-
-@permission_classes((CorePermissionsOrAnonReadOnly, ))
-class AnalysisViewSet(viewsets.ModelViewSet):
-    queryset = Analysis.objects.all()
-    serializer_class = AnalysisSerializer
-
-    
-@permission_classes((CorePermissions, ))
-class VisualizationViewSet(viewsets.ModelViewSet):
-    queryset = Visualization.objects.all()
-    serializer_class = VisualizationSerializer
-
-
-@permission_classes((CorePermissions, ))
-class VisualizationTypeViewSet(viewsets.ModelViewSet):
-    queryset = VisualizationType.objects.all()
-    serializer_class = VisualizationTypeSerializer
-
-
-@permission_classes((CorePermissions, ))
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
-
-@permission_classes((CorePermissions, ))
-class PermissionViewSet(viewsets.ModelViewSet):
-    queryset = Permission.objects.all()
-    serializer_class = PermissionSerializer
-"""

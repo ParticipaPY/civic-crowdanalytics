@@ -1,15 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth.models import Group, Permission
 from core.models import (
-    User, Project, Dataset, Attribute, Analysis, Visualization, 
-    VisualizationType, Parameter, Argument
+    User, Project, Dataset, Attribute, Analysis, Parameter, Argument
 )
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('__all__')
+        fields = (  'id','username','password','first_name',
+                    'last_name','email','is_superuser','is_active'
+        )
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -78,28 +79,4 @@ class ProjectGetSerializer(serializers.ModelSerializer):
 class ProjectPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = '__all__'
-
-
-class VisualizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Visualization
-        fields = '__all__'
-
-        
-class VisualizationTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VisualizationType
-        fields = '__all__'
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = '__all__'
-
-
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permission
         fields = '__all__'
