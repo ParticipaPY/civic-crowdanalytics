@@ -437,13 +437,14 @@ def get_analysis_parameters(analysis_type):
         return resp
 
 
-def get_analysis(analysis_type):
+def get_analysis(request, analysis_type):
     """
     Get an analysis
     """
     try:
         analysis = Analysis.objects.filter(
-            analysis_type=analysis_type
+            analysis_type=analysis_type,
+            project__owner=request.user.id
         )
         serializer = AnalysisSerializer(analysis, many=True)
         return Response(serializer.data)
@@ -509,7 +510,8 @@ def post_analysis(request, analysis_type):
 class DatasetList(APIView):
     def get(self, request, format=None):
         try:
-            datasets = Dataset.objects.all()
+            datasets = Dataset.objects.filter(project__owner=request.user.id)
+            logger.info(datasets)
             serializer = DatasetSerializer(datasets, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -597,7 +599,7 @@ class DatasetDetail(APIView):
 class ProjectList(APIView):
     def get(self, request, format=None):
         try:
-            projects = Project.objects.all()
+            projects = Project.objects.all().filter(owner=self.request.user)
             serializer = ProjectGetSerializer(projects, many=True)
             return Response(serializer.data)
         except Exception as ex:
@@ -769,7 +771,7 @@ class DocumentClassificationParamList(APIView):
 
 class SentimentAnalysisList(AnalysisObjectList):   
     def get(self, request, format=None):
-        return get_analysis(SENTIMENT_ANALYSIS)
+        return get_analysis(request, SENTIMENT_ANALYSIS)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -778,7 +780,7 @@ class SentimentAnalysisList(AnalysisObjectList):
 
 class DocumentClusteringList(AnalysisObjectList):
     def get(self, request, format=None):
-        return get_analysis(DOCUMENT_CLUSTERING)
+        return get_analysis(request, DOCUMENT_CLUSTERING)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -787,7 +789,7 @@ class DocumentClusteringList(AnalysisObjectList):
 
 class ConceptExtractionList(AnalysisObjectList):
     def get(self, request, format=None):
-        return get_analysis(CONCEPT_EXTRACTION)
+        return get_analysis(request, CONCEPT_EXTRACTION)
 
     @inherit_docstring_from(AnalysisObjectList)
     def post(self, request, format=None):
@@ -796,7 +798,7 @@ class ConceptExtractionList(AnalysisObjectList):
 
 class DocumentClassificationList(AnalysisObjectList):
     def get(self, request, format=None):
-        return get_analysis(DOCUMENT_CLASSIFICATION)
+        return get_analysis(request, DOCUMENT_CLASSIFICATION)
 
     def post(self, request, format=None):
         """
