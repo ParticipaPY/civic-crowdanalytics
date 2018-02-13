@@ -27,13 +27,47 @@ In its first version the tool supports the following analytics features:
 
 ## Installation
 
+### Backend Installation
+
+1. Clone the repository `git clone https://github.com/ParticipaPY/civic-crowdanalytics.git`
+2. Create a virtual environment by running `virtualenv env`
+3. Activate the virtual environment by running `source env/bin/activate`
+4. Go inside the repository folder and execute `pip install -r requirements.txt` to install dependencies. If an error occurs during the installation, it might be because some of these reasons: a) Package python-dev is missing b) Package libmysqlclient-dev is missing c) The environment variables LC_ALL and/or LC_CTYPE are not defined or don't have a valid value
+5. Create a mysql database. Make sure your database collation is set to UTF-8
+6. Copy the file backoffice/backoffice/settings.py.example into backoffice/backoffice/settings.py
+7. Set the configuration parameters of the database in backoffice/backoffice/settings.py
+```
+DATABASES = {
+    ...
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    ...
+}
+```
+8. Run `python manage.py migrate` to set up the database schema
+9. Run `python manage.py loaddata data.json` to load configuration data
+10. Run `python manage.py createsuperuser` to create an admin user
+11. Run the Django server by running the following command `python manage.py runserver 0:8000`
+12. Go to the following url http://localhost:8000/api
+
+### Frontend Installation
+
 1. Install Node.js and update npm (see [here](https://docs.npmjs.com/getting-started/installing-node) for a guide)
 2. Clone the repository `git clone https://github.com/ParticipaPY/civic-crowdanalytics`
 3. Get inside civic-crowdanalytics/frontoffice
 4. Install project's dependencies by running `npm install`
-5. Start local server by running `npm run dev`
-6. Go to the following url http://localhost:8080
-
+5. Set the backend server url, django user and password in frontoffice/src/Backend.vue
+```
+baseURL: '',
+username: '',
+password: '',
+```
+6. Start local server by running `npm run dev`
+7. Go to the following url http://localhost:8080
+ 
 ## Dependencies
 
 1. Node.js version higher than 0.10.32
@@ -41,7 +75,15 @@ In its first version the tool supports the following analytics features:
 
 ## Technologies
 
+### Backend Technologies
+
+1. [Django Framework](https://www.djangoproject.com/)
+2. [Django Rest Framework](http://www.django-rest-framework.org/)
+3. [MySQL](https://www.mysql.com/) database and its corresponding python package
+
+### Frontend Technologies
+
 1. [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com)
 2. [Vue.js](https://vuejs.org)
-4. [CoreUI](http://coreui.io)
-5. [Chart.js](http://www.chartjs.org)
+3. [CoreUI](http://coreui.io)
+4. [Chart.js](http://www.chartjs.org)
