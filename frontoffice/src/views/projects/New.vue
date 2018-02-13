@@ -371,15 +371,15 @@ export default {
         },
         concept: {
           num_concepts: 5,
-          context_words: '',
+          context_words: [],
           ngram_range: [1, 1],
-          pos_vec: '',
+          pos_vec: ['NN', 'NNP'],
           consider_urls: false,
           language: 'english'
         },
         clustering: {
           num_clusters: 5,
-          context_words: '',
+          context_words: [],
           ngram_range: [1, 1],
           min_df: 0.1,
           max_df: 0.9,
@@ -398,8 +398,12 @@ export default {
       if (this.$refs.wiz.currentTab() === 2) {
         this.generateAttributes()
       } else {
-        this.$refs.wiz.index += 1
-        this.$refs.wiz.selectIndex(this.$refs.wiz.index)
+        if (this.$refs.wiz.currentTab() === 1 && this.dataset.file === null) {
+          this.$snotify.error('You need to add a dataset file.')
+        } else {
+          this.$refs.wiz.index += 1
+          this.$refs.wiz.selectIndex(this.$refs.wiz.index)
+        }
       }
     },
     prevPage: function () {
@@ -492,31 +496,39 @@ export default {
       this.createProject()
     },
     createProject: function () {
-      var toor = this
-      Backend.postDataset(this.dataset, this.attributes).then(
-        response => {
-          let datasetId = response.data.id
-          Backend.postProject(this.project, datasetId).then(
-            response => {
-              let projectName = response.data.name
-              let projectId = response.data.id
-              axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
-                results => {
-                  this.$router.push({ name: 'Project Home', params: { projectId: projectId } })
-                  toor.showAlert = true
-                }
-              )).catch(
-                e => console.log(e)
-              )
-            }
-          ).catch(
-            e => console.log(e)
-          )
-        }
-      ).catch(
-        e => console.log(e)
-      )
-      // this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
+      if (this.analysis.include.length > 0) {
+        var toor = this
+        Backend.postDataset(this.dataset, this.attributes).then(
+          response => {
+            let datasetId = response.data.id
+            Backend.postProject(this.project, datasetId).then(
+              response => {
+                let projectName = response.data.name
+                let projectId = response.data.id
+                let analysisArray = []
+                if (toor.analysis.include.indexOf('sentiment') > -1) analysisArray.push(Backend.postSentimentAnalysis(projectName, projectId, datasetId, toor.analysis.sentiment))
+                if (toor.analysis.include.indexOf('concept') > -1) analysisArray.push(Backend.postConceptExtraction(projectName, projectId, datasetId, toor.analysis.concept))
+                if (toor.analysis.include.indexOf('classification') > -1) analysisArray.push(Backend.postDocumentClassification(projectName, projectId, datasetId, toor.analysis.classification))
+                if (toor.analysis.include.indexOf('clustering') > -1) analysisArray.push(Backend.postDocumentClustering(projectName, projectId, datasetId, toor.analysis.clustering))
+                axios.all(analysisArray).then(axios.spread(
+                  results => {
+                    toor.$snotify.success('Project created successfully. You\'ll see your data soon.')
+                    this.$router.push({ name: 'Project Home', params: { projectId: projectId } })
+                  }
+                )).catch(
+                  e => toor.$snotify.error('Error creating project')
+                )
+              }
+            ).catch(
+              e => toor.$snotify.error('Error creating project')
+            )
+          }
+        ).catch(
+          e => toor.$snotify.error('Error creating project')
+        )
+      } else {
+        this.$snotify.error('Error creating project. Please select at least one analysis.')
+      }
     }
   }
 }
