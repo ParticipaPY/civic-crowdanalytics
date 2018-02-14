@@ -58,7 +58,7 @@ DATABASES = {
 
 1. Install Node.js (version higher than 0.10.32) and update npm (version higher than 2.1.8). See [here](https://docs.npmjs.com/getting-started/installing-node) for an installation guide
 2. Get inside civic-crowdanalytics/frontoffice
-3. Install project's dependencies by running `npm install`
+3. Install the project's dependencies by running `npm install`
 4. Set the backend server url, django user and password in frontoffice/src/Backend.vue
 ```
 baseURL: 'http://localhost:8000/api',
