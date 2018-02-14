@@ -1,10 +1,11 @@
+from django.utils.six.moves.urllib import parse as urlparse
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import CoreJSONRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
 from rest_framework.views import APIView
 from rest_framework_swagger import renderers
-from rest_framework.compat import coreapi, urlparse
+from rest_framework.compat import coreapi
 import yaml
 
 
