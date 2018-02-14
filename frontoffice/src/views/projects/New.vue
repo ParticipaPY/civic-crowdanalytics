@@ -506,6 +506,12 @@ export default {
                 let projectName = response.data.name
                 let projectId = response.data.id
                 let analysisArray = []
+                // Formatting some configs
+                if (toor.analysis.concept.context_words.length > 0) toor.analysis.concept.context_words.length = toor.analysis.concept.context_words.split(',').map(s => s.trim())
+                if (toor.analysis.clustering.context_words.length > 0) toor.analysis.clustering.context_words.length = toor.analysis.concept.context_words.split(',').map(s => s.trim())
+                toor.analysis.concept.ngram_range = `(${toor.analysis.concept.ngram_range[0]},${toor.analysis.concept.ngram_range[1]})`
+                toor.analysis.clustering.ngram_range = `(${toor.analysis.clustering.ngram_range[0]},${toor.analysis.clustering.ngram_range[1]})`
+                // Add configs to axios queue
                 if (toor.analysis.include.indexOf('sentiment') > -1) analysisArray.push(Backend.postSentimentAnalysis(projectName, projectId, datasetId, toor.analysis.sentiment))
                 if (toor.analysis.include.indexOf('concept') > -1) analysisArray.push(Backend.postConceptExtraction(projectName, projectId, datasetId, toor.analysis.concept))
                 if (toor.analysis.include.indexOf('classification') > -1) analysisArray.push(Backend.postDocumentClassification(projectName, projectId, datasetId, toor.analysis.classification))

@@ -1,9 +1,10 @@
 <script>
 
   import axios from 'axios'
+  const base = 'http://159.203.77.35:8080/api'
 
   export const Backend = axios.create({
-    baseURL: 'http://159.203.77.35:8080/api',
+    baseURL: base,
     headers: {
       Accept: 'application/json'
     }
@@ -11,23 +12,30 @@
 
   Backend.token = null
 
-  Backend.auth = function () {
-    if (this.token === null) {
-      this.post('/auth/', {
-        username: 'admin',
-        password: '238k74i1Ct'
-      }).then(
-        response => {
-          Backend.token = response.data.token
-          Backend.defaults.headers.common['Authorization'] = 'JWT ' + response.data.token
-        }
-      ).catch(
-        e => console.log(e)
-      )
-    }
+  function authCall () {
+    return new Promise((resolve, reject) => {
+      axios.post(`${base}${'/auth/'}`, {username: 'admin', password: '238k74i1Ct'}).then((response) => {
+        resolve(response.data.token)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
   }
 
-  Backend.interceptors.request.use(Backend.auth())
+  Backend.interceptors.request.use((config) => {
+    if (Backend.token === null) {
+      return authCall().then((tokenResponse) => {
+        Backend.token = tokenResponse
+        config.headers.Authorization = `JWT ${tokenResponse}`
+        return Promise.resolve(config)
+      })
+    } else {
+      config.headers.Authorization = `JWT ${Backend.token}`
+      return Promise.resolve(config)
+    }
+  }, (error) => {
+    return Promise.reject(error)
+  })
   
   Backend.projects = function () {
     return this.get('projects/')
