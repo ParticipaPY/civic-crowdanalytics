@@ -205,25 +205,25 @@
                         Number of concepts to extract:
                         <input type="number" min="1" v-model.number="analysis.concept.num_concepts">
                         <span>The number of concepts to extract.</span>
-                      </label>
+                      </label><!-- DISABLED BY NOW! ngram_range, pos_vec and context_words have issues on the backend. We're omitting those configs by now.
                       <label>
                         Context words that should not be considered:
-                        <textarea row="4" v-model="analysis.concept.context_words"></textarea>
+                        <textarea row="4" v-model="analysis.concept.context_words" disabled></textarea>
                         <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
                       </label>
                       <label>
                         N-gram Range
                         <div class="sublabel">
-                          Min: <input type="number" v-model.number="analysis.concept.ngram_range[0]">
-                          Max: <input type="number" v-model.number="analysis.concept.ngram_range[1]">
+                          Min: <input type="number" v-model.number="analysis.concept.ngram_range[0]" disabled>
+                          Max: <input type="number" v-model.number="analysis.concept.ngram_range[1]" disabled>
                         </div>
                         <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
                       </label>
                       <label>
                         Part of Speech Tags:
-                        <textarea row="4" v-model="analysis.concept.pos_vec"></textarea>
+                        <textarea row="4" v-model="analysis.concept.pos_vec" disabled></textarea>
                         <span>List of tags related with the part-of-speech that should be considered in the analysis. Please check <a href="http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html" target="_blank">http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html</a> for a complete list of tags.</span>
-                      </label>
+                      </label>-->
                       <label>
                         <input type="checkbox" v-model="analysis.concept.consider_urls"> Consider Urls
                         <span>Whether URLs should be removed or not.</span>
@@ -249,20 +249,20 @@
                         Number of clusters:
                         <input type="number" min="1" v-model.number="analysis.clustering.num_clusters">
                         <span>The number of clusters in which the documents will be grouped.</span>
-                      </label>
+                      </label><!-- DISABLED BY NOW! ngram_range, pos_vec and context_words have issues on the backend. We're omitting those configs by now.
                       <label>
                         Context Words that should not be considered:
-                        <textarea row="4" v-model="analysis.clustering.context_words"></textarea>
+                        <textarea row="4" v-model="analysis.clustering.context_words" disabled></textarea>
                         <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
                       </label>
                       <label>
                         N-gram Range
                         <div class="sublabel">
-                          Min: <input type="number" v-model.number="analysis.clustering.ngram_range[0]">
-                          Max: <input type="number" v-model="analysis.clustering.ngram_range[1]">
+                          Min: <input type="number" v-model.number="analysis.clustering.ngram_range[0]" disabled>
+                          Max: <input type="number" v-model="analysis.clustering.ngram_range[1]" disabled>
                         </div>
                         <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
-                      </label>
+                      </label>-->
                       <label>
                         Minimum document frequency:
                         <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.clustering.min_df">
@@ -367,16 +367,20 @@ export default {
         },
         concept: {
           num_concepts: 5,
+          /* DISABLED BY NOW! ngram_range, pos_vec and context_words have issues on the backend. We're omitting those configs by now.
           context_words: [],
           ngram_range: [1, 1],
           pos_vec: ['NN', 'NNP'],
+          */
           consider_urls: false,
           language: 'english'
         },
         clustering: {
           num_clusters: 5,
+          /* DISABLED BY NOW! ngram_range, pos_vec and context_words have issues on the backend. We're omitting those configs by now.
           context_words: [],
           ngram_range: [1, 1],
+          */
           min_df: 0.1,
           max_df: 0.9,
           consider_urls: false,
@@ -491,6 +495,7 @@ export default {
       this.createProject()
     },
     formatAnalysisConfig: function () {
+      /* DISABLED BY NOW! ngram_range, pos_vec and context_words have issues on the backend. We're omitting those configs by now.
       // Stringify arrays for Concept and Clustering
       if (this.analysis.concept.context_words.length > 0) {
         this.analysis.concept.context_words.length = this.analysis.concept.context_words.split(',').map(s => s.trim())
@@ -505,6 +510,7 @@ export default {
       // Send ngram_range as tuple
       this.analysis.concept.ngram_range = `(${this.analysis.concept.ngram_range[0]},${this.analysis.concept.ngram_range[1]})`
       this.analysis.clustering.ngram_range = `(${this.analysis.clustering.ngram_range[0]},${this.analysis.clustering.ngram_range[1]})`
+      */
       // Convert JavaScript booleans to Python boolean strings (True, False)
       this.analysis.concept.consider_urls = this.analysis.concept.consider_urls ? 'True' : 'False'
       this.analysis.clustering.consider_urls = this.analysis.clustering.consider_urls ? 'True' : 'False'
