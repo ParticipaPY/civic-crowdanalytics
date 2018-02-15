@@ -105,9 +105,17 @@ export default Scatter.extend({
                 }
               },
               onClick: (e, i) => {
-                console.log(i)
-                console.log(this.data)
-                console.log(i[0]._index)
+                switch (i[0]._datasetIndex) {
+                  case 0:
+                    this.$emit('scatterClick', this.positiveData[i[0]._index].label)
+                    break
+                  case 1:
+                    this.$emit('scatterClick', this.neutralData[i[0]._index].label)
+                    break
+                  case 2:
+                    this.$emit('scatterClick', this.negativeData[i[0]._index].label)
+                    break
+                }
               }
             })
         }
