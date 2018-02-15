@@ -1,7 +1,7 @@
 <script>
 
   import axios from 'axios'
-  const base = 'http://10.20.5.117:8000/api'
+  const base = 'http://159.203.77.35:8080/api'
   const adminUser = 'admin'
   const adminPass = '238k74i1Ct'
 
