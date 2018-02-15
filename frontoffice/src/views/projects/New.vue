@@ -122,7 +122,173 @@
               </div>
             </tabbed-panel-tab>
             <tabbed-panel-tab header="Analysis Configuration">
-
+              <div class="row analysis-config">
+                <!-- CATEGORY -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_category" name="analysis_category" v-model="analysis.include" value="classification">
+                      <label for="analysis_category"></label>
+                      Classification
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" v-model="analysis.classification.language">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of folds for cross validation:
+                        <input type="number" min="1" v-model.number="analysis.classification.n_folds">
+                        <span>Number of folds to be used in k-fold cross validation technique for choosing different sets as 'train docs'.</span>
+                      </label>
+                      <label>
+                        Vocabulary size:
+                        <input type="number" min="1" v-model.number="analysis.classification.vocab_size">
+                        <span>The size of the vocabulary set that will be used for extracting features out of the docs.</span>
+                      </label>
+                      <label>
+                        Type of Classifier:
+                        <select v-model="analysis.classification.t_classifier">
+                          <option value="NB">Naive Bayes</option>
+                          <option value="DT">Decision Tree</option>
+                          <option value="RF">Random Forest</option>
+                          <option value="SVM">Support Vector Machine</option>
+                        </select>
+                        <span>The type of classifier model used.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- SENTIMENT -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_sentiment" name="analysis_sentiment" v-model="analysis.include" value="sentiment">
+                      <label for="analysis_sentiment"></label>
+                      Sentiment Analysis
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" v-model="analysis.sentiment.language">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Inferior limit for neural interval:
+                        <input type="number" min="-1.00" max="0.00" step="0.01" v-model.number="analysis.sentiment.neu_inf_lim">
+                        <span>If a doc's polarity score is lower than this paramenter, then the sentiment is considered negative.</span>
+                      </label>
+                      <label>
+                        Superior limit for neural interval:
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.sentiment.neu_sup_lim">
+                        <span>If a doc's polarity score is greater than this parameter, then the seniment is considered positive.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- CONCEPT -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_concept" name="analysis_concept" v-model="analysis.include" value="concept">
+                      <label for="analysis_concept"></label>
+                      Concept Ocurrences
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" v-model="analysis.concept.language">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of concepts to extract:
+                        <input type="number" min="1" v-model.number="analysis.concept.num_concepts">
+                        <span>The number of concepts to extract.</span>
+                      </label>
+                      <label>
+                        Context words that should not be considered:
+                        <textarea row="4" v-model="analysis.concept.context_words"></textarea>
+                        <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
+                      </label>
+                      <label>
+                        N-gram Range
+                        <div class="sublabel">
+                          Min: <input type="number" v-model.number="analysis.concept.ngram_range[0]">
+                          Max: <input type="number" v-model.number="analysis.concept.ngram_range[1]">
+                        </div>
+                        <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
+                      </label>
+                      <label>
+                        Part of Speech Tags:
+                        <textarea row="4" v-model="analysis.concept.pos_vec"></textarea>
+                        <span>List of tags related with the part-of-speech that should be considered in the analysis. Please check <a href="http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html" target="_blank">http://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html</a> for a complete list of tags.</span>
+                      </label>
+                      <label>
+                        <input type="checkbox" v-model="analysis.concept.consider_urls"> Consider Urls
+                        <span>Whether URLs should be removed or not.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <!-- CLUSTER -->
+                <div class="col-md-6 analysis-block">
+                  <div class="wrapper">
+                    <div class="title">
+                      <input type="checkbox" id="analysis_cluster" name="analysis_cluster" v-model="analysis.include" value="clustering">
+                      <label for="analysis_cluster"></label>
+                      Clustering
+                    </div>
+                    <div>
+                      <label>
+                        Language:
+                        <input class="long" type="text" v-model="analysis.clustering.language">
+                        <span>Language on which documents are written. Only English and Spanish are supported natively. If you use another language, the module will first translate each document to english (using Google Translate AJAX API)</span>
+                      </label>
+                      <label>
+                        Number of clusters:
+                        <input type="number" min="1" v-model.number="analysis.clustering.num_clusters">
+                        <span>The number of clusters in which the documents will be grouped.</span>
+                      </label>
+                      <label>
+                        Context Words that should not be considered:
+                        <textarea row="4" v-model="analysis.clustering.context_words"></textarea>
+                        <span>List of context-specific words that should notbe considered in the analysis (comma separated)</span>
+                      </label>
+                      <label>
+                        N-gram Range
+                        <div class="sublabel">
+                          Min: <input type="number" v-model.number="analysis.clustering.ngram_range[0]">
+                          Max: <input type="number" v-model="analysis.clustering.ngram_range[1]">
+                        </div>
+                        <span>The lower and upper boundary of the range of n-values for different n-grams to be extracted.</span>
+                      </label>
+                      <label>
+                        Minimum document frequency:
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.clustering.min_df">
+                        <span>The minimum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
+                      </label>
+                      <label>
+                        Maximun document frequency:
+                        <input type="number" min="0.00" max="1.00" step="0.01" v-model.number="analysis.clustering.max_df">
+                        <span>The maximum number of documents that any term is contained in. It can either be an integer which sets the number specifically, or a decimal between 0 and 1 which is interpreted as a percentage of all documents.</span>
+                      </label>
+                      <label>
+                        Algorithm:
+                        <select v-model="analysis.clustering.algorithm">
+                          <option value="k-means">K-means</option>
+                          <option value="agglomerative">Agglomerative</option>
+                        </select>
+                        <span>Clustering algorithm use to group documents.</span>
+                      </label>
+                      <label>
+                        <input type="checkbox" v-model="analysis.clustering.consider_urls"> Consider Urls
+                        <span>Whether URLs should be removed or not.</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </tabbed-panel-tab>
           </tabbed-panel>
         </form>
@@ -186,6 +352,38 @@ export default {
         name: '',
         file: null
       },
+      analysis: {
+        include: [],
+        sentiment: {
+          neu_inf_lim: -0.3,
+          neu_sup_lim: 0.3,
+          language: 'english'
+        },
+        classification: {
+          n_folds: 10,
+          vocab_size: 500,
+          t_classifier: 'NB',
+          language: 'english'
+        },
+        concept: {
+          num_concepts: 5,
+          context_words: [],
+          ngram_range: [1, 1],
+          pos_vec: ['NN', 'NNP'],
+          consider_urls: false,
+          language: 'english'
+        },
+        clustering: {
+          num_clusters: 5,
+          context_words: [],
+          ngram_range: [1, 1],
+          min_df: 0.1,
+          max_df: 0.9,
+          consider_urls: false,
+          language: 'english',
+          algorithm: 'k-means'
+        }
+      },
       showAlert: false
     }
   },
@@ -195,8 +393,12 @@ export default {
       if (this.$refs.wiz.currentTab() === 2) {
         this.generateAttributes()
       } else {
-        this.$refs.wiz.index += 1
-        this.$refs.wiz.selectIndex(this.$refs.wiz.index)
+        if (this.$refs.wiz.currentTab() === 1 && this.dataset.file === null) {
+          this.$snotify.error('You need to add a dataset file.')
+        } else {
+          this.$refs.wiz.index += 1
+          this.$refs.wiz.selectIndex(this.$refs.wiz.index)
+        }
       }
     },
     prevPage: function () {
@@ -288,32 +490,57 @@ export default {
       }
       this.createProject()
     },
+    formatAnalysisConfig: function () {
+      // Stringify arrays for Concept and Clustering
+      if (this.analysis.concept.context_words === 'string') {
+        this.analysis.concept.context_words = this.analysis.concept.context_words.split(',').map(s => s.trim())
+      }
+      if (typeof this.analysis.concept.pos_vec === 'string') {
+        this.analysis.concept.pos_vec = this.analysis.concept.pos_vec.split(',').map(s => s.trim())
+      }
+      if (this.analysis.clustering.context_words === 'string') {
+        this.analysis.clustering.context_words = this.analysis.concept.context_words.split(',').map(s => s.trim())
+      }
+      // Convert JavaScript booleans to integers
+      this.analysis.concept.consider_urls = this.analysis.concept.consider_urls ? 1 : 0
+      this.analysis.clustering.consider_urls = this.analysis.clustering.consider_urls ? 1 : 0
+    },
     createProject: function () {
-      var toor = this
-      Backend.postDataset(this.dataset, this.attributes).then(
-        response => {
-          let datasetId = response.data.id
-          Backend.postProject(this.project, datasetId).then(
-            response => {
-              let projectName = response.data.name
-              let projectId = response.data.id
-              axios.all([Backend.postSentimentAnalysis(projectName, projectId, datasetId), Backend.postDocumentClassification(projectName, projectId, datasetId), Backend.postDocumentClustering(projectName, projectId, datasetId), Backend.postConceptExtraction(projectName, projectId, datasetId)]).then(axios.spread(
-                results => {
-                  this.$router.push({ name: 'Project Home', params: { projectId: projectId } })
-                  toor.showAlert = true
-                }
-              )).catch(
-                e => console.log(e)
-              )
-            }
-          ).catch(
-            e => console.log(e)
-          )
-        }
-      ).catch(
-        e => console.log(e)
-      )
-      // this.showAlert = Backend.postProject(this.project, this.dataset, this.attributes)
+      if (this.analysis.include.length > 0) {
+        var toor = this
+        Backend.postDataset(this.dataset, this.attributes).then(
+          response => {
+            let datasetId = response.data.id
+            Backend.postProject(this.project, datasetId).then(
+              response => {
+                let projectName = response.data.name
+                let projectId = response.data.id
+                let analysisArray = []
+                toor.formatAnalysisConfig()
+                // Add configs to axios queue
+                if (toor.analysis.include.indexOf('sentiment') > -1) analysisArray.push(Backend.postSentimentAnalysis(projectName, projectId, datasetId, toor.analysis.sentiment))
+                if (toor.analysis.include.indexOf('concept') > -1) analysisArray.push(Backend.postConceptExtraction(projectName, projectId, datasetId, toor.analysis.concept))
+                if (toor.analysis.include.indexOf('classification') > -1) analysisArray.push(Backend.postDocumentClassification(projectName, projectId, datasetId, toor.analysis.classification))
+                if (toor.analysis.include.indexOf('clustering') > -1) analysisArray.push(Backend.postDocumentClustering(projectName, projectId, datasetId, toor.analysis.clustering))
+                axios.all(analysisArray).then(axios.spread(
+                  results => {
+                    toor.$snotify.success('Project created successfully. You\'ll see your data soon.')
+                    this.$router.push({ name: 'Project Home', params: { projectId: projectId } })
+                  }
+                )).catch(
+                  e => toor.$snotify.error('Error creating project')
+                )
+              }
+            ).catch(
+              e => toor.$snotify.error('Error creating project')
+            )
+          }
+        ).catch(
+          e => toor.$snotify.error('Error creating project')
+        )
+      } else {
+        this.$snotify.error('Error creating project. Please select at least one analysis.')
+      }
     }
   }
 }

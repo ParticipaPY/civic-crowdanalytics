@@ -4,6 +4,7 @@
       <div class="col">
         <div class="card card-accent-danger">
           <div class="card-header">
+            Click on the sentiment labels to filter the graph
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
@@ -17,7 +18,7 @@
           </div>
           <div class="card-block">
             <div>
-              <scatter-chart :analysis-id="sentimentId"/>
+              <scatter-chart :analysis-id="sentimentId" v-on:scatterClick="updateTableSearchTerm"/>
             </div>
           </div>
         </div>
@@ -123,6 +124,9 @@ export default {
         this.tableRows = this.tableRows.concat(positiveParsed.ideas, neutralParsed.ideas, negativeParsed.ideas)
       }
       return ret
+    },
+    updateTableSearchTerm: function (s) {
+      this.tableSearchTerm = s
     }
   },
   mounted () {

@@ -9406,6 +9406,61 @@ header.app-header .dropdown-toggle::after {
 .alert.top {
   top: 70px !important; }
 
+#new-project .analysis-config .wrapper {
+  box-shadow: 0 0 1rem #EFEFEF inset;
+  padding: 0.2rem 1rem;
+  margin: 0.5rem;
+  margin-bottom: 2rem; }
+
+#new-project .analysis-config .title {
+  background-color: #0091EA;
+  font-weight: bold;
+  color: white;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  margin-left: -0.8rem;
+  margin-right: -0.8rem; }
+  #new-project .analysis-config .title label {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-right: 0.5rem; }
+  #new-project .analysis-config .title input[type=checkbox] {
+    display: none; }
+  #new-project .analysis-config .title input[type=checkbox]:checked + label:before {
+    cursor: pointer;
+    display: block;
+    font-family: "FontAwesome";
+    content: "\f046";
+    font-size: 1rem; }
+  #new-project .analysis-config .title input[type=checkbox] + label:before {
+    cursor: pointer;
+    display: block;
+    font-family: "FontAwesome";
+    content: "\f096";
+    font-size: 1rem; }
+
+#new-project .analysis-config input[type=number], #new-project .analysis-config input[type=text] {
+  padding: 0.2rem 0.3rem;
+  margin: 0 0.5rem;
+  width: 5rem; }
+  #new-project .analysis-config input[type=number].long, #new-project .analysis-config input[type=text].long {
+    width: initial; }
+
+#new-project .analysis-config textarea {
+  display: block;
+  width: 100%; }
+
+#new-project .analysis-config label {
+  display: block; }
+  #new-project .analysis-config label .sublabel {
+    font-weight: normal;
+    padding: 0.3rem 0; }
+  #new-project .analysis-config label span {
+    display: block;
+    font-weight: normal;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem; }
+
 #new-project input, #new-project textarea {
   padding: 0.5rem; }
 

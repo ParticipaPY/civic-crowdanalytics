@@ -10,7 +10,9 @@ import VueGoodTable from 'vue-good-table'
 
 Vue.use(Snotify, {
   toast: {
-    timeout: 5000
+    timeout: 5000,
+    showProgressBar: false,
+    position: 'rightTop'
   }
 })
 Vue.use(ReadMore)

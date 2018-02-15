@@ -1,9 +1,12 @@
 <script>
 
   import axios from 'axios'
+  const base = 'http://159.203.77.35:8080/api'
+  const adminUser = 'admin'
+  const adminPass = '238k74i1Ct'
 
   export const Backend = axios.create({
-    baseURL: 'http://159.203.77.35:8080/api',
+    baseURL: base,
     headers: {
       Accept: 'application/json'
     }
@@ -11,23 +14,30 @@
 
   Backend.token = null
 
-  Backend.auth = function () {
-    if (this.token === null) {
-      this.post('/auth/', {
-        username: 'admin',
-        password: '238k74i1Ct'
-      }).then(
-        response => {
-          Backend.token = response.data.token
-          Backend.defaults.headers.common['Authorization'] = 'JWT ' + response.data.token
-        }
-      ).catch(
-        e => console.log(e)
-      )
-    }
+  function authCall () {
+    return new Promise((resolve, reject) => {
+      axios.post(`${base}${'/auth/'}`, {username: adminUser, password: adminPass}).then((response) => {
+        resolve(response.data.token)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
   }
 
-  Backend.interceptors.request.use(Backend.auth())
+  Backend.interceptors.request.use((config) => {
+    if (Backend.token === null) {
+      return authCall().then((tokenResponse) => {
+        Backend.token = tokenResponse
+        config.headers.Authorization = `JWT ${tokenResponse}`
+        return Promise.resolve(config)
+      })
+    } else {
+      config.headers.Authorization = `JWT ${Backend.token}`
+      return Promise.resolve(config)
+    }
+  }, (error) => {
+    return Promise.reject(error)
+  })
   
   Backend.projects = function () {
     return this.get('projects/')
@@ -62,72 +72,36 @@
     projectFd.append('people_editing', project.people_editing)
     return this.post('projects/', projectFd)
   }
-  Backend.postSentimentAnalysis = function (projectName, projectId, datasetId) {
+  Backend.postSentimentAnalysis = function (projectName, projectId, datasetId, analysisConfig) {
     let sentimentAnalysisFd = new FormData()
-    let argumentsFd = {'neu_inf_lim': -0.2, 'neu_sup_lim': 0.2}
     sentimentAnalysisFd.append('name', projectName + ' - Sentiment Analysis')
     sentimentAnalysisFd.append('project_id', projectId)
     sentimentAnalysisFd.append('dataset_id', datasetId)
-    sentimentAnalysisFd.append('arguments', JSON.stringify(argumentsFd))
-    /*
-    return this.post('analysis/sentiment-analysis/', {
-      name: projectName + ' - Sentiment Analysis',
-      project: projectId,
-      dataset: datasetId,
-      arguments: {'neu_inf_lim': -0.2, 'neu_sup_lim': 0.2}
-    })
-    */
+    sentimentAnalysisFd.append('parameters', JSON.stringify(analysisConfig))
     return this.post('analysis/sentiment-analysis/', sentimentAnalysisFd)
   }
-  Backend.postDocumentClassification = function (projectName, projectId, datasetId) {
+  Backend.postDocumentClassification = function (projectName, projectId, datasetId, analysisConfig) {
     let docClassificationFd = new FormData()
-    let argumentsFd = {}
     docClassificationFd.append('name', projectName + ' - Classification')
     docClassificationFd.append('project_id', projectId)
     docClassificationFd.append('dataset_id', datasetId)
-    docClassificationFd.append('arguments', JSON.stringify(argumentsFd))
-    /*
-    return this.post('analysis/doc-classification/', {
-      name: projectName + ' - Classification',
-      project: projectId,
-      dataset: datasetId,
-      arguments: {}
-    })
-    */
+    docClassificationFd.append('parameters', JSON.stringify(analysisConfig))
     return this.post('analysis/doc-classification/', docClassificationFd)
   }
-  Backend.postDocumentClustering = function (projectName, projectId, datasetId) {
+  Backend.postDocumentClustering = function (projectName, projectId, datasetId, analysisConfig) {
     let docClusteringFd = new FormData()
-    let argumentsFd = {}
     docClusteringFd.append('name', projectName + ' - Clustering')
     docClusteringFd.append('project_id', projectId)
     docClusteringFd.append('dataset_id', datasetId)
-    docClusteringFd.append('arguments', JSON.stringify(argumentsFd))
-    /*
-    return this.post('analysis/doc-clustering/', {
-      name: projectName + ' - Clustering',
-      project: projectId,
-      dataset: datasetId,
-      arguments: {}
-    })
-    */
+    docClusteringFd.append('parameters', JSON.stringify(analysisConfig))
     return this.post('analysis/doc-clustering/', docClusteringFd)
   }
-  Backend.postConceptExtraction = function (projectName, projectId, datasetId) {
+  Backend.postConceptExtraction = function (projectName, projectId, datasetId, analysisConfig) {
     let conceptExtractionFd = new FormData()
-    let argumentsFd = {}
     conceptExtractionFd.append('name', projectName + ' - Concept Extraction')
     conceptExtractionFd.append('project_id', projectId)
     conceptExtractionFd.append('dataset_id', datasetId)
-    conceptExtractionFd.append('arguments', JSON.stringify(argumentsFd))
-    /*
-    return this.post('analysis/concept-extraction/', {
-      name: projectName + ' - Concept Extraction',
-      project: projectId,
-      dataset: datasetId,
-      arguments: {}
-    })
-    */
+    conceptExtractionFd.append('parameters', JSON.stringify(analysisConfig))
     return this.post('analysis/concept-extraction/', conceptExtractionFd)
   }
 

@@ -103,6 +103,19 @@ export default Scatter.extend({
                     return `${truncate(object.label, 100)}`
                   }
                 }
+              },
+              onClick: (e, i) => {
+                switch (i[0]._datasetIndex) {
+                  case 0:
+                    this.$emit('scatterClick', this.positiveData[i[0]._index].label)
+                    break
+                  case 1:
+                    this.$emit('scatterClick', this.neutralData[i[0]._index].label)
+                    break
+                  case 2:
+                    this.$emit('scatterClick', this.negativeData[i[0]._index].label)
+                    break
+                }
               }
             })
         }
