@@ -1,7 +1,9 @@
 <script>
 
   import axios from 'axios'
-  const base = 'http://159.203.77.35:8080/api'
+  const base = 'http://10.20.5.117:8000/api'
+  const adminUser = 'admin'
+  const adminPass = '238k74i1Ct'
 
   export const Backend = axios.create({
     baseURL: base,
@@ -14,7 +16,7 @@
 
   function authCall () {
     return new Promise((resolve, reject) => {
-      axios.post(`${base}${'/auth/'}`, {username: 'admin', password: '238k74i1Ct'}).then((response) => {
+      axios.post(`${base}${'/auth/'}`, {username: adminUser, password: adminPass}).then((response) => {
         resolve(response.data.token)
       }).catch((error) => {
         reject(error)

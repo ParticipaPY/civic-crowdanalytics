@@ -285,10 +285,6 @@
                         <input type="checkbox" v-model="analysis.clustering.consider_urls"> Consider Urls
                         <span>Whether URLs should be removed or not.</span>
                       </label>
-                      <label>
-                        <input type="checkbox" v-model="analysis.clustering.use_idf"> Use inverse document frequency
-                        <span>If true, it will use TF-IDF vectorization for feature extraction. If false it will use only TF.</span>
-                      </label>
                     </div>
                   </div>
                 </div>
@@ -385,8 +381,7 @@ export default {
           max_df: 0.9,
           consider_urls: false,
           language: 'english',
-          algorithm: 'k-means',
-          use_idf: false
+          algorithm: 'k-means'
         }
       },
       showAlert: false
@@ -495,6 +490,25 @@ export default {
       }
       this.createProject()
     },
+    formatAnalysisConfig: function () {
+      // Stringify arrays for Concept and Clustering
+      if (this.analysis.concept.context_words.length > 0) {
+        this.analysis.concept.context_words.length = this.analysis.concept.context_words.split(',').map(s => s.trim())
+      }
+      this.analysis.concept.context_words = JSON.stringify(this.analysis.concept.context_words)
+      this.analysis.concept.pos_vec = JSON.stringify(this.analysis.concept.pos_vec)
+      if (this.analysis.clustering.context_words.length > 0) {
+        this.analysis.clustering.context_words.length = this.analysis.concept.context_words.split(',').map(s => s.trim())
+      }
+      this.analysis.clustering.context_words = JSON.stringify(this.analysis.clustering.context_words)
+      this.analysis.clustering.pos_vec = JSON.stringify(this.analysis.clustering.pos_vec)
+      // Send ngram_range as tuple
+      this.analysis.concept.ngram_range = `(${this.analysis.concept.ngram_range[0]},${this.analysis.concept.ngram_range[1]})`
+      this.analysis.clustering.ngram_range = `(${this.analysis.clustering.ngram_range[0]},${this.analysis.clustering.ngram_range[1]})`
+      // Convert JavaScript booleans to Python boolean strings (True, False)
+      this.analysis.concept.consider_urls = this.analysis.concept.consider_urls ? 'True' : 'False'
+      this.analysis.clustering.consider_urls = this.analysis.clustering.consider_urls ? 'True' : 'False'
+    },
     createProject: function () {
       if (this.analysis.include.length > 0) {
         var toor = this
@@ -506,11 +520,7 @@ export default {
                 let projectName = response.data.name
                 let projectId = response.data.id
                 let analysisArray = []
-                // Formatting some configs
-                if (toor.analysis.concept.context_words.length > 0) toor.analysis.concept.context_words.length = toor.analysis.concept.context_words.split(',').map(s => s.trim())
-                if (toor.analysis.clustering.context_words.length > 0) toor.analysis.clustering.context_words.length = toor.analysis.concept.context_words.split(',').map(s => s.trim())
-                toor.analysis.concept.ngram_range = `(${toor.analysis.concept.ngram_range[0]},${toor.analysis.concept.ngram_range[1]})`
-                toor.analysis.clustering.ngram_range = `(${toor.analysis.clustering.ngram_range[0]},${toor.analysis.clustering.ngram_range[1]})`
+                toor.formatAnalysisConfig()
                 // Add configs to axios queue
                 if (toor.analysis.include.indexOf('sentiment') > -1) analysisArray.push(Backend.postSentimentAnalysis(projectName, projectId, datasetId, toor.analysis.sentiment))
                 if (toor.analysis.include.indexOf('concept') > -1) analysisArray.push(Backend.postConceptExtraction(projectName, projectId, datasetId, toor.analysis.concept))
