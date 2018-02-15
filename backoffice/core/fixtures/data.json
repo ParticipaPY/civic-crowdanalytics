@@ -250,6 +250,16 @@
     "model": "core.parameter",
     "pk": 11,
     "fields": {
+      "name": "algorithm",
+      "default_value": "\"k-means\"",
+      "parameter_type": 3,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 12,
+    "fields": {
       "name": "num_concepts",
       "default_value": "5",
       "parameter_type": 1,
@@ -258,7 +268,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 12,
+    "pk": 13,
     "fields": {
       "name": "context_words",
       "default_value": "[]",
@@ -268,7 +278,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 13,
+    "pk": 14,
     "fields": {
       "name": "ngram_range",
       "default_value": "(1,1)",
@@ -278,7 +288,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 14,
+    "pk": 15,
     "fields": {
       "name": "pos_vec",
       "default_value": "['NN', 'NNP']",
@@ -288,7 +298,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 15,
+    "pk": 16,
     "fields": {
       "name": "consider_urls",
       "default_value": "False",
@@ -298,7 +308,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 16,
+    "pk": 17,
     "fields": {
       "name": "language",
       "default_value": "\"english\"",
@@ -308,7 +318,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 17,
+    "pk": 18,
     "fields": {
       "name": "train_p",
       "default_value": "0.8",
@@ -318,7 +328,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 18,
+    "pk": 19,
     "fields": {
       "name": "eq_label_num",
       "default_value": "True",
@@ -328,7 +338,7 @@
   },
   {
     "model": "core.parameter",
-    "pk": 19,
+    "pk": 20,
     "fields": {
       "name": "complete_p",
       "default_value": "True",
@@ -338,7 +348,17 @@
   },
   {
     "model": "core.parameter",
-    "pk": 20,
+    "pk": 21,
+    "fields": {
+      "name": "n_folds",
+      "default_value": "10",
+      "parameter_type": 1,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 22,
     "fields": {
       "name": "vocab_size",
       "default_value": "500",
@@ -348,10 +368,20 @@
   },
   {
     "model": "core.parameter",
-    "pk": 21,
+    "pk": 23,
     "fields": {
       "name": "t_classifier",
       "default_value": "\"NB\"",
+      "parameter_type": 3,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 24,
+    "fields": {
+      "name": "language",
+      "default_value": "\"english\"",
       "parameter_type": 3,
       "analysis_type": 4
     }

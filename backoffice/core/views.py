@@ -180,7 +180,7 @@ def get_analysis_related_fields(request, analysis_type):
     project_id = None
     dataset_id = None
     if request.data.get('parameters'):
-        arguments = json.loads(request.data['parameters'])
+        arguments = ast.literal_eval(request.data['parameters'])
     else:
         arguments = {}
     if request.data.get('data_object'):
@@ -233,7 +233,7 @@ def create_arguments(analysis_type, arguments):
     parameters = Parameter.objects.filter(analysis_type_id = analysis_type)
     for p in parameters:
         if p.name in arguments:
-            value = arguments[p.name]
+            value = str(arguments[p.name])
         else:
             value = p.default_value
         parameter_id = p.id
@@ -511,7 +511,6 @@ class DatasetList(APIView):
     def get(self, request, format=None):
         try:
             datasets = Dataset.objects.filter(project__owner=request.user.id)
-            logger.info(datasets)
             serializer = DatasetSerializer(datasets, many=True)
             return Response(serializer.data)
         except Exception as ex:
