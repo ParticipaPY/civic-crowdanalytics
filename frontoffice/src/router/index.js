@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 // Containers
 import Full from '@/containers/Full'
+import Login from '@/containers/Login'
 
 // Views
 // import Dashboard from '@/views/Dashboard'
@@ -25,6 +26,9 @@ import Analysis from '@/views/sentiment/Analysis'
 // Concept Axtraction
 import Extraction from '@/views/concept/Extraction'
 
+import LoginPage from '@/views/LoginPage'
+import SignUpPage from '@/views/SignUpPage'
+
 Vue.use(Router)
 
 export default new Router({
@@ -34,12 +38,30 @@ export default new Router({
   routes: [
     {
       path: '/',
+      redirect: '/login',
+      name: 'Login',
+      component: Login,
+      children: [
+        {
+          path: 'login',
+          name: 'Login',
+          component: LoginPage
+        },
+        {
+          path: 'signup',
+          name: 'Sign Up',
+          component: SignUpPage
+        }
+      ]
+    },
+    {
+      path: '/dashboard',
       redirect: '/dashboard',
       name: 'Home',
       component: Full,
       children: [
         {
-          path: 'dashboard',
+          path: '',
           name: 'Dashboard',
           component: DashboardNew
         },
