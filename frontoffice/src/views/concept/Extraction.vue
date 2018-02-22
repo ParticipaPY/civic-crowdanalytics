@@ -109,7 +109,7 @@ export default {
       }
     ).catch(
       e => {
-        console.log(e)
+        this.$router.push('/login')
       }
     )
   }

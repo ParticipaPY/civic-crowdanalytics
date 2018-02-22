@@ -12,7 +12,7 @@
           <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
           <!--<span class="d-md-down-none">User</span>-->
         </span>
-        <div slot="dropdown-menu"class="dropdown-menu dropdown-menu-right">
+        <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
 
           <div class="dropdown-header text-center"><strong>Account</strong></div>
 

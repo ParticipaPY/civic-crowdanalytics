@@ -243,7 +243,7 @@ export default {
         }
       ).catch(
         e => {
-          console.log(e)
+          vm.$router.push('/login')
         }
       )
     })
@@ -268,7 +268,7 @@ export default {
       }
     ).catch(
       e => {
-        console.log(e)
+        this.$router.push('/login')
       }
     )
     next()

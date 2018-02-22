@@ -1,42 +1,6 @@
 <template>
   <div class="animated fadeIn">
     <div class="row">
-      <!-- <div class="col">
-        <div class="card card-accent-primary">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i> 
-            <div class="h1 text-muted text-right">
-              <i class="icon-people"></i>
-            </div>
-            <h2 class="card-title"><b>850</b></h2>
-            <p class="card-text">Participants</p>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card card-accent-success">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
-            <div class="h1 text-muted text-right">
-              <i class="icon-speech"></i>
-            </div>
-            <h2 class="card-title"><b>230</b></h2>
-            <p class="card-text">Ideas</p>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card card-accent-warning">
-          <div class="card-block p-3 clearfix">
-            <!-- <i class="fa fa-cogs bg-primary p-3 font-2xl mr-3 float-left"></i>
-            <div class="h1 text-muted text-right">
-              <i class="icon-bubbles"></i>
-            </div>
-            <h2 class="card-title"><b>400</b></h2>
-            <p class="card-text">Comments</p>
-          </div>
-        </div>
-      </div><!--/.col-->
       <div class="col-sm-6 col-lg-3">
         <div class="card card-inverse card-success">
           <div class="card-block p-3 clearfix">

@@ -2,8 +2,10 @@
 
   import axios from 'axios'
   const base = 'http://159.203.77.35:8080/api'
+  /*
   const adminUser = 'admin'
   const adminPass = '238k74i1Ct'
+  */
 
   export const Backend = axios.create({
     baseURL: base,
@@ -13,10 +15,20 @@
   })
 
   Backend.token = null
+  Backend.username = ''
+  Backend.password = ''
+
+  Backend.login = function (u, p) {
+    return axios.post(`${base}${'/auth/'}`, {username: u, password: p})
+  }
+
+  Backend.signup = function (u, p) {
+    return axios.post(`${base}${'/users/'}`, {username: u, password: p})
+  }
 
   function authCall () {
     return new Promise((resolve, reject) => {
-      axios.post(`${base}${'/auth/'}`, {username: adminUser, password: adminPass}).then((response) => {
+      axios.post(`${base}${'/auth/'}`, {username: Backend.username, password: Backend.password}).then((response) => {
         resolve(response.data.token)
       }).catch((error) => {
         reject(error)
