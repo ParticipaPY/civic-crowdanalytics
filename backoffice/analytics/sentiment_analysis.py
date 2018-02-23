@@ -150,7 +150,7 @@ class SentimentAnalyzer:
         min_val = self.min_score
         limit = max([abs(max_val), abs(min_val)])
         #no need to normalize. All docs are neutral
-        if max_val == 0 and min == 0:
+        if max_val == 0 and min_val == 0:
             return results
         for (doc, sentiment, score) in results:
             n_score = score/limit
