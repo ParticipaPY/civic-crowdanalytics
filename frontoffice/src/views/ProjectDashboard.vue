@@ -82,12 +82,12 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="{name: 'Concept Extraction', params: {analysisId: conceptId}}">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Concept Extraction', params: {analysisId: conceptId}}">View Fullscreen</router-link><!--
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
-                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>-->
               </div>
             </dropdown>
           </div>
@@ -105,12 +105,12 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="{name: 'Category Summary', params: {analysisId: categoryId}}">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Category Summary', params: {analysisId: categoryId}}">View Fullscreen</router-link><!--
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
-                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>-->
               </div>
             </dropdown>
           </div>
@@ -130,12 +130,12 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="{name: 'Similar Ideas', params: {analysisId: clusterId}}">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Similar Ideas', params: {analysisId: clusterId}}">View Fullscreen</router-link><!--
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
-                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>-->
               </div>
             </dropdown>
           </div>
@@ -153,12 +153,12 @@
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-                <router-link class="dropdown-item" :to="{name: 'Sentiment Analysis', params: {analysisId: sentimentId}}">View Fullscreen</router-link>
+                <router-link class="dropdown-item" :to="{name: 'Sentiment Analysis', params: {analysisId: sentimentId}}">View Fullscreen</router-link><!--
                 <a class="dropdown-item" href="#">Print Chart</a>
                 <li><a class="dropdown-item" href="#">Download as PNG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as JPEG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
-                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
+                <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>-->
               </div>
             </dropdown>
           </div>
@@ -209,7 +209,9 @@ export default {
         cluster: true,
         concept: true,
         category: true
-      }
+      },
+      pollPendings: true,
+      pollMethod: null
     }
   },
   methods: {
@@ -221,6 +223,41 @@ export default {
       this.pendings.cluster = true
       this.pendings.concept = true
       this.pendings.category = true
+    },
+    poll () {
+      Backend.getProjectSummary(this.$route.params.projectId).then(
+        response => {
+          this.project = response.data
+          let sentimentAnalysisList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 1 && v.analysis_status === 3)[0]
+          let documentClusteringList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
+          let conceptExtractionList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
+          let documentClassificationList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
+          if (sentimentAnalysisList !== undefined) {
+            this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+          }
+          if (documentClusteringList !== undefined) {
+            this.pendings.cluster = documentClusteringList.analysis_status === 2
+          }
+          if (conceptExtractionList !== undefined) {
+            this.pendings.concept = conceptExtractionList.analysis_status === 2
+          }
+          if (documentClassificationList !== undefined) {
+            this.pendings.category = documentClassificationList.analysis_status === 2
+          }
+          this.pollPendings = this.pendings.sentiments || this.pendings.cluster || this.pendings.cluster || this.pendings.category
+        }
+      ).catch(
+        error => {
+          console.log(error)
+        }
+      )
+    }
+  },
+  watch: {
+    pollPendings (val) {
+      if (val === false) {
+        clearInterval(this.pollMethod)
+      }
     }
   },
   beforeRouteEnter: (to, from, next) => {
@@ -232,18 +269,28 @@ export default {
           let documentClusteringList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 2)[0]
           let conceptExtractionList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 3)[0]
           let documentClassificationList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 4)[0]
-          vm.sentimentId = sentimentAnalysisList.id
-          vm.clusterId = documentClusteringList.id
-          vm.conceptId = conceptExtractionList.id
-          vm.categoryId = documentClassificationList.id
-          vm.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
-          vm.pendings.cluster = documentClusteringList.analysis_status === 2
-          vm.pendings.concept = conceptExtractionList.analysis_status === 2
-          vm.pendings.category = documentClassificationList.analysis_status === 2
+          if (sentimentAnalysisList !== undefined) {
+            vm.sentimentId = sentimentAnalysisList.id
+            vm.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+          }
+          if (documentClusteringList !== undefined) {
+            vm.clusterId = documentClusteringList.id
+            vm.pendings.cluster = documentClusteringList.analysis_status === 2
+          }
+          if (conceptExtractionList !== undefined) {
+            vm.conceptId = conceptExtractionList.id
+            vm.pendings.concept = conceptExtractionList.analysis_status === 2
+          }
+          if (documentClassificationList !== undefined) {
+            vm.categoryId = documentClassificationList.id
+            vm.pendings.category = documentClassificationList.analysis_status === 2
+          }
+          vm.pollPendings = vm.pendings.sentiments || vm.pendings.cluster || vm.pendings.cluster || vm.pendings.category
+          vm.pollMethod = setInterval(vm.poll(), 5000)
         }
       ).catch(
         e => {
-          vm.$router.push('/login')
+          console.log(e)
         }
       )
     })
@@ -257,20 +304,34 @@ export default {
         let documentClusteringList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
         let conceptExtractionList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
         let documentClassificationList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
-        this.sentimentId = sentimentAnalysisList.id
-        this.clusterId = documentClusteringList.id
-        this.conceptId = conceptExtractionList.id
-        this.categoryId = documentClassificationList.id
-        this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
-        this.pendings.cluster = documentClusteringList.analysis_status === 2
-        this.pendings.concept = conceptExtractionList.analysis_status === 2
-        this.pendings.category = documentClassificationList.analysis_status === 2
+        if (sentimentAnalysisList !== undefined) {
+          this.sentimentId = sentimentAnalysisList.id
+          this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+        }
+        if (documentClusteringList !== undefined) {
+          this.clusterId = documentClusteringList.id
+          this.pendings.cluster = documentClusteringList.analysis_status === 2
+        }
+        if (conceptExtractionList !== undefined) {
+          this.conceptId = conceptExtractionList.id
+          this.pendings.concept = conceptExtractionList.analysis_status === 2
+        }
+        if (documentClassificationList !== undefined) {
+          this.categoryId = documentClassificationList.id
+          this.pendings.category = documentClassificationList.analysis_status === 2
+        }
+        this.pollPendings = this.pendings.sentiments || this.pendings.cluster || this.pendings.cluster || this.pendings.category
+        this.pollMethod = setInterval(this.poll(), 5000)
       }
     ).catch(
       e => {
-        this.$router.push('/login')
+        console.log(e)
       }
     )
+    next()
+  },
+  beforeRouteLeave (to, from, next) {
+    clearInterval(this.pollMethod)
     next()
   }
 }

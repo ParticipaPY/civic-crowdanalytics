@@ -58,17 +58,26 @@ export default new Router({
       path: '/dashboard',
       redirect: '/dashboard',
       name: 'Home',
+      meta: {
+        breadcrumb: 'Home'
+      },
       component: Full,
       children: [
         {
           path: '',
           name: 'Dashboard',
+          meta: {
+            breadcrumb: 'Dashboard'
+          },
           component: DashboardNew
         },
         {
           path: '/dashboard',
           redirect: '/dashboard/sentiment',
           name: 'Dashboard',
+          meta: {
+            breadcrumb: 'Dashboard'
+          },
           component: {
             render (c) { return c('router-view') }
           },
@@ -89,16 +98,25 @@ export default new Router({
                 {
                   path: 'new',
                   name: 'New Project',
-                  component: New
+                  component: New,
+                  meta: {
+                    breadcrumb: 'New Project'
+                  }
                 },
                 {
                   path: ':projectId',
                   name: 'Project Home',
+                  meta: {
+                    breadcrumb: 'Project Dashboard'
+                  },
                   component: ProjectDashboard
                 },
                 {
                   path: ':projectId',
                   name: 'Project Home',
+                  meta: {
+                    breadcrumb: 'Project Dashboard'
+                  },
                   component: {
                     render (c) { return c('router-view') }
                   },
@@ -106,22 +124,34 @@ export default new Router({
                     {
                       path: 'sentiment/:analysisId',
                       name: 'Sentiment Analysis',
-                      component: Analysis
+                      component: Analysis,
+                      meta: {
+                        breadcrumb: 'Sentiment Analysis'
+                      }
                     },
                     {
                       path: 'concept/:analysisId',
                       name: 'Concept Extraction',
-                      component: Extraction
+                      component: Extraction,
+                      meta: {
+                        breadcrumb: 'Concept Extraction'
+                      }
                     },
                     {
                       path: 'category/:analysisId',
                       name: 'Category Summary',
-                      component: Category
+                      component: Category,
+                      meta: {
+                        breadcrumb: 'Category Summary'
+                      }
                     },
                     {
                       path: 'similar/:analysisId',
                       name: 'Similar Ideas',
-                      component: Similar
+                      component: Similar,
+                      meta: {
+                        breadcrumb: 'Similar Ideas'
+                      }
                     }
                   ]
                 }
