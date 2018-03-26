@@ -227,24 +227,32 @@ export default {
     poll () {
       Backend.getProjectSummary(this.$route.params.projectId).then(
         response => {
+          console.log('POLLING')
           this.project = response.data
           let sentimentAnalysisList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 1 && v.analysis_status === 3)[0]
           let documentClusteringList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
           let conceptExtractionList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
           let documentClassificationList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
           if (sentimentAnalysisList !== undefined) {
+            this.sentimentId = sentimentAnalysisList.id
             this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
           }
           if (documentClusteringList !== undefined) {
+            this.clusterId = documentClusteringList.id
             this.pendings.cluster = documentClusteringList.analysis_status === 2
           }
           if (conceptExtractionList !== undefined) {
+            this.conceptId = conceptExtractionList.id
             this.pendings.concept = conceptExtractionList.analysis_status === 2
           }
           if (documentClassificationList !== undefined) {
+            this.categoryId = documentClassificationList.id
             this.pendings.category = documentClassificationList.analysis_status === 2
           }
           this.pollPendings = this.pendings.sentiments || this.pendings.cluster || this.pendings.cluster || this.pendings.category
+          if (!this.pollPendings) {
+            clearInterval(this.pollMethod)
+          }
         }
       ).catch(
         error => {
@@ -253,40 +261,14 @@ export default {
       )
     }
   },
-  watch: {
-    pollPendings (val) {
-      if (val === false) {
-        clearInterval(this.pollMethod)
-      }
-    }
-  },
   beforeRouteEnter: (to, from, next) => {
     next(vm => {
       Backend.getProjectSummary(to.params.projectId).then(
         response => {
-          vm.project = response.data
-          let sentimentAnalysisList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 1)[0]
-          let documentClusteringList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 2)[0]
-          let conceptExtractionList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 3)[0]
-          let documentClassificationList = _.filter(vm.project.analysis, (v, k) => v.analysis_type === 4)[0]
-          if (sentimentAnalysisList !== undefined) {
-            vm.sentimentId = sentimentAnalysisList.id
-            vm.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+          vm.poll()
+          if (vm.pollPendings) {
+            vm.pollMethod = setInterval(vm.poll, 5000)
           }
-          if (documentClusteringList !== undefined) {
-            vm.clusterId = documentClusteringList.id
-            vm.pendings.cluster = documentClusteringList.analysis_status === 2
-          }
-          if (conceptExtractionList !== undefined) {
-            vm.conceptId = conceptExtractionList.id
-            vm.pendings.concept = conceptExtractionList.analysis_status === 2
-          }
-          if (documentClassificationList !== undefined) {
-            vm.categoryId = documentClassificationList.id
-            vm.pendings.category = documentClassificationList.analysis_status === 2
-          }
-          vm.pollPendings = vm.pendings.sentiments || vm.pendings.cluster || vm.pendings.cluster || vm.pendings.category
-          vm.pollMethod = setInterval(vm.poll(), 5000)
         }
       ).catch(
         e => {
@@ -299,29 +281,10 @@ export default {
     this.setAllPending()
     Backend.getProjectSummary(to.params.projectId).then(
       response => {
-        this.project = response.data
-        let sentimentAnalysisList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 1 && v.analysis_status === 3)[0]
-        let documentClusteringList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 2 && v.analysis_status === 3)[0]
-        let conceptExtractionList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 3 && v.analysis_status === 3)[0]
-        let documentClassificationList = _.filter(this.project.analysis, (v, k) => v.analysis_type === 4 && v.analysis_status === 3)[0]
-        if (sentimentAnalysisList !== undefined) {
-          this.sentimentId = sentimentAnalysisList.id
-          this.pendings.sentiment = sentimentAnalysisList.analysis_status === 2
+        this.poll()
+        if (this.pollPendings) {
+          this.pollMethod = setInterval(this.poll, 5000)
         }
-        if (documentClusteringList !== undefined) {
-          this.clusterId = documentClusteringList.id
-          this.pendings.cluster = documentClusteringList.analysis_status === 2
-        }
-        if (conceptExtractionList !== undefined) {
-          this.conceptId = conceptExtractionList.id
-          this.pendings.concept = conceptExtractionList.analysis_status === 2
-        }
-        if (documentClassificationList !== undefined) {
-          this.categoryId = documentClassificationList.id
-          this.pendings.category = documentClassificationList.analysis_status === 2
-        }
-        this.pollPendings = this.pendings.sentiments || this.pendings.cluster || this.pendings.cluster || this.pendings.category
-        this.pollMethod = setInterval(this.poll(), 5000)
       }
     ).catch(
       e => {
