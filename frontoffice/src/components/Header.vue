@@ -13,20 +13,22 @@
           <!--<span class="d-md-down-none">User</span>-->
         </span>
         <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-
-          <div class="dropdown-header text-center"><strong>Account</strong></div>
-
-          <a class="dropdown-item" href="#"><i class="fa fa-file"></i> Projects<span class="badge badge-primary">10</span></a>
-          <a class="dropdown-item" href="#"><i class="fa fa-bell-o"></i> Updates<span class="badge badge-success">3</span></a>
-          <a class="dropdown-item" href="#"><i class="fa fa-envelope-o"></i> Messages<span class="badge badge-danger">5</span></a>
-          <a class="dropdown-item" href="#"><i class="fa fa-comments"></i> Comments<span class="badge badge-warning">4</span></a>
-
-          <div class="dropdown-header text-center"><strong></strong></div>
-
-          <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a>
-          <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i> Settings</a>
-          <div class="divider"></div>
-          <a class="dropdown-item" href="#"><i class="fa fa-lock"></i> Logout</a>
+          <div class="row">
+            <div class="col-sm-7">
+              <li class="mb-3"></li>
+              <span class="m-6" style="color:white">User</span>
+            </div>
+            <div class="col-sm-1">
+              <li class="mb-4"></li>
+              <a class="btn btn-outline-primary" style="color:white; font-size: 10px "href="#"><i class="fa fa-power-off" style="color:rgb(171,12,12);"></i>LOGOUT</a>
+            </div>
+          </div>
+          <li class="mb-4"></li>
+          <li class="dropdown-divider mb-2"></li>
+          <div class="col-xs-10 btn-group-vertical">
+            <a class="btn btn-block text-left" style="font-size: 12px" href="#">My Profile</a>
+            <a class="btn btn-block text-left" style="font-size: 12px" href="#">Settings</a>
+          </div>
         </div>
       </dropdown>
       <li class="nav-item d-md-down-none">
