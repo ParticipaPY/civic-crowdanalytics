@@ -7,20 +7,17 @@
     </ul>
     <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>    <span class="titleLogo"><span>Civic</span> <span>Crowd</span>Analytics<sup>®</sup></span>
     <ul class="nav navbar-nav ml-auto">
-      <dropdown size="nav" class="nav-item">
+      <dropdown size="nav">
         <span slot="button">
           <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
-          <!--<span class="d-md-down-none">User</span>-->
         </span>
         <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
           <div class="row">
             <div class="col-sm-7">
-              <li class="mb-3"></li>
-              <span class="m-6" style="color:white">User</span>
             </div>
             <div class="col-sm-1">
               <li class="mb-4"></li>
-              <a class="btn btn-outline-primary" style="color:white; font-size: 10px "href="#"><i class="fa fa-power-off" style="color:rgb(171,12,12);"></i>LOGOUT</a>
+              <a class="btn btn-outline-primary" style="color:white; font-size: 10px"href="#"><i class="fa fa-power-off" style="color:rgb(171,12,12);">&nbsp&nbsp</i>LOGOUT</a>
             </div>
           </div>
           <li class="mb-4"></li>
@@ -31,11 +28,10 @@
           </div>
         </div>
       </dropdown>
-      <li class="nav-item d-md-down-none">
-      </li>
     </ul>
   </navbar>
 </template>
+
 <script>
 
 import navbar from './Navbar'
