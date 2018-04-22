@@ -38,9 +38,17 @@
 
             <div class="row" style=" margin-left: 0px; margin-right: -25px; margin-top:11px;" >
               <div class="col-lg-12 btn-group-vertical" >
-                  <button type="button" class="btn btn-outline-primary btn-block text-left" style="margin-left: -12px;font-size: 12px;border-color: transparent;color: silver;">My Profile</button>
-                  <button type="button" class="btn btn-outline-primary btn-block text-left" style="margin-left: -12px;margin-top: 5px;font-size: 12px;border-color: transparent;color: silver;">Settings</button>
+                  <button type="button" class="btn btn-outline-primary btn-block text-left" @click="openModal()" style="margin-left: -12px;font-size: 12px;border-color: transparent;color: silver;">My Profile</button>
+                  <button type="button" class="btn btn-outline-primary btn-block text-left" @click="openModal()" style="margin-left: -12px;margin-top: 5px;font-size: 12px;border-color: transparent;color: silver;">Settings</button>
               </div>
+            </div>
+
+            <div id="wrapper" class="container"> 
+             <modal v-if="showModal"> 
+               <div slot="footer">
+                  <button type="button" class="btn btn-outline-info" @click="closeModal()"> Close </button>
+               </div>
+             </modal>
             </div>
 
           </div>
@@ -53,13 +61,20 @@
 
 import navbar from './Navbar'
 import { alert, dropdown } from 'vue-strap'
+import Modal from './Modal'
 
 export default {
   name: 'header',
   components: {
     navbar,
     dropdown,
-    alert
+    alert,
+    Modal
+  },
+  data () {
+    return {
+      showModal: false
+    }
   },
   methods: {
     click () {
@@ -80,6 +95,12 @@ export default {
     asideToggle (e) {
       e.preventDefault()
       document.body.classList.toggle('aside-menu-hidden')
+    },
+    openModal () {
+      this.showModal = true
+    },
+    closeModal () {
+      this.showModal = false
     }
   }
 }
