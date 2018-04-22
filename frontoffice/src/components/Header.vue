@@ -19,11 +19,11 @@
               <div class="col-sm-7" >
 
                 <div class="row" style=" margin-left: 0px; margin-right: -25px; margin-top: 15px;">
-                  <div style="color:white"><span style="display:block;text-overflow: ellipsis;width: 155px;overflow: hidden; white-space: nowrap;">first_name + last_name</span></div>
+                  <div style="color:white"><span style="display:block;text-overflow: ellipsis;width: 155px;overflow: hidden; white-space: nowrap;">{{ DisplayName () }}</span></div>
                 </div>
 
                 <div class="row" style="; margin-bottom: 5px; margin-left: 10px; margin-right: -25px;">
-                  <a style="color:silver  ; font-size: 13px">user</a>
+                  <a style="color:silver  ; font-size: 13px">{{ DisplayUsername () }}</a>
                 </div>
               
               </div>
@@ -62,6 +62,7 @@
 import navbar from './Navbar'
 import { alert, dropdown } from 'vue-strap'
 import Modal from './Modal'
+import {Backend} from '@/Backend'
 
 export default {
   name: 'header',
@@ -73,12 +74,29 @@ export default {
   },
   data () {
     return {
-      showModal: false
+      showModal: false,
+      flName: ''
     }
   },
   methods: {
     click () {
       // do nothing
+    },
+    DisplayUsername () {
+      return Backend.username
+    },
+    DisplayName () {
+      Backend.UserData()
+      .then(response => {
+        const data = response.data
+        for (let key in data) {
+          const user = data[key]
+          if (user.username === Backend.username) {
+            this.flName = user.first_name + ' ' + user.last_name
+          }
+        }
+      }).catch(e => { console.log(e) })
+      return this.flName
     },
     sidebarToggle (e) {
       e.preventDefault()
