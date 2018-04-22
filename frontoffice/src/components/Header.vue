@@ -5,28 +5,45 @@
         <a class="nav-link navbar-toggler sidebar-toggler" href="#" @click="sidebarMinimize">&#9776;</a>
       </li>
     </ul>
-    <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>    <span class="titleLogo"><span>Civic</span> <span>Crowd</span>Analytics<sup>®</sup></span>
+    <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>    
+    <span class="titleLogo"><span>Civic</span> <span>Crowd</span>Analytics<sup>®</sup></span>
     <ul class="nav navbar-nav ml-auto">
       <dropdown size="nav">
         <span slot="button">
           <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
-        </span>
-        <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
-          <div class="row">
-            <div class="col-sm-7">
+        </span>    
+          <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+
+            <div class="row" style="margin-left: 0px; margin-right: -25px;">
+
+              <div class="col-sm-7" >
+
+                <div class="row" style=" margin-left: 0px; margin-right: -25px; margin-top: 15px;">
+                  <div style="color:white"><span style="display:block;text-overflow: ellipsis;width: 155px;overflow: hidden; white-space: nowrap;">first_name + last_name</span></div>
+                </div>
+
+                <div class="row" style="; margin-bottom: 5px; margin-left: 10px; margin-right: -25px;">
+                  <a style="color:silver  ; font-size: 13px">user</a>
+                </div>
+              
+              </div>
+
+              <div class="col-sm-4" >
+                  <button type="button" class="btn btn-outline-primary" style="margin-top: 20px; margin-left: -10px;color:silver; font-size: 10px"><i class="fa fa-power-off" style="color:rgb(171,12,12); margin-right:5px"></i>LOGOUT</button>
+              </div>
+
             </div>
-            <div class="col-sm-1">
-              <li class="mb-4"></li>
-              <a class="btn btn-outline-primary" style="color:white; font-size: 10px"href="#"><i class="fa fa-power-off" style="color:rgb(171,12,12);">&nbsp&nbsp</i>LOGOUT</a>
+
+            <li class="dropdown-divider mb-2"></li>
+
+            <div class="row" style=" margin-left: 0px; margin-right: -25px; margin-top:11px;" >
+              <div class="col-lg-12 btn-group-vertical" >
+                  <button type="button" class="btn btn-outline-primary btn-block text-left" style="margin-left: -12px;font-size: 12px;border-color: transparent;color: silver;">My Profile</button>
+                  <button type="button" class="btn btn-outline-primary btn-block text-left" style="margin-left: -12px;margin-top: 5px;font-size: 12px;border-color: transparent;color: silver;">Settings</button>
+              </div>
             </div>
+
           </div>
-          <li class="mb-4"></li>
-          <li class="dropdown-divider mb-2"></li>
-          <div class="col-xs-10 btn-group-vertical">
-            <a class="btn btn-block text-left" style="font-size: 12px" href="#">My Profile</a>
-            <a class="btn btn-block text-left" style="font-size: 12px" href="#">Settings</a>
-          </div>
-        </div>
       </dropdown>
     </ul>
   </navbar>
