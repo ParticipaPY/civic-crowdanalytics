@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col">
         <div class="card card-accent-primary">
-          <div class="card-header">
+          <div class="card-header"><!--
             <dropdown class="float-right" type="transparent p-1">
               <i slot="button" class="icon-options-vertical"></i>
               <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
@@ -13,11 +13,11 @@
                 <li><a class="dropdown-item" href="#">Download as SVG Image</a></li>
                 <li><a class="dropdown-item" href="#">Download as PDF Document</a></li>
               </div>
-            </dropdown>
+            </dropdown>-->
           </div>
           <div class="card-block">
             <div>
-              <bar-chart/>
+              <bar-chart :analysisId="categoryId"/>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default {
       response => {
         this.data = response.data.result
         this.formatDataset(this.data)
-        this.conceptId = this.$route.params.analysisId
+        this.categoryId = this.$route.params.analysisId
       }
     ).catch(
       e => {

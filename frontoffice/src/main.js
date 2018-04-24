@@ -7,6 +7,7 @@ import router from './router'
 import Snotify from 'vue-snotify'
 import ReadMore from 'vue-read-more'
 import VueGoodTable from 'vue-good-table'
+import VueBreadcrumbs from 'vue-breadcrumbs'
 
 Vue.use(Snotify, {
   toast: {
@@ -17,6 +18,7 @@ Vue.use(Snotify, {
 })
 Vue.use(ReadMore)
 Vue.use(VueGoodTable)
+Vue.use(VueBreadcrumbs)
 
 /* eslint-disable no-new */
 new Vue({
