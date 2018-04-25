@@ -29,7 +29,7 @@
               </div>
 
               <div class="col-sm-4" >
-                  <button type="button" class="btn btn-outline-primary" style="margin-top: 20px; margin-left: -10px;color:silver; font-size: 10px"><i class="fa fa-power-off" style="color:rgb(171,12,12); margin-right:5px"></i>LOGOUT</button>
+                  <button @click="logout" type="button" class="btn btn-outline-primary" style="margin-top: 20px; margin-left: -10px;color:silver; font-size: 10px"><i class="fa fa-power-off" style="color:rgb(171,12,12); margin-right:5px"></i>LOGOUT</button>
               </div>
 
             </div>
@@ -120,6 +120,11 @@ export default {
     },
     closeModal () {
       this.showModal = false
+    },
+    logout () {
+      Backend.token = null
+      Backend.username = ''
+      this.$router.push({ name: 'Login' })
     }
   }
 }
