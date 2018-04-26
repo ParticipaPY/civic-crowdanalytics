@@ -1,0 +1,389 @@
+[
+  {
+    "model": "core.creationstatus",
+    "pk": 1,
+    "fields": {
+      "description": "Draft"
+    }
+  },
+  {
+    "model": "core.creationstatus",
+    "pk": 2,
+    "fields": {
+      "description": "Completed"
+    }
+  },
+  {
+    "model": "core.visibility",
+    "pk": 1,
+    "fields": {
+      "description": "Public"
+    }
+  },
+  {
+    "model": "core.visibility",
+    "pk": 2,
+    "fields": {
+      "description": "Private"
+    }
+  },
+  {
+    "model": "core.visibility",
+    "pk": 3,
+    "fields": {
+      "description": "Team"
+    }
+  },
+  {
+    "model": "core.attributetype",
+    "pk": 1,
+    "fields": {
+      "description": "String"
+    }
+  },
+  {
+    "model": "core.attributetype",
+    "pk": 2,
+    "fields": {
+      "description": "Number"
+    }
+  },
+  {
+    "model": "core.attributetype",
+    "pk": 3,
+    "fields": {
+      "description": "Datetime"
+    }
+  },
+  {
+    "model": "core.analysistype",
+    "pk": 1,
+    "fields": {
+      "description": "Sentiment analysis"
+    }
+  },
+  {
+    "model": "core.analysistype",
+    "pk": 2,
+    "fields": {
+      "description": "Document clustering"
+    }
+  },
+  {
+    "model": "core.analysistype",
+    "pk": 3,
+    "fields": {
+      "description": "Concept extraction"
+    }
+  },
+  {
+    "model": "core.analysistype",
+    "pk": 4,
+    "fields": {
+      "description": "Document classification"
+    }
+  },
+  {
+    "model": "core.analysisstatus",
+    "pk": 1,
+    "fields": {
+      "description": "Not executed"
+    }
+  },
+  {
+    "model": "core.analysisstatus",
+    "pk": 2,
+    "fields": {
+      "description": "In progress"
+    }
+  },
+  {
+    "model": "core.analysisstatus",
+    "pk": 3,
+    "fields": {
+      "description": "Executed"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 1,
+    "fields": {
+      "description": "integer"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 2,
+    "fields": {
+      "description": "float"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 3,
+    "fields": {
+      "description": "string"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 4,
+    "fields": {
+      "description": "boolean"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 5,
+    "fields": {
+      "description": "list"
+    }
+  },
+  {
+    "model": "core.parametertype",
+    "pk": 6,
+    "fields": {
+      "description": "tuple"
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 1,
+    "fields": {
+      "name": "neu_inf_lim",
+      "default_value": "-0.3",
+      "parameter_type": 2,
+      "analysis_type": 1
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 2,
+    "fields": {
+      "name": "neu_sup_lim",
+      "default_value": "0.3",
+      "parameter_type": 2,
+      "analysis_type": 1
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 3,
+    "fields": {
+      "name": "language",
+      "default_value": "\"english\"",
+      "parameter_type": 3,
+      "analysis_type": 1
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 4,
+    "fields": {
+      "name": "num_clusters",
+      "default_value": "5",
+      "parameter_type": 1,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 5,
+    "fields": {
+      "name": "context_words",
+      "default_value": "[]",
+      "parameter_type": 5,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 6,
+    "fields": {
+      "name": "ngram_range",
+      "default_value": "(1,1)",
+      "parameter_type": 6,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 7,
+    "fields": {
+      "name": "min_df",
+      "default_value": "0.1",
+      "parameter_type": 2,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 8,
+    "fields": {
+      "name": "max_df",
+      "default_value": "0.9",
+      "parameter_type": 2,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 9,
+    "fields": {
+      "name": "consider_urls",
+      "default_value": "False",
+      "parameter_type": 4,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 10,
+    "fields": {
+      "name": "language",
+      "default_value": "\"english\"",
+      "parameter_type": 3,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 11,
+    "fields": {
+      "name": "algorithm",
+      "default_value": "\"k-means\"",
+      "parameter_type": 3,
+      "analysis_type": 2
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 12,
+    "fields": {
+      "name": "num_concepts",
+      "default_value": "5",
+      "parameter_type": 1,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 13,
+    "fields": {
+      "name": "context_words",
+      "default_value": "[]",
+      "parameter_type": 5,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 14,
+    "fields": {
+      "name": "ngram_range",
+      "default_value": "(1,1)",
+      "parameter_type": 6,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 15,
+    "fields": {
+      "name": "pos_vec",
+      "default_value": "['NN', 'NNP']",
+      "parameter_type": 5,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 16,
+    "fields": {
+      "name": "consider_urls",
+      "default_value": "False",
+      "parameter_type": 4,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 17,
+    "fields": {
+      "name": "language",
+      "default_value": "\"english\"",
+      "parameter_type": 3,
+      "analysis_type": 3
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 18,
+    "fields": {
+      "name": "train_p",
+      "default_value": "0.8",
+      "parameter_type": 2,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 19,
+    "fields": {
+      "name": "eq_label_num",
+      "default_value": "True",
+      "parameter_type": 4,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 20,
+    "fields": {
+      "name": "complete_p",
+      "default_value": "True",
+      "parameter_type": 4,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 21,
+    "fields": {
+      "name": "n_folds",
+      "default_value": "10",
+      "parameter_type": 1,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 22,
+    "fields": {
+      "name": "vocab_size",
+      "default_value": "500",
+      "parameter_type": 1,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 23,
+    "fields": {
+      "name": "t_classifier",
+      "default_value": "\"NB\"",
+      "parameter_type": 3,
+      "analysis_type": 4
+    }
+  },
+  {
+    "model": "core.parameter",
+    "pk": 24,
+    "fields": {
+      "name": "language",
+      "default_value": "\"english\"",
+      "parameter_type": 3,
+      "analysis_type": 4
+    }
+  }
+]

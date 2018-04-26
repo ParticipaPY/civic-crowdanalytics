@@ -1,111 +1,171 @@
 <script>
 
-import { Scatter } from 'vue-chartjs'
+import {Scatter} from 'vue-chartjs'
+import {Backend} from '../../Backend'
+import _ from 'lodash'
+
+function truncate (text, max) {
+  return text.substr(0, max - 1) + (text.length > max ? '…' : '')
+}
 
 export default Scatter.extend({
-  mounted () {
-    this.renderChart({
-      datasets: [
-        {
-          label: 'Positive',
-          fill: false,
-          backgroundColor: '#3a9d5d',
-          borderColor: '#3a9d5d',
-          pointStyle: 'triangle',
-          pointRadius: 5,
-          data: [
-              {x: 0, y: 1},
-              {x: 0.2, y: 0.95},
-              {x: 0.4, y: 0.91},
-              {x: 0.6, y: 0.86},
-              {x: 0.8, y: 0.79},
-              {x: 1, y: 0.72},
-              {x: 1.2, y: 0.65},
-              {x: 1.4, y: 0.59},
-              {x: 1.6, y: 0.51},
-              {x: 1.8, y: 0.46},
-              {x: 2, y: 0.40},
-              {x: 2.2, y: 0.35},
-              {x: 2.4, y: 0.33},
-              {x: 2.6, y: 0.30}
-          ]
-        },
-        {
-          label: 'Neutral',
-          fill: false,
-          backgroundColor: '#b0bec5',
-          borderColor: '#b0bec5',
-          pointStyle: 'triangle',
-          pointRadius: 5,
-          data: [
-              {x: 2.8, y: 0.20},
-              {x: 3, y: 0.14},
-              {x: 3.2, y: 0.11},
-              {x: 3.4, y: 0.09},
-              {x: 3.6, y: 0.09},
-              {x: 3.8, y: 0.09},
-              {x: 4, y: 0.02},
-              {x: 4.2, y: -0.03},
-              {x: 4.4, y: -0.03},
-              {x: 4.6, y: -0.03},
-              {x: 4.8, y: -0.08},
-              {x: 5.2, y: -0.08}
-          ]
-        },
-        {
-          label: 'Negative',
-          fill: false,
-          backgroundColor: '#f87979',
-          borderColor: '#f87979',
-          pointStyle: 'triangle',
-          pointRadius: 5,
-          data: [
-              {x: 5.4, y: -0.23},
-              {x: 5.6, y: -0.26},
-              {x: 5.8, y: -0.31},
-              {x: 6, y: -0.37},
-              {x: 6.2, y: -0.37},
-              {x: 6.4, y: -0.41},
-              {x: 6.6, y: -0.42},
-              {x: 6.8, y: -0.51},
-              {x: 7, y: -0.53},
-              {x: 7.2, y: -0.60},
-              {x: 7.4, y: -0.67},
-              {x: 7.6, y: -0.68},
-              {x: 7.8, y: -0.71},
-              {x: 8, y: -0.71}
-          ]
-        }]
-    },
-      {
-        responsive: true,
-        maintainAspectRatio: false,
-        showLines: false,
-        legend: {
-          display: true
-        },
-        scales: {
-          yAxes: [
+  components: {
+    Backend
+  },
+  props: {
+    analysisId: {type: Number, required: true}
+  },
+  data () {
+    return {
+      data: [],
+      positiveData: [],
+      neutralData: [],
+      negativeData: []
+    }
+  },
+  watch: {
+    analysisId: function (n, o) {
+      if (n !== 0 || n !== o) {
+        this.getChart()
+      }
+    }
+  },
+  methods: {
+    getChart: function () {
+      Backend.getSentimentAnalysis(this.analysisId).then(
+        response => {
+          this.data = response.data.result
+          this.formatDataset(this.data)
+          this.renderChart({
+            datasets: [
+              {
+                label: 'Positive',
+                fill: false,
+                backgroundColor: '#3a9d5d',
+                borderColor: '#3a9d5d',
+                pointStyle: 'triangle',
+                pointRadius: 5,
+                data: this.positiveData
+              },
+              {
+                label: 'Neutral',
+                fill: false,
+                backgroundColor: '#b0bec5',
+                borderColor: '#b0bec5',
+                pointStyle: 'triangle',
+                pointRadius: 5,
+                data: this.neutralData
+              },
+              {
+                label: 'Negative',
+                fill: false,
+                backgroundColor: '#f87979',
+                borderColor: '#f87979',
+                pointStyle: 'triangle',
+                pointRadius: 5,
+                data: this.negativeData
+              }
+            ]
+          },
             {
-              gridLines: {
+              responsive: true,
+              maintainAspectRatio: false,
+              showLines: false,
+              legend: {
                 display: true
               },
-              scaleLabel: {
-                display: true,
-                labelString: 'Aggregate Score'
+              scales: {
+                yAxes: [
+                  {
+                    gridLines: {
+                      display: true
+                    },
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Aggregate Score'
+                    }
+                  }
+                ],
+                xAxes: [
+                  {
+                    display: false,
+                    gridLines: {
+                      display: false
+                    }
+                  }
+                ]
+              },
+              tooltips: {
+                callbacks: {
+                  label: function (tooltipItem, data) {
+                    let dataset = data.datasets[tooltipItem.datasetIndex]
+                    let object = dataset.data[tooltipItem.index]
+                    return `${truncate(object.label, 100)}`
+                  }
+                }
+              },
+              onClick: (e, i) => {
+                switch (i[0]._datasetIndex) {
+                  case 0:
+                    this.$emit('scatterClick', this.positiveData[i[0]._index].label)
+                    break
+                  case 1:
+                    this.$emit('scatterClick', this.neutralData[i[0]._index].label)
+                    break
+                  case 2:
+                    this.$emit('scatterClick', this.negativeData[i[0]._index].label)
+                    break
+                }
               }
-            }
-          ],
-          xAxes: [
-            {
-              display: false,
-              gridLines: {
-                display: false
-              }
-            }
-          ]
+            })
         }
-      })
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
+    },
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      let ret = []
+      if (parsed.length > 0) {
+        let positiveParsed = _.filter(parsed, (v, k) => v.sentiment === 'pos')[0]
+        let neutralParsed = _.filter(parsed, (v, k) => v.sentiment === 'neu')[0]
+        let negativeParsed = _.filter(parsed, (v, k) => v.sentiment === 'neg')[0]
+        let totalDataLength = positiveParsed.ideas.length + neutralParsed.ideas.length + negativeParsed.ideas.length
+        let dataXPosIncrement = 10 / totalDataLength
+        let header = 0
+        positiveParsed.ideas = _.orderBy(positiveParsed.ideas, ['score'], ['desc'])
+        neutralParsed.ideas = _.orderBy(neutralParsed.ideas, ['score'], ['desc'])
+        negativeParsed.ideas = _.orderBy(negativeParsed.ideas, ['score'], ['desc'])
+        for (let pos of positiveParsed.ideas) {
+          let obj = {}
+          obj.x = dataXPosIncrement * header
+          obj.y = pos.score
+          obj.label = pos.idea
+          header += 1
+          this.positiveData.push(obj)
+        }
+        for (let neu of neutralParsed.ideas) {
+          let obj = {}
+          obj.x = dataXPosIncrement * header
+          obj.y = neu.score
+          obj.label = neu.idea
+          header += 1
+          this.neutralData.push(obj)
+        }
+        for (let neg of negativeParsed.ideas) {
+          let obj = {}
+          obj.x = dataXPosIncrement * header
+          obj.y = neg.score
+          obj.label = neg.idea
+          header += 1
+          this.negativeData.push(obj)
+        }
+        ret.push(this.positiveData, this.neutralData, this.negativeData)
+      }
+      return ret
+    }
   }
 })
 

@@ -1,27 +1,18 @@
 <template>
   <navbar>
-    <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>    <a class="navbar-brand" href="#"></a>
-    <ul class="nav navbar-nav d-md-down-none mr-auto">
+    <ul class="nav navbar-nav d-md-down-none">
       <li class="nav-item">
         <a class="nav-link navbar-toggler sidebar-toggler" href="#" @click="sidebarMinimize">&#9776;</a>
       </li>
     </ul>
+    <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button" @click="mobileSidebarToggle">&#9776;</button>    <span class="titleLogo"><span>Civic</span> <span>Crowd</span>Analytics<sup>®</sup></span>
     <ul class="nav navbar-nav ml-auto">
-      <li class="nav-item d-md-down-none">
-        <button @click="alertIsOpen = !alertIsOpen" class="nav-link">
-          <i class="icon-bell"></i>
-          <span class="badge badge-pill badge-danger">5</span>
-        </button>
-        <alert v-model="alertIsOpen" placement="top" :duration="3000" type="info" width="400px" dismissable>
-          <p>You have <b>five</b> new messages!</p>
-        </alert>
-      </li>
       <dropdown size="nav" class="nav-item">
         <span slot="button">
           <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
-          <span class="d-md-down-none">User</span>
+          <!--<span class="d-md-down-none">User</span>-->
         </span>
-        <div slot="dropdown-menu"class="dropdown-menu dropdown-menu-right">
+        <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
 
           <div class="dropdown-header text-center"><strong>Account</strong></div>
 
@@ -54,11 +45,6 @@ export default {
     navbar,
     dropdown,
     alert
-  },
-  data () {
-    return {
-      alertIsOpen: false
-    }
   },
   methods: {
     click () {

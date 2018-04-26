@@ -51,54 +51,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Parking should be unbundled - i.e. you pay if you want to use it. Lots and lots of young people and seniors would love to live in housing where they're not implicitly paying for parking they don't use and lots of them don't need or want a car, particularly if they're living right near the Caltrain.</td>
+                <tr v-for="item in positiveData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-success">Positive</span>
                   </td>
-                  <td>0.91</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>All new multifamily housing should come with at least one zipcar.</td>
+                <tr v-for="item in neutralData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-default">Neutral</span>
                   </td>
-                  <td>0.20</td>
+                  <td>{{item.score}}</td>
                 </tr>
-                <tr>
-                  <td>We should work with companies like Lyft and Uber to create "on-demand" shuttles. I.e. cars or vans could pick up multiple passengers where and when they need it, instead of running a mindless shuttle that is inflexible and often not useful.</td>
+                <tr v-for="item in negativeData">
+                  <td>{{item.idea}}</td>
                   <td>
                     <span class="badge badge-danger">Negative</span>
                   </td>
-                  <td>-0.60</td>
-                </tr>
-                <tr>
-                  <td>Without convenient neighborhood-based public transit to and from schools, many parents are going to continue to drive their children to and from school, thus adding to traffic problems.</td>
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.54</td>
-                </tr>
-                <tr>
-                  <td>Part of the problem with mixed use development is that the FAR for the housing portion is really small. We should be encouraging ground floor retail + 3 floors of housing or retail + commercial + 2 floors of housing. But the current restrictions don't allow you to build that much housing, which exacerbates the jobs housing imbalance.</td>                
-                  <td>
-                    <span class="badge badge-success">Positive</span>
-                  </td>
-                  <td>-0.73</td>
-                </tr>
-                <tr>
-                  <td>Most work commuters are coming from the South Bay. Why not run some county-wide shuttles that pick people up from Sunnyvale, San Jose, etc and take them to work in the Stanford Research Park? Some companies there can afford their own shuttle systems, but others can't. Can the TMA help them pool resources to establish a multi-company or public shuttles to the South Bay?</td>                
-                  <td>
-                    <span class="badge badge-default">Neutral</span>
-                  </td>
-                  <td>-0.10</td>
-                </tr>
-                <tr>
-                  <td>All new development should be required to add some bike parking. Stanford shopping center is really lacking in this.</td>                
-                  <td>
-                    <span class="badge badge-danger">Negative</span>
-                  </td>
-                  <td>-0.68</td>
+                  <td>{{item.score}}</td>
                 </tr>
               </tbody>
             </table>
@@ -112,14 +84,73 @@
 <script>
 
 import ScatterChart from '../charts/ScatterChart'
-
+import {Backend} from '../../Backend'
 import { dropdown } from 'vue-strap'
+import _ from 'lodash'
 
 export default {
   name: 'sentiment',
   components: {
     ScatterChart,
     dropdown
-  }
+  },
+  data () {
+    return {
+      data: [],
+      positiveData: [],
+      neutralData: [],
+      negativeData: []
+    }
+  },
+  methods: {
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      let ret = []
+      if (parsed.length > 0) {
+        let positiveParsed = _.filter(parsed, (v, k) => v.sentiment === 'pos')[0]
+        let neutralParsed = _.filter(parsed, (v, k) => v.sentiment === 'neu')[0]
+        let negativeParsed = _.filter(parsed, (v, k) => v.sentiment === 'neg')[0]
+        let totalDataLength = positiveParsed.ideas.length + neutralParsed.ideas.length + negativeParsed.ideas.length
+        let dataXPosIncrement = 10 / totalDataLength
+        let header = 0
+        positiveParsed.ideas = _.orderBy(positiveParsed.ideas, ['score'], ['desc'])
+        neutralParsed.ideas = _.orderBy(neutralParsed.ideas, ['score'], ['desc'])
+        negativeParsed.ideas = _.orderBy(negativeParsed.ideas, ['score'], ['desc'])
+        for (let pos of positiveParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.positiveData.push(obj)
+        }
+        for (let neu of neutralParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.neutralData.push(obj)
+        }
+        for (let neg of negativeParsed.ideas) {
+          let obj = {}
+          obj.score = pos.score
+          obj.idea = pos.idea
+          this.negativeData.push(obj)
+        }
+        ret.push(this.positiveData, this.neutralData, this.negativeData)
+      }
+      return ret
+    }
+  },
+  created: function () {
+    Backend.getSentimentAnalysis(1).then(
+      response => {
+        this.data = response.data.result
+        this.formatDataset(this.data)
+      }
+    ).catch(
+      e => {
+        console.log(e)
+      }
+    )
+  },
+  mounted () {}
 }
 </script>

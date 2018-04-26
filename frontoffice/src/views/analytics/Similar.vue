@@ -16,9 +16,16 @@
             </dropdown>
           </div>
           <div class="card-block">
-            <div>
-              <bubble-chart/>
-            </div>
+            <tabbed-panel v-model="activeTab" ref="graphCloudPanel" navStyle="pill">
+              <tabbed-panel-tab header="Graph">
+                <bubble-chart/>
+              </tabbed-panel-tab>
+              <tabbed-panel-tab header="Word Cloud">
+                <div id="clouddiv">
+                  <wordcloud :data="defaultWords" nameKey="name" valueKey="value" ref="cloud" :wordClick="wordClick"></wordcloud>
+                </div>
+              </tabbed-panel-tab>
+            </tabbed-panel>
           </div>
         </div>
       </div>
@@ -47,41 +54,91 @@
                 <tr>
                   <th>Content</th>
                   <th>Cluster</th>
+                  <th>Legends</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Free public transportation</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Remove and place the grass on the waterfront park lawn and continued to fix roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
+                  <td>need, fix, streets</td>
                 </tr>
                 <tr>
-                  <td>Enforce distracted driving laws</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Remove and place the grass on the waterfront park lawn and continued to fix roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
+                  <td>need, fix, streets</td>
                 </tr>
                 <tr>
-                  <td>Protected bike lanes which only bikes and resident cars (with sticker) could access especially along midtwon to hanson way</td>
-                  <td><span class="badge badge-primary">Cluster 2</span></td>
+                  <td>No Trash, couches in roads</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
+                  <td>need, fix, streets</td>
                 </tr>
                 <tr>
-                  <td>More protected bike-friendly streets and boulevards</td>
-                  <td><span class="badge badge-success">Cluster 1</span></td>
+                  <td>Fix roads and homeless</td>
+                  <td><span class="badge badge-primary">Cluster 0</span></td>
+                  <td>need, fix, streets</td>
                 </tr>
                 <tr>
-                  <td>More bike friendly streets</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Violence in Schools need to stop</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
+                  <td>roads, fix, need</td>
                 </tr>
                 <tr>
-                  <td>Safer crossing in busier streets like el camino and alma</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Soltrans needs to run later at night</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
+                  <td>roads, fix, need</td>
                 </tr>
                 <tr>
-                  <td>Safer bicycle parking near retail spaces</td>                
-                  <td><span class="badge badge-danger">Cluster 3</span></td>
+                  <td>Provide more programing for adults in need of a shelter</td>
+                  <td><span class="badge badge-warning">Cluster 1</span></td>
+                  <td>roads, fix, need</td>
                 </tr>
                 <tr>
-                  <td>Safe ride sharing apps exclusively reserved to known community people</td>                
-                  <td><span class="badge badge-primary">Cluster 2</span></td>
+                  <td>Help w/ littering project</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
+                  <td>street, roads, need</td>
                 </tr>
+                <tr>
+                  <td>Create attractive buildings</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
+                  <td>street, roads, need</td>
+                </tr>
+                <tr>
+                  <td>Public Marketing campaign to support new buildings</td>
+                  <td><span class="badge badge-danger">Cluster 2</span></td>
+                  <td>street, roads, need</td>
+                </tr>
+                <tr>
+                  <td>Streets clean up, dirty - looks ghetto</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                  <td>streets, need, roads</td>
+                </tr>
+                <tr>
+                  <td>Street pavements, require home owners to maintain landscapes</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                  <td>streets, need, roads</td>
+                </tr>
+                <tr>
+                  <td>Street repair</td>
+                  <td><span class="badge badge-success">Cluster 3</span></td>
+                  <td>streets, need, roads</td>
+                </tr>
+                <tr>
+                  <td>Fix trash problem</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                  <td>fix, streets, need</td>
+                </tr>
+                <tr>
+                  <td>Fix the Cemetary</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                  <td>fix, streets, need</td>
+                </tr>
+                <tr>
+                  <td>Fix schools</td>
+                  <td><span class="badge badge-info">Cluster 4</span></td>
+                  <td>fix, streets, need</td>
+                </tr>
+                
               </tbody>
             </table>
           </div>
@@ -96,12 +153,83 @@
 import BubbleChart from '../charts/BubbleChart'
 
 import { dropdown } from 'vue-strap'
+import tabbedPanel from '../../components/TabbedPanel/TabbedPanel'
+import tabbedPanelTab from '../../components/TabbedPanel/Tab'
+import wordcloud from 'vue-wordcloud'
 
 export default {
   name: 'similar',
   components: {
     BubbleChart,
-    dropdown
+    dropdown,
+    wordcloud,
+    tabbedPanel,
+    tabbedPanelTab
+  },
+  methods: {
+    renderWordcloud: function () {
+      this.$el.querySelector('#clouddiv svg').remove()
+      this.$refs.cloud.getSize()
+      this.$refs.cloud.chart = this.$refs.cloud.createChart()
+      this.$refs.cloud.renderChart()
+      this.wordCloudWasRendered = true
+    },
+    wordClick: function (text, vm) {
+      console.log(text)
+      console.log(vm)
+    }
+  },
+  watch: {
+    activeTab (val) {
+      if (val === 1 && !this.wordCloudWasRendered) {
+        setTimeout(() => { this.renderWordcloud() }, 500)
+      }
+    }
+  },
+  data: function () {
+    return {
+      activeTab: 0,
+      wordCloudWasRendered: false,
+      defaultWords: [
+        {
+          'name': 'Cat',
+          'value': 26
+        },
+        {
+          'name': 'fish',
+          'value': 19
+        },
+        {
+          'name': 'things',
+          'value': 18
+        },
+        {
+          'name': 'look',
+          'value': 16
+        },
+        {
+          'name': 'two',
+          'value': 15
+        },
+        {
+          'name': 'fun',
+          'value': 9
+        },
+        {
+          'name': 'know',
+          'value': 9
+        },
+        {
+          'name': 'good',
+          'value': 9
+        },
+        {
+          'name': 'play',
+          'value': 6
+        }
+      ]
+    }
   }
 }
+
 </script>

@@ -6,7 +6,9 @@ var sass = require('gulp-sass');
 
 gulp.task('sass', function () {
   return gulp.src('./scss/style.scss')
-  .pipe(sass().on('error', sass.logError))
+  .pipe(sass({
+    includePaths: ['node_modules/vue-snotify/styles']
+  }).on('error', sass.logError))
   .pipe(concat('style.css'))
   .pipe(gulp.dest('./static/css'))
   .pipe(sass({outputStyle: 'compressed'}))

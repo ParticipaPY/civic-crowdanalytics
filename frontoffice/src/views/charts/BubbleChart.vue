@@ -1,66 +1,96 @@
 <script>
 
 import { Bubble } from 'vue-chartjs'
+import {Backend} from '../../Backend'
+
+function truncate (text, max) {
+  return text.substr(0, max - 1) + (text.length > max ? '…' : '')
+}
 
 export default Bubble.extend({
-  mounted () {
-    this.renderChart({
-      datasets: [
-        {
-          label: '',
-          backgroundColor: '#3a9d5d',
-          data: [
-            {x: 4, y: 17, r: 5},
-            {x: 8, y: 18, r: 5},
-            {x: 9, y: 22, r: 5},
-            {x: 10, y: 18, r: 5},
-            {x: 7, y: 20, r: 5},
-            {x: 7, y: 23, r: 5},
-            {x: 8, y: 25, r: 5},
-            {x: 12, y: 22, r: 5},
-            {x: 10, y: 20, r: 5},
-            {x: 10, y: 25, r: 5},
-            {x: 12, y: 20, r: 5},
-            {x: 8, y: 22, r: 5},
-            {x: 5, y: 18, r: 5}
-          ]
-        },
-        {
-          label: '',
-          backgroundColor: '#f87979',
-          data: [
-            {x: 36, y: 3, r: 5},
-            {x: 38, y: 7, r: 5},
-            {x: 39, y: 7, r: 5},
-            {x: 33, y: 8, r: 5},
-            {x: 40, y: 3, r: 5},
-            {x: 35, y: 8, r: 5},
-            {x: 40, y: 10, r: 5}
-          ]
-        },
-        {
-          label: '',
-          backgroundColor: '#20a8d8',
-          data: [
-            {x: 19, y: 8, r: 5},
-            {x: 15, y: 9, r: 5},
-            {x: 18, y: 8, r: 5},
-            {x: 16, y: 10, r: 5},
-            {x: 18, y: 11, r: 5},
-            {x: 20, y: 12, r: 5},
-            {x: 21, y: 11, r: 5}
-          ]
-        }
-      ]
-    },
-      {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: false
+  components: {
+    Backend
+  },
+  props: {
+    analysisId: {type: Number, required: true}
+  },
+  data () {
+    return {
+      data: [],
+      clusters: [],
+      renderDatasets: [],
+      colorArray: ['#1985AC', '#D39E00', '#F63C3A', '#3A9D5D', '#39B2D5']
+    }
+  },
+  watch: {
+    analysisId: function (n, o) {
+      if (n !== 0 || n !== o) {
+        this.getChart()
+      }
+    }
+  },
+  methods: {
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      if (parsed.length > 0) {
+        this.clusters = parsed
+        for (let i in parsed) {
+          let newobj = {}
+          newobj.label = 'Cluster ' + i
+          newobj.backgroundColor = this.colorArray[i]
+          newobj.data = []
+          for (let j of parsed[i].ideas) {
+            let ideaobj = {}
+            ideaobj.x = j.posx
+            ideaobj.y = j.posy
+            ideaobj.r = 5
+            ideaobj.label = j.idea
+            newobj.data.push(ideaobj)
+          }
+          this.renderDatasets.push(newobj)
         }
       }
-    )
+    },
+    getChart: function () {
+      Backend.getDocumentClustering(this.analysisId).then(
+        response => {
+          this.data = response.data.result
+          this.formatDataset()
+          this.renderChart({
+            datasets: this.renderDatasets
+          },
+            {
+              responsive: true,
+              maintainAspectRatio: false,
+              legend: {
+                display: false
+              },
+              scales: {
+                xAxes: [{
+                  gridLines: { display: false },
+                  scaleLabel: { display: false },
+                  ticks: { display: false }
+                }],
+                yAxes: [{
+                  gridLines: { display: false },
+                  scaleLabel: { display: false },
+                  ticks: { display: false }
+                }]
+              },
+              tooltips: {
+                callbacks: {
+                  label: function (tooltipItem, data) {
+                    let dataset = data.datasets[tooltipItem.datasetIndex]
+                    let object = dataset.data[tooltipItem.index]
+                    return `${truncate(object.label, 100)}`
+                  }
+                }
+              }
+            }
+          )
+        }
+      )
+    }
   }
 })
 

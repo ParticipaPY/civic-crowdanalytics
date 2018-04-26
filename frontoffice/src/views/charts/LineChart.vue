@@ -1,43 +1,86 @@
 <script>
 import { Line } from 'vue-chartjs'
+import {Backend} from '../../Backend'
+// import _ from 'lodash'
 
 export default Line.extend({
-  mounted () {
-    this.renderChart(
-      {
-        labels: ['Parking', 'Cars', 'Drive', 'People', 'Reduce', 'Road', 'Bike', 'Park', 'Buses', 'Walk', 'Avenue', 'Allow'],
-        datasets: [
-          {
-            label: 'Data One',
-            backgroundColor: '#3a9d5d',
-            borderColor: '#3a9d5d',
-            data: [80, 60, 56, 55, 43, 38, 33, 28, 20, 18, 17, 10],
-            fill: false,
-            lineTension: 0
-          }
-        ]
-      },
-      {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: false
-        },
-        scales: {
-          yAxes: [
+  components: {
+    Backend
+  },
+  props: {
+    analysisId: {type: Number, required: true}
+  },
+  data () {
+    return {
+      data: [],
+      labels: [],
+      labelData: []
+    }
+  },
+  watch: {
+    analysisId: function (n, o) {
+      if (n !== 0 || n !== o) {
+        this.getChart()
+      }
+    }
+  },
+  methods: {
+    getChart: function () {
+      Backend.getConceptExtraction(this.analysisId).then(
+        response => {
+          this.data = response.data.result
+          this.formatDataset(this.data)
+          this.renderChart(
             {
-              gridLines: {
-                display: true
+              labels: this.labels,
+              datasets: [
+                {
+                  label: 'Data One',
+                  backgroundColor: '#20a8d8',
+                  borderColor: '#20a8d8',
+                  data: this.labelData,
+                  fill: false,
+                  lineTension: 0
+                }
+              ]
+            },
+            {
+              responsive: true,
+              maintainAspectRatio: false,
+              legend: {
+                display: false
               },
-              scaleLabel: {
-                display: true,
-                labelString: 'Occurrences'
+              scales: {
+                yAxes: [
+                  {
+                    gridLines: {
+                      display: true
+                    },
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Occurrences'
+                    }
+                  }
+                ]
               }
             }
-          ]
+          )
+        }
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
+    },
+    formatDataset: function () {
+      let parsed = JSON.parse(this.data)
+      if (parsed.length > 0) {
+        for (let o of parsed) {
+          this.labels.push(o.concept)
+          this.labelData.push(o.occurrences)
         }
       }
-    )
+    }
   }
 })
 </script>

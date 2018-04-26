@@ -2,3 +2,17 @@ Django
 flake8
 mysqlclient
 pylint
+djangorestframework
+djangorestframework-jwt
+django-rest-swagger
+gunicorn
+django_mysql
+bs4
+pandas
+nltk
+textblob
+googletrans
+sklearn
+scipy
+django-cors-headers
+PyYAML

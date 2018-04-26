@@ -78,4 +78,11 @@
 @import "custom";
 
 // CrowdAnalytics Customizations
-@import "customizations/projects.scss";
+@import "customizations/main_components";
+@import "customizations/projects";
+@import "customizations/sentiment";
+@import "customizations/concept";
+@import "customizations/dashboard";
+@import "customizations/tabbedpanel";
+@import "customizations/login";
+@import "customizations/breadcrumbs";

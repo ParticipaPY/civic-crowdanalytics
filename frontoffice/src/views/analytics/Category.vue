@@ -47,49 +47,104 @@
                 <tr>
                   <th>Content</th>
                   <th>Main Category</th>
-                  <th>Subcategory 1</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Free public transportation</td>
-                  <td>public transit</td>
-                  <td>incentive to use public transit</td>
+                  <td>Music teaching program. People volunteering to teach about music. Why is needed? Music allows people to have creative freedom.</td>
+                  <td>Education & Training</td>
                 </tr>
                 <tr>
-                  <td>Enforce distracted driving laws</td>
-                  <td>private transit</td>
-                  <td>law enforcement</td>
+                  <td>Book clubs for kids, Bookstore for all. Book club for kids and community. Why is needed? To promote reading.</td>
+                  <td>Education & Training</td>
                 </tr>
                 <tr>
-                  <td>Protected bike lanes which only bikes and resident cars (with sticker) could access especially along midtwon to hanson way</td>
-                  <td>non-motor powered transit</td>
-                  <td>infrastructure for non-motor powered transit</td>
+                  <td>Summer youth program. Why is needed? Keep kids busy.</td>
+                  <td>Education & Training</td>
                 </tr>
                 <tr>
-                  <td>More protected bike-friendly streets and boulevards</td>
-                  <td>non-motor powered transit</td>
-                  <td>infrastructure for non-motor powered transit</td>
+                  <td>Funding school. More funding to the schools equipment. Why is needed? Some schools have really old equipment.</td>
+                  <td>Education & Training</td>
                 </tr>
                 <tr>
-                  <td>More bike friendly streets</td>                
-                  <td>non-motor powered transit</td>
-                  <td>infrastructure for non-motor powered transit</td>
+                  <td>Cleaning grounds, landscaping and enforcing cleaniness around Vallejo.</td>
+                  <td>City Infrastructure</td>
                 </tr>
                 <tr>
-                  <td>Safer crossing in busier streets like el camino and alma</td>                
-                  <td>non-motor powered transit</td>
-                  <td>infrastructure for non-motor powered transit</td>
+                  <td>Paint buildings, give us something to look at, fix infastrcuture, make Vallejo beautiful.</td>
+                  <td>City Infrastructure</td>
                 </tr>
                 <tr>
-                  <td>Safer bicycle parking near retail spaces</td>                
-                  <td>non-motor powered transit</td>
-                  <td>infrastructure for non-motor powered transit</td>
+                  <td>Fix potholes, better lighting, decent bar, keep golf course.</td>
+                  <td>City Infrastructure</td>
                 </tr>
                 <tr>
-                  <td>Safe ride sharing apps exclusively reserved to known community people</td>                
-                  <td>non-motor powered transit</td>
-                  <td>public transit</td>
+                  <td>New Street Lights. Remove and replace old street lights. Why is needed? Because the lights are damage.</td>
+                  <td>City Infrastructure</td>
+                </tr>
+                <tr>
+                  <td>Youth activities, paving potholes.</td>
+                  <td>Parks & Recreation</td>
+                </tr>
+                <tr>
+                  <td>Better parks and cheaper bus prices.</td>
+                  <td>Parks & Recreation</td>
+                </tr>
+                <tr>
+                  <td>More things to do in Vallejo.</td>
+                  <td>Parks & Recreation</td>
+                </tr>
+                <tr>
+                  <td>Public Kayak launch.</td>
+                  <td>Parks & Recreation</td>
+                </tr>
+                <tr>
+                  <td>Better neighborhood watch.</td>
+                  <td>Public Safety</td>
+                </tr>
+                <tr>
+                  <td>Reduce Gang activities in schools.</td>
+                  <td>Public Safety</td>
+                </tr>
+                <tr>
+                  <td>Double the police force.</td>
+                  <td>Public Safety</td>
+                </tr>
+                <tr>
+                  <td>Smoking ashtrays in front of establishments.</td>
+                  <td>Public Safety</td>
+                </tr>
+                <tr>
+                  <td>Childcare for library customers.</td>
+                  <td>Social Services</td>
+                </tr>
+                <tr>
+                  <td>A program to help homeless people eventually become independent.</td>
+                  <td>Social Services</td>
+                </tr>
+                <tr>
+                  <td>Improve senior center.</td>
+                  <td>Social Services</td>
+                </tr>
+                <tr>
+                  <td>Urban Farm, expand the pilot project.</td>
+                  <td>Social Services</td>
+                </tr>
+                <tr>
+                  <td>Better roads, more public art.</td>
+                  <td>Transportation</td>
+                </tr>
+                <tr>
+                  <td>More charging stations for electric vechicles and cheaper transit.</td>
+                  <td>Transportation</td>
+                </tr>
+                <tr>
+                  <td>Bike lanes, Bike Repair stations, bicycle racks, free bicycles for rent, Bicycle festival.</td>
+                  <td>Transportation</td>
+                </tr>
+                <tr>
+                  <td>City funded buses to improve transportation at late night hours.</td>
+                  <td>Transportation</td>
                 </tr>
               </tbody>
             </table>

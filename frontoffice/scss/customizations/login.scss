@@ -1,0 +1,36 @@
+.loginWrapper {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  .loginbox {
+    width: 20rem;
+    padding: 2.5rem 5rem;
+    background-color: #F3F3F3;
+    border: 1px solid #CCC;
+    box-sizing: content-box;
+    box-shadow: 1px 1px 3px #DDD inset;
+    span.titleLogo {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      display: block;
+    }
+    input {
+      display: block;
+      width: 100%;
+      margin-top: -0.2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      &:read-only {
+        background-color: #EFEFEF;
+      }
+    }
+    button {
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      width: 10rem;
+    }
+  }
+}

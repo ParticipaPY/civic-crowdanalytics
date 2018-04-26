@@ -1,0 +1,39 @@
+Sentiment Analysis experiments with NLTK library for Python
+
+About the testing data set: The testing data set (858 ideas from Vallejo's 2016 Participatory Budget) was tagged in 5 categories: Positive, Neutral Positive, Neutral, Neutral Negative, and Negative, but the sentiment analysis function only return 3 possible values, so people who tagged the ideas were encouraged to avoid using Neutral Negative and Neutral Positive if possible. All tests were run twice: the first time analyzing only the ideas tagged as Positive, Negative and Neutral, and a second time converting Neutral Positive to Positive and Neutral Negative to Negative.
+Accuracy on all testes decreased using the latter technique so the results shown here were obtained using only the contributions tagged as Positive (122), Neutral(326) and Negative (109). 
+
+NLTK contains the VADER (Valence Aware Dictionary and sEntiment Reasoner) Sentiment Analyzer.
+It is a lexicon and rule-based sentiment analysis tool specifically created for working with messy social media texts.
+
+The classification results from VADER consists of 4 values: Neu, Neg, Pos and Compound. The first 3 values represent the sentiment score for each sentiment, and the last one ranges from -1 (Extremely Negative) to 1 (Extremely Positive). I used this value to determine a contribution's sentiment polarity.
+
+I divided the score range [-1, 1] into three different sections, one for each kind of sentiment:
+1- [-1, n) for the Negative interval
+2- [n, m]  for the Neutral interval
+3- (m, 1]  for the Positive interval
+where -1<m,n<1
+
+I tried with different width values and positions for the Neutral inteval (that is, different values of m an n) to determine which one offered the best accuracy.
+The width of the Neutral interval increased from one third of the [-1,1] interval, up to 75 percent of it. And for each possible width, it was centered from -0.5 to 0.5, moving 0.1 each time.
+
+The best accuracy for all sentiments was 63,9% using (-0.3, 0.9) as the Neutral interval.
+For each sentiment however, the best accuracy had different values depending on the sentiment:
+ - best accuracy for negative sentiment = 77.0 %. Neutral interval= (0.167, 0.833)
+ - best accuracy for neutral sentiment  = 97.5 %. Neutral interval= (-0.45, 1)
+ - best accuracy for positive sentiment = 96.7 %. Neutral interval= (-0.833, -0.167)
+
+
+TextBlob Sentiment Analyzer. 
+
+TextBlob is another NLP library for python that is built upon NLTK. It has a simpler and more accessible api and also includes sentiment analyzers.
+I repeated the experiment made with NLTK VADER but this time using TextBlob sentiment analyzer. It also returns a polarity value that ranges from -1 to 1.
+
+The best accuracy values using this TextBlob were:
+
+ - best accuracy for all sentiments was 60,7%. Neutral interval= (-0.2, 0.8)
+ - best accuracy for negative sentiment = 79.8 %. Neutral interval= (0.167, 0.833)
+ - best accuracy for neutral sentiment  = 99.7 %. Neutral interval= (-0.6, 0.8)
+ - best accuracy for positive sentiment = 98.4 %. Neutral interval= (-0.833, -0.167)
+
+Overall accuracy decreased approximately 3% with TextBlob's Sentiment Analyzer even though values for individual sentiments increased.
