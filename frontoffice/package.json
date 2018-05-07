@@ -22,6 +22,7 @@
     "lodash": "^4.17.4",
     "papaparse": "^4.3.6",
     "vue": ">= 2.3.3",
+    "vue-breadcrumbs": "^1.1.2",
     "vue-chartjs": ">= 2.6.3",
     "vue-good-table": "^1.19.1",
     "vue-read-more": "^1.1.0",

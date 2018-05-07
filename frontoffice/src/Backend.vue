@@ -10,6 +10,7 @@
   export const Backend = axios.create({
     baseURL: base,
     headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
       Accept: 'application/json'
     }
   })
@@ -60,7 +61,7 @@
   }
 
   Backend.getProjectSummary = function (projectId) {
-    return this.get('/projects/' + projectId)
+    return this.get('/projects/' + projectId + '/')
   }
 
   Backend.postDataset = function (dataset, attributes) {
@@ -122,16 +123,16 @@
   }
 
   Backend.getSentimentAnalysis = function (id) {
-    return this.get('/analysis/sentiment-analysis/' + id)
+    return this.get('/analysis/sentiment-analysis/' + id + '/')
   }
   Backend.getConceptExtraction = function (id) {
-    return this.get('/analysis/concept-extraction/' + id)
+    return this.get('/analysis/concept-extraction/' + id + '/')
   }
   Backend.getDocumentClassification = function (id) {
-    return this.get('/analysis/doc-classification/' + id)
+    return this.get('/analysis/doc-classification/' + id + '/')
   }
   Backend.getDocumentClustering = function (id) {
-    return this.get('/analysis/doc-clustering/' + id)
+    return this.get('/analysis/doc-clustering/' + id + '/')
   }
 
 </script>
