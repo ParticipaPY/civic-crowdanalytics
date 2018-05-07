@@ -1963,7 +1963,7 @@ fieldset[disabled] a.btn {
   color: #20a8d8;
   background-color: transparent;
   background-image: none;
-  border-color: #20a8d8; }
+  border-color: #ad0c0c; }
   .btn-outline-primary:hover {
     color: #fff;
     background-color: #20a8d8;
@@ -2166,6 +2166,8 @@ tbody.collapse.show {
   border-bottom: 0.3em solid; }
 
 .dropdown-menu {
+  height: 163px !important;
+  width: 284px !important;
   position: absolute;
   top: 100%;
   left: 0;
@@ -2179,9 +2181,10 @@ tbody.collapse.show {
   color: #263238;
   text-align: left;
   list-style: none;
-  background-color: #fff;
+  background-color: #243036;
   background-clip: padding-box;
   border: 1px solid #cfd8dc; }
+
 
 .dropdown-divider {
   height: 0;
@@ -9518,7 +9521,7 @@ header.app-header .dropdown-toggle::after {
           font-family: 'FontAwesome';
           content: "\f077";
           float: right;
-          color: #3c3c3c; 
+          color: #3c3c3c;
           font-size: 1rem;
           margin-top: 1px;
         }
