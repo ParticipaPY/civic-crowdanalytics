@@ -19,6 +19,10 @@
   Backend.username = ''
   Backend.password = ''
 
+  Backend.UserData = function () {
+    return this.get(`${base}${'/users/'}`)
+  }
+
   Backend.login = function (u, p) {
     return axios.post(`${base}${'/auth/'}`, {username: u, password: p})
   }
