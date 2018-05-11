@@ -4,9 +4,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 slot="header" class="modal-title">
-          Title
-        </h3>
+        <slot name="header"></slot>
       </div>
       
       <div class="modal-body">
