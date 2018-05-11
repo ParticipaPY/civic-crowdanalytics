@@ -10,11 +10,14 @@
     <ul class="nav navbar-nav ml-auto">
       <dropdown size="nav">
         <span slot="button">
-          <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
+          <div style="cursor:pointer">
+            <img src="static/img/avatars/6.jpg" class="img-avatar" alt="avatar-user">
+            <i class="fa fa-caret-down" style="margin-right:10px"></i>
+          </div>
         </span>    
           <div slot="dropdown-menu" class="dropdown-menu dropdown-menu-right">
 
-            <div class="row" style="margin-left: 0px; margin-right: -25px;">
+            <div class="row" style="margin-left: 0px; margin-right: -25px; margin-bottom:10px">
 
               <div class="col-sm-7" >
 
@@ -22,24 +25,24 @@
                   <div style="color:white"><span style="display:block;text-overflow: ellipsis;width: 155px;overflow: hidden; white-space: nowrap;">{{ DisplayName () }}</span></div>
                 </div>
 
-                <div class="row" style="; margin-bottom: 5px; margin-left: 10px; margin-right: -25px;">
+                <div class="row" style="margin-bottom: 5px; margin-left: 10px; margin-right: -25px;">
                   <a style="color:silver  ; font-size: 13px">{{ DisplayUsername () }}</a>
                 </div>
               
               </div>
 
               <div class="col-sm-4" >
-                  <button @click="logout" type="button" class="btn btn-outline-primary" style="margin-top: 20px; margin-left: -10px;color:silver; font-size: 10px"><i class="fa fa-power-off" style="color:rgb(171,12,12); margin-right:5px"></i>LOGOUT</button>
+                <button @click="logout" type="button" class="btn btn-outline-danger" style="margin-top: 20px; margin-left: -10px;font-size: 10px"><i class="icon fa fa-power-off" style="color.hover: white; margin-right:5px"></i>LOGOUT</button>
               </div>
 
             </div>
 
-            <li class="dropdown-divider mb-2"></li>
+            <li class="dropdown-divider"></li>
 
-            <div class="row" style=" margin-left: 0px; margin-right: -25px; margin-top:11px;" >
+            <div class="row">
               <div class="col-lg-12 btn-group-vertical" >
-                  <button type="button" class="btn btn-outline-primary btn-block text-left" @click="openModal('0')" style="margin-left: -12px;font-size: 12px;border-color: transparent;color: silver;">My Profile</button>
-                  <button type="button" class="btn btn-outline-primary btn-block text-left" @click="openModal('1')" style="margin-left: -12px;margin-top: 5px;font-size: 12px;border-color: transparent;color: silver;">Settings</button>
+                  <button type="button" class="nav-item btn btn-outline-primary text-left" @click="openModal('0')" style="font-size: 13px; height:40px">My Profile</button>
+                  <button type="button" class="nav-item btn btn-outline-primary text-left" @click="openModal('1')" style="font-size: 13px; height:40px">Settings</button>
               </div>
             </div>
 
