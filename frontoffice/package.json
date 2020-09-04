@@ -25,7 +25,7 @@
     "line-navigator": "^2.1.6",
     "lodash": "^4.17.15",
     "nyc": "^14.1.1",
-    "papaparse": "^5.1.0",
+    "papaparse": "^5.2.0",
     "set-value": "^3.0.1",
     "update": "^0.7.4",
     "vue": "^2.6.10",
